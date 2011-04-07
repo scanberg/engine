@@ -72,3 +72,76 @@
 	"Material.h"
 	"Error.h"
 
+1302175410 source:c:\users\gespachelor\engine\entity.cpp
+	<GL/glew.h>
+	<GL/glfw.h>
+	<math.h>
+	<iostream>
+	"Entity.h"
+	"Mesh.h"
+	"Material.h"
+
+1302154008 c:\users\gespachelor\engine\entity.h
+	<vector>
+	"Mesh.h"
+	"Material.h"
+
+1302154008 c:\users\gespachelor\engine\mesh.h
+	<GL/glfw.h>
+
+1302175851 c:\users\gespachelor\engine\material.h
+	<GL/glfw.h>
+	<string>
+
+1302154008 source:c:\users\gespachelor\engine\error.cpp
+	<stdio.h>
+	"Error.h"
+
+1302154008 c:\users\gespachelor\engine\error.h
+
+1302182177 source:c:\users\gespachelor\engine\material.cpp
+	<GL/glew.h>
+	<string>
+	<cstring>
+	<fstream>
+	<iostream>
+	<stdio.h>
+	<stdlib.h>
+	"Material.h"
+	"Error.h"
+
+1302154008 source:c:\users\gespachelor\engine\mesh.cpp
+	<GL/glew.h>
+	<iostream>
+	<fstream>
+	<string>
+	<stdlib.h>
+	<math.h>
+	<GL/glfw.h>
+	"Mesh.h"
+
+1302186507 source:c:\users\gespachelor\engine\main.cpp
+	<GL/glew.h>
+	<GL/glfw.h>
+	<iostream>
+	<cstdio>
+	<math.h>
+	"Entity.h"
+	"AseReader.h"
+	"Material.h"
+	"Error.h"
+
+1302154008 c:\users\gespachelor\engine\asereader.h
+	<string>
+	"Mesh.h"
+
+1302154008 source:c:\users\gespachelor\engine\asereader.cpp
+	<iostream>
+	<fstream>
+	<string>
+	<cstring>
+	<cstdlib>
+	<vector>
+	<utility>
+	"AseReader.h"
+

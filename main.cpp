@@ -197,8 +197,8 @@ int main(int argc, char *argv[])
         handleResize();
         setupCamera();
 
-        // Update rotations.
-        object.SetRotation(0.0,0.0*t,30.0*t);
+        // Update object.
+        object.SetRotation(0.0,0.0,15.0*t);
 
         float vector4f[4]= {0.0f, -100.0f, 50.0f, 1.0f}; // Origin, in hom. coords
         glLightfv(GL_LIGHT0, GL_POSITION, vector4f); // Set light position
