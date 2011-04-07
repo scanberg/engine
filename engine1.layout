@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="default" />
+	<File name="Entity.cpp" open="1" top="0" tabpos="3">
+		<Cursor position="4272" topLine="158" />
+	</File>
+	<File name="Material.cpp" open="1" top="0" tabpos="2">
+		<Cursor position="7856" topLine="221" />
+	</File>
+	<File name="Material.h" open="1" top="0" tabpos="4">
+		<Cursor position="360" topLine="0" />
+	</File>
+	<File name="Mesh.cpp" open="1" top="0" tabpos="5">
+		<Cursor position="6389" topLine="205" />
+	</File>
+	<File name="main.cpp" open="1" top="1" tabpos="1">
+		<Cursor position="3833" topLine="188" />
+	</File>
+</CodeBlocks_layout_file>

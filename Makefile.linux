@@ -1,0 +1,38 @@
+# Project: engine1
+
+# MAC
+CPP  = g++
+CC   = gcc
+OBJ  = main.o Entity.o Mesh.o AseReader.o Material.o Error.o 
+LINKOBJ  = main.o Entity.o Mesh.o AseReader.o Material.o Error.o $(RES)
+LIBS =  -lglfw -lGL -lGLU  -lGLEW
+OPTS = -Wall -O3 -ffast-math
+RM = rm -f
+
+all: engine1 main.o Entity.o Mesh.o AseReader.o Material.o Error.o
+
+
+clean: 
+	${RM} $(OBJ) $(BIN)
+
+engine1: $(OBJ)
+	$(CPP) $(LINKOBJ) -o "engine1" $(LIBS) $(OPTS)
+
+main.o: main.cpp
+	$(CPP) -c main.cpp -o main.o $(OPTS)
+
+Entity.o: Entity.cpp
+	$(CPP) -c Entity.cpp -o Entity.o $(OPTS)
+
+Mesh.o: Mesh.cpp
+	$(CPP) -c Mesh.cpp -o Mesh.o $(OPTS)
+
+AseReader.o: AseReader.cpp
+	$(CPP) -c AseReader.cpp -o AseReader.o $(OPTS)
+
+Material.o: Material.cpp
+	$(CPP) -c Material.cpp -o Material.o $(OPTS)
+
+Error.o: Error.cpp
+	$(CPP) -c Error.cpp -o Error.o $(OPTS)
+
