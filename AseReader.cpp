@@ -211,39 +211,58 @@ int LoadAse(string filename, Mesh &mesh)
 					pos=s.find_first_not_of(" \t",pos+1);
 					sg = extract_singleint(s,pos);
 
-                    //Buggy
-
 					for(unsigned int i=0; i < vectex.size(); i++)
 					{
                         if (vectex.at(i).sg != sg && vectex.at(i).val == tempface.point[0])
                         {
+                            if (vectex.at(i).sg == 0)
+                            {
+                                vectex.at(i).sg = sg;
+                            }
+                            else
+                            {
                                 tempvertex.x = vectex.at(i).x;
                                 tempvertex.y = vectex.at(i).y;
                                 tempvertex.z = vectex.at(i).z;
                                 tempvertex.val = vectex.at(i).val;
-                                tempvertex.sg = vectex.at(i).sg;
+                                tempvertex.sg = sg;
                                 vectex.push_back(tempvertex);
                                 tempface.point[0] = vectex.size()-1;
+                            }
                         }
                         if (vectex.at(i).sg != sg && vectex.at(i).val == tempface.point[1])
                         {
+                            if (vectex.at(i).sg == 0)
+                            {
+                                vectex.at(i).sg = sg;
+                            }
+                            else
+                            {
                                 tempvertex.x = vectex.at(i).x;
                                 tempvertex.y = vectex.at(i).y;
                                 tempvertex.z = vectex.at(i).z;
                                 tempvertex.val = vectex.at(i).val;
-                                tempvertex.sg = vectex.at(i).sg;
+                                tempvertex.sg = sg;
                                 vectex.push_back(tempvertex);
                                 tempface.point[1] = vectex.size()-1;
+                            }
                         }
                         if (vectex.at(i).sg != sg && vectex.at(i).val == tempface.point[2])
                         {
+                            if (vectex.at(i).sg == 0)
+                            {
+                                vectex.at(i).sg = sg;
+                            }
+                            else
+                            {
                                 tempvertex.x = vectex.at(i).x;
                                 tempvertex.y = vectex.at(i).y;
                                 tempvertex.z = vectex.at(i).z;
                                 tempvertex.val = vectex.at(i).val;
-                                tempvertex.sg = vectex.at(i).sg;
+                                tempvertex.sg = sg;
                                 vectex.push_back(tempvertex);
                                 tempface.point[2] = vectex.size()-1;
+                            }
                         }
 					}
 
@@ -272,11 +291,11 @@ int LoadAse(string filename, Mesh &mesh)
 					pos=s.find_first_not_of(" \t",pos+1);
 					pos = (s.find_first_of(" \t",pos))+1;
 
-					cout<<"hej "<<s<<endl;
-					cout<<"pos "<<extract_vertexfloat(s,pos)<<endl;
+					//cout<<"hej "<<s<<endl;
+					//cout<<"pos "<<extract_vertexfloat(s,pos)<<endl;
 
 					MESH_TVERTLIST_U.push_back(extract_vertexfloat(s,pos));
-					cout<<"value "<<MESH_TVERTLIST_U.at(MESH_TVERTLIST_U.size()-1)<<endl;
+					//cout<<"value "<<MESH_TVERTLIST_U.at(MESH_TVERTLIST_U.size()-1)<<endl;
 					pos = (s.find_first_of(" \t",pos))+1;
 					MESH_TVERTLIST_V.push_back(extract_vertexfloat(s,pos));
 				}

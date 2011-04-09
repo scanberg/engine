@@ -13,6 +13,11 @@ typedef struct {
         unsigned int sg;
 }TVertex;
 
+typedef struct {
+        unsigned int point[3];
+        unsigned int sg;
+}TFace;
+
 int LoadAse(string filename, Mesh &mesh);
 
 #endif
