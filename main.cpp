@@ -10,11 +10,14 @@
 #include "AseReader.h"
 #include "Material.h"
 #include "Error.h"
+#include "float3.h"
+#include "Camera.h"
 
 using namespace std;
 
 double t0 = 0.0;
 float t = 0.0;
+float dt = 0.0;
 int frames = 0;
 char titlestring[200];
 GLuint textureID;
@@ -35,6 +38,7 @@ void showFPS()
         fps = (double)frames / (t-t0);
         sprintf(titlestring, "FPS: %.2f",fps);
         glfwSetWindowTitle(titlestring);
+        dt = t-t0;
         t0 = t;
         frames = 0;
     }
@@ -79,26 +83,6 @@ void setupCamera()
 
 }
 
-/*
- * supportsOpenGLVersion - make sure OpenGL version is recent enough.
- * (Function copied from NVidia's OpenGL developer documentation)
- */
-int supportsOpenGLVersion( int atLeastMajor, int atLeastMinor )
-{
-    const char *version;
-    int major, minor;
-    version = (const char *)glGetString( GL_VERSION );
-    if ( sscanf( version, "%d.%d", &major, &minor ) == 2 ) {
-        if ( major > atLeastMajor )
-            return 1;
-        if ( ( major == atLeastMajor ) && ( minor >= atLeastMinor ) )
-            return 1;
-    } else {
-        printError( "Malformed OpenGL version string", version );
-    }
-    return 0;
-}
-
 int init()
 {
     // Initialise GLFW
@@ -115,8 +99,9 @@ int init()
     GLenum err = glewInit();
     if (GLEW_OK != err)
     {
-      /* Problem: glewInit failed, something is seriously wrong. */
-      fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+        /* Problem: glewInit failed, something is seriously wrong. */
+        fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+        return 0;
     }
     fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
 
@@ -132,8 +117,9 @@ int init()
 int main(int argc, char *argv[])
 {
     int width, height;
-
     int running = GL_TRUE; // Main loop exits when this is set to GL_FALSE
+    float speed;
+    int mousebtn, lastmousebtn;
 
     //Did the init not succeed?
     if(!init())
@@ -142,12 +128,19 @@ int main(int argc, char *argv[])
         return 0;
     }
 
+    mousebtn = lastmousebtn = GLFW_RELEASE;
+
     // Enable back face culling and Z buffering
     glEnable(GL_CULL_FACE); // Cull away all back facing polygons
     glEnable(GL_DEPTH_TEST); // Use the Z buffer
 
+    fpsCamera camera;
+    //camera.rotate(90.0,0.0,0.0);
+
     Entity scene;
     StaticEntity object;
+
+    StaticEntity plane;
 
     Mesh model;
     LoadAse("media/box/box.ase",model);
@@ -156,10 +149,17 @@ int main(int argc, char *argv[])
     object.mesh=&model;
 
     Material mat;
-    LoadMaterial("media/material/rockwall/rockwall",mat);
+    mat = LoadMaterial("media/material/rockwall/rockwall");
 
     object.material=&mat;
-    LoadShader("shaders/vertex_parallax.glsl","shaders/fragment_parallax.glsl",mat);
+
+    Mesh planeMesh;
+    LoadAse("media/plane.ase",planeMesh);
+    planeMesh.CalculateNormals();
+    planeMesh.CreateBuffers();
+    plane.mesh=&planeMesh;
+    plane.material=&mat;
+
 
     /*
     for(unsigned int xx=0; xx<model.numVertices; xx++)
@@ -169,14 +169,24 @@ int main(int argc, char *argv[])
     }
     */
 
+    GLuint errorID = glGetError();
+    if(errorID != GL_NO_ERROR) {
+        printf("\nOpenGL error: %s\n", gluErrorString(errorID));
+        printf("Attempting to proceed anyway. Expect rendering errors or a crash.\n");
+    }
+
     GLint tex_units;
     glGetIntegerv(GL_MAX_TEXTURE_UNITS, &tex_units);
     cout<<"Max Texture units: "<<tex_units<<endl;
 
-    object.SetPosition(0.0,50.0,5.0);
     scene.AddChild(object);
+    scene.AddChild(plane);
 
     scene.SetPosition(0.0,0.0,0.0);
+    object.SetPosition(-5.0,50.0,5.0);
+
+    plane.SetPosition(0.0,100.0,-50.0);
+    plane.SetRotation(-90.0,0.0,0.0);
 
     glfwSwapInterval(0); // Do not wait for screen refresh between frames
 
@@ -186,6 +196,16 @@ int main(int argc, char *argv[])
         showFPS();
 
         t = (float)glfwGetTime();
+        speed=0.05*dt;
+
+        mousebtn=glfwGetMouseButton( GLFW_MOUSE_BUTTON_1 );
+
+        if(mousebtn == GLFW_PRESS)
+            glfwEnable( GLFW_MOUSE_CURSOR );
+
+        mousebtn=glfwGetMouseButton( GLFW_MOUSE_BUTTON_2 );
+        if(mousebtn == GLFW_PRESS)
+            glfwDisable( GLFW_MOUSE_CURSOR );
 
         glClearColor( 0.2f, 0.2f, 0.2f, 0.0f );
         // Clear the color buffer and the depth buffer.
@@ -194,14 +214,30 @@ int main(int argc, char *argv[])
         glfwGetWindowSize( &width, &height );
         if(height<1) height=1; // Safeguard against iconified/closed window
 
+        camera.update();
+
+        if(glfwGetKey('W'))
+            camera.move(0.0,0.0,speed);
+        if(glfwGetKey('S'))
+            camera.move(0.0,0.0,-speed);
+        if(glfwGetKey('A'))
+            camera.move(-speed,0.0,0.0);
+        if(glfwGetKey('D'))
+            camera.move(speed,0.0,0.0);
+
+
         handleResize();
-        setupCamera();
+
+        camera.setUp();
 
         // Update object.
         object.SetRotation(0.0,0.0,15.0*t);
 
         float vector4f[4]= {0.0f, -100.0f, 50.0f, 1.0f}; // Origin, in hom. coords
         glLightfv(GL_LIGHT0, GL_POSITION, vector4f); // Set light position
+
+        float ambient[4]= {0.3f, 0.3f, 0.3f, 1.0f}; // Origin, in hom. coords
+        glLightfv(GL_LIGHT0, GL_AMBIENT, ambient); // Set light position
 
         // Finally, draw the scene.
         scene.Draw();

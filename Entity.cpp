@@ -194,16 +194,20 @@ void StaticEntity::Draw()
         //The actual draw
 
         //Kolla egentligen vilka texturer som fanns mha. type och bind dessa.
+
         glActiveTexture( GL_TEXTURE0 );
         glBindTexture(GL_TEXTURE_2D, material->diffuseMap);
 
         glActiveTexture( GL_TEXTURE1 );
         glBindTexture(GL_TEXTURE_2D, material->normalMap);
 
-        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, material->diffuse);
-        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, material->ambient);
-        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, material->specular);
-        glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, material->shininess);
+        glActiveTexture( GL_TEXTURE2 );
+        glBindTexture(GL_TEXTURE_2D, material->heightMap);
+
+        glMaterialfv(GL_FRONT, GL_DIFFUSE, material->diffuse);
+        glMaterialfv(GL_FRONT, GL_AMBIENT, material->ambient);
+        glMaterialfv(GL_FRONT, GL_SPECULAR, material->specular);
+        glMaterialfv(GL_FRONT, GL_SHININESS, material->shininess);
 
         setUniformVariables(material->shader,0,1,2,mesh->tangent);
 

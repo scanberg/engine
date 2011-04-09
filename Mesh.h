@@ -64,8 +64,8 @@ public:
     pSharedFaces sharedFaces;
     pVector3f tangent;
 
-    GLuint vBuffer;
-    GLuint iBuffer;
+    GLuint vBufferID;
+    GLuint iBufferID;
 
     unsigned int numVertices;
     unsigned int numFaces;

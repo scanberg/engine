@@ -1,12 +1,13 @@
 varying vec3 lightVec; 
 varying vec3 viewVec;
 varying vec2 texCoord;
+
 attribute vec3 tangent;         
 	
 void main(void)
 {
 	gl_Position = ftransform();
-	texCoord = gl_MultiTexCoord0.xy*vec2(1.0, 1.0);
+	texCoord = gl_MultiTexCoord0.xy;
 		
 	vec3 n = normalize(gl_NormalMatrix * gl_Normal);
 	vec3 t = normalize(gl_NormalMatrix * tangent);

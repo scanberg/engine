@@ -12,84 +12,181 @@
 
 using namespace std;
 
-bool FileExists(string strFilename);
-
-void LoadMaterial(string s, Material &mat)
+Material::Material()
 {
+    //Tilldela standardvärden
+    setAmbient(1.0);
+    setDiffuse(1.0);
+    setSpecular(0.2);
+    setShininess(50.0);
+}
+
+void Material::setAmbient(float f) { setAmbient(f,f,f); }
+
+void Material::setAmbient(float r, float g, float b)
+{
+    this->ambient[0]=r;
+    this->ambient[1]=g;
+    this->ambient[2]=b;
+}
+
+void Material::setDiffuse(float f) { setDiffuse(f,f,f); }
+
+void Material::setDiffuse(float r, float g, float b)
+{
+    this->diffuse[0]=r;
+    this->diffuse[1]=g;
+    this->diffuse[2]=b;
+}
+
+void Material::setSpecular(float f) { setSpecular(f,f,f); }
+
+void Material::setSpecular(float r, float g, float b)
+{
+    this->specular[0]=r;
+    this->specular[1]=g;
+    this->specular[2]=b;
+}
+
+void Material::setShininess(float f)
+{
+    this->shininess[0]=f;
+}
+
+bool FileExists(string strFilename);
+GLFWimage mergeNormalAndHeight(string s);
+GLuint createShader( const char *vertfilename, const char *fragfilename );
+
+Material LoadMaterial(string s)
+{
+    Material mat;
+
     //Sätt materialets typ till none, i fallet då ingen textur hittas för materialet.
-    mat.type = NONE;
+    mat.type = TEX_NONE;
+
     if(FileExists(s+"_diffuse.tga"))
     {
-        cout<<"HEJ"<<endl;
-        glEnable(GL_TEXTURE_2D); // Enable texturing
         glGenTextures(1, &mat.diffuseMap); // Generate 1 unique texture IDs to use
-        glBindTexture(GL_TEXTURE_2D, mat.diffuseMap); // Activate first texture
+        glBindTexture(GL_TEXTURE_2D, mat.diffuseMap); // Activate texture
         glfwLoadTexture2D((s+"_diffuse.tga").c_str(), GLFW_BUILD_MIPMAPS_BIT); // Load image
 
-        // when texture area is small, bilinear filter the closest mipmap
-        //glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST );
-        // when texture area is large, bilinear filter the original
-        //glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR );
-
         // Specify trilinear interpolation
-        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
-        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR );
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR ); // GL_LINEAR_MIPMAP_NEAREST, bilinear
+        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 
 
-        mat.type=DIFF;
+        mat.type+=TEX_DIFFUSE;
     }
+
     if(FileExists(s+"_specular.tga"))
     {
-        glEnable(GL_TEXTURE_2D); // Enable texturing
+
         glGenTextures(1, &mat.specularMap); // Generate 1 unique texture IDs to use
         glBindTexture(GL_TEXTURE_2D, mat.specularMap); // Activate first texture
 
         //SKALL MIPMAPS ANVÄNDAS??
-        glfwLoadTexture2D((s+"_specular.tga").c_str(),GLFW_ALPHA_BITS); // Load image
-        mat.type=DIFF_SPEC;
+        glfwLoadTexture2D((s+"_specular.tga").c_str(),GLFW_BUILD_MIPMAPS_BIT); // Load image
+        mat.type+=TEX_SPECULAR;
     }
+
     if(FileExists(s+"_normal.tga"))
     {
-        glEnable(GL_TEXTURE_2D); // Enable texturing
+
         glGenTextures(1, &mat.normalMap); // Generate 1 unique texture IDs to use
-        glBindTexture(GL_TEXTURE_2D, mat.normalMap); // Activate first texture
+        glBindTexture(GL_TEXTURE_2D, mat.normalMap); // Activate texture
 
-        //SKALL MIPMAPS ANVÄNDAS??
-        glfwLoadTexture2D((s+"_normal.tga").c_str(), GLFW_BUILD_MIPMAPS_BIT); // Load image
+        //Finns en heightmap så släng in den i alpha-kanalen, RGBA
+        if(FileExists(s+"_height.tga"))
+        {
+            GLFWimage merged;
+            merged = mergeNormalAndHeight(s);
+            glfwLoadTextureImage2D(&merged, GLFW_BUILD_MIPMAPS_BIT);
+            glfwFreeImage(&merged);
+            mat.type+=TEX_HEIGHT;
+        }
+        else
+        {
+            glfwLoadTexture2D((s+"_normal.tga").c_str(), GLFW_BUILD_MIPMAPS_BIT); // Load image
+        }
 
         // Specify trilinear interpolation
         glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
-        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR );
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 
-        mat.type=DIFF_SPEC_NORM;
+        mat.type+=TEX_NORMAL;
     }
-    if(FileExists(s+"_height.tga"))
+
+
+
+    //Ladda rätt shader beroende på vilka texturer som hittades.
+    switch(mat.type)
     {
-        glEnable(GL_TEXTURE_2D); // Enable texturing
-        glGenTextures(1, &mat.heightMap); // Generate 1 unique texture IDs to use
-        glBindTexture(GL_TEXTURE_2D, mat.heightMap); // Activate first texture
+        case TEX_DIFFUSE:
+            mat.shader = createShader( "shaders/vertex_diffuse.glsl", "shaders/fragment_diffuse.glsl" );
+            break;
 
-        //SKALL MIPMAPS ANVÄNDAS??
-        glfwLoadTexture2D((s+"height.tga").c_str(), GLFW_ALPHA_BITS); // Load image
+        case TEX_DIFFUSE+TEX_NORMAL:
+            mat.shader = createShader( "shaders/vertex_bump.glsl", "shaders/fragment_bump.glsl" );
+            break;
 
-        // Specify trilinear interpolation
-        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
-        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR );
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+        case TEX_DIFFUSE+TEX_NORMAL+TEX_HEIGHT:
+            mat.shader = createShader( "shaders/vertex_parallax.glsl", "shaders/fragment_parallax.glsl" );
+            break;
 
-        mat.type=DIFF_SPEC_NORM_HEIGHT;
+        case TEX_DIFFUSE+TEX_NORMAL+TEX_HEIGHT+TEX_SPECULAR:
+            mat.shader = createShader( "shaders/vertex_parallax_spec.glsl", "shaders/fragment_parallax_spec.glsl" );
+            break;
+
+        default:
+            mat.shader = createShader( "shaders/vertex_diffuse.glsl", "shaders/fragment_diffuse.glsl" );
     }
 
-    //Tilldela standardvärden
-    mat.ambient[0]=mat.ambient[1]=mat.ambient[2] = 0.1;
-    mat.diffuse[0]=mat.diffuse[1]=mat.diffuse[2] = 1.0;
-    mat.specular[0]=mat.specular[1]=mat.specular[2] = 0.5;
-    mat.shininess[0] = 50.0;
+    return mat;
+}
+
+/*
+    *** mergeNormalAndHeight ***
+
+    Slår samman Normal och Height -map.
+    Normal fyller RGB kanalerna och Height lagras i A kanalen.
+
+    TODO:
+    Kontrollera så att Width och Height är lika för normal och height.
+*/
+GLFWimage mergeNormalAndHeight(string s)
+{
+    GLFWimage img;
+    GLFWimage normImg;
+    GLFWimage heightImg;
+
+    glfwReadImage((s+"_normal.tga").c_str(), &normImg, 0); //GLFW_NO_RESCALE_BIT
+
+    glfwReadImage((s+"_height.tga").c_str(), &heightImg, 0);
+
+    unsigned char *rgbaData = new unsigned char[normImg.Width * normImg.Height * 4];
+
+    for(int i=0; i<(normImg.Width * normImg.Height); i++)
+    {
+        rgbaData[4*i]   = normImg.Data[3*i];    //R
+        rgbaData[4*i+1] = normImg.Data[3*i+1];  //G
+        rgbaData[4*i+2] = normImg.Data[3*i+2];  //B
+        rgbaData[4*i+3] = heightImg.Data[i];  //A
+    }
+
+    img.Format = GL_RGBA;
+    img.BytesPerPixel = 4;
+    img.Width = normImg.Width;
+    img.Height = normImg.Height;
+    img.Data = rgbaData;
+
+    glfwFreeImage(&heightImg);
+    glfwFreeImage(&normImg);
+
+    return img;
 }
 
 //TAGEN FRÅN http://www.gamedev.net/topic/211918-determining-if-a-file-exists-c/
@@ -211,11 +308,11 @@ GLuint createShader( const char *vertfilename, const char *fragfilename ) {
 }
 
  void setUniformVariables( GLuint programObj,
-			   int diff, int norm, int height, const GLvoid* tangentPointer) {
+			   int diff, int norm, int spec, const GLvoid* tangentPointer) {
 
     GLint location_diff = -1;
     GLint location_norm = -1;
-    GLint location_height = -1;
+    GLint location_spec = -1;
     GLint location_tang = -1;
 
     // Activate the shader to set its state
@@ -230,9 +327,9 @@ GLuint createShader( const char *vertfilename, const char *fragfilename ) {
         if(location_norm != -1)
             glUniform1i( location_norm, norm );
 
-        location_norm = glGetUniformLocation( programObj, "heightMap" );
-        if(location_height != -1)
-            glUniform1i( location_height, height );
+        location_spec = glGetUniformLocation( programObj, "specularMap" );
+        if(location_spec != -1)
+            glUniform1i( location_spec, spec );
 
         location_tang = glGetAttribLocation(programObj, "tangent");
         if(location_tang != -1)
@@ -243,9 +340,4 @@ GLuint createShader( const char *vertfilename, const char *fragfilename ) {
 
     // Deactivate the shader again
     glUseProgram( 0 );
-}
-
-void LoadShader(std::string svertex, std::string sfragment, Material &mat)
-{
-    mat.shader = createShader(svertex.c_str(), sfragment.c_str());
 }

@@ -7,10 +7,16 @@
 /*
 Defaultstrukturen för ett material
 */
-enum M_TYPE { NONE, DIFF, DIFF_SPEC, DIFF_SPEC_NORM, DIFF_SPEC_NORM_HEIGHT };
+const short TEX_NONE        = 0;
+const short TEX_DIFFUSE     = 1;
+const short TEX_NORMAL      = 2;
+const short TEX_HEIGHT      = 4;
+const short TEX_SPECULAR    = 8;
 
-typedef struct {
-    M_TYPE type;
+class Material
+{
+public:
+    short type;
     GLuint diffuseMap;
     GLuint normalMap;
     GLuint heightMap;
@@ -21,10 +27,23 @@ typedef struct {
     GLfloat diffuse[3];
     GLfloat specular[3];
     GLfloat shininess[1];
-}Material;
 
+    Material();
+
+    void setAmbient(float f);
+    void setAmbient(float r, float g, float b);
+
+    void setDiffuse(float f);
+    void setDiffuse(float r, float g, float b);
+
+    void setSpecular(float f);
+    void setSpecular(float r, float g, float b);
+
+    void setShininess(float f);
+};
+
+Material LoadMaterial(std::string s);
 void LoadMaterial(std::string s, Material &mat);
-void LoadShader(std::string svertex, std::string sfragment, Material &mat);
 void setUniformVariables( GLuint programObj,
 			   int diff, int norm, int height, const GLvoid* tangentPointer);
 

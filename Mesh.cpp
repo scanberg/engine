@@ -169,17 +169,18 @@ void Mesh::CreateBuffers()
     int   *iarray;
     fillBuffers(&varray,&iarray,this);
 
-    glGenBuffers(1, &vBuffer);
-    glGenBuffers(1, &iBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vBuffer);
+    glGenBuffers(1, &vBufferID);
+    glGenBuffers(1, &iBufferID);
+
+    cout<<"vBuffer: "<<vBufferID<<endl;
+    cout<<"iBuffer: "<<iBufferID<<endl;
+
+    glBindBuffer(GL_ARRAY_BUFFER, vBufferID);
     glBufferData(GL_ARRAY_BUFFER, this->numVertices*8*sizeof(float), varray, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iBuffer);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iBufferID);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->numFaces*3*sizeof(int), iarray, GL_STATIC_DRAW);
-    GLuint errorID = glGetError();
-    if(errorID != GL_NO_ERROR) {
-        printf("OpenGL error: %s\n", gluErrorString(errorID));
-        printf("Attempting to proceed anyway. Expect rendering errors or a crash.\n");
-    }
+
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
@@ -223,8 +224,8 @@ void fillBuffers(float **varray, int **iarray, Mesh* mesh)
 }
 void Mesh::Draw()
 {
-    glBindBuffer(GL_ARRAY_BUFFER, this->vBuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->iBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, this->vBufferID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->iBufferID);
 
     glInterleavedArrays(GL_T2F_N3F_V3F, 0, (GLubyte*)NULL);
     glDrawElements(GL_TRIANGLES, 3*this->numFaces, GL_UNSIGNED_INT, (GLubyte*)NULL);

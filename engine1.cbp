@@ -23,6 +23,8 @@
 		</Linker>
 		<Unit filename="AseReader.cpp" />
 		<Unit filename="AseReader.h" />
+		<Unit filename="Camera.cpp" />
+		<Unit filename="Camera.h" />
 		<Unit filename="Entity.cpp" />
 		<Unit filename="Entity.h" />
 		<Unit filename="Error.cpp" />
@@ -31,6 +33,8 @@
 		<Unit filename="Material.h" />
 		<Unit filename="Mesh.cpp" />
 		<Unit filename="Mesh.h" />
+		<Unit filename="float3.cpp" />
+		<Unit filename="float3.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />
