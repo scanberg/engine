@@ -10,7 +10,7 @@
   *SCENE_AMBIENT_STATIC 0.0431 0.0431 0.0431
 }
 *MATERIAL_LIST {
-  *MATERIAL_COUNT 3
+  *MATERIAL_COUNT 2
   *MATERIAL 0 {
     *MATERIAL_NAME "Material01"
     *MATERIAL_CLASS "Standard"
@@ -31,7 +31,7 @@
       *MAP_CLASS "Bitmap"
       *MAP_SUBNO 1
       *MAP_AMOUNT 1.0000
-      *BITMAP "AzStatC.bmp"
+      *BITMAP "media/material/rockwall/rockwall"
       *MAP_TYPE Screen
       *UVW_U_OFFSET 0.0000
       *UVW_V_OFFSET 0.0000
@@ -67,7 +67,7 @@
       *MAP_CLASS "Bitmap"
       *MAP_SUBNO 1
       *MAP_AMOUNT 1.0000
-      *BITMAP "C:\Users\Gespachelor\Documents\My Dropbox\cpp\boxes\-0AzDirt.bmp"
+      *BITMAP "media/box/box"
       *MAP_TYPE Screen
       *UVW_U_OFFSET 0.0000
       *UVW_V_OFFSET 0.0000

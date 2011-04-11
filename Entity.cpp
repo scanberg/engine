@@ -10,6 +10,7 @@
 
 using std::cout;
 
+/* CREDS TO STEGU */
 void drawTexturedSphere(float r, int segs) {
   int i, j;
   float x, y, z, z1, z2, R, R1, R2;
@@ -114,9 +115,9 @@ void Entity::SetVisibility(bool b)
 {
     visible=b;
 }
-void Entity::SetName(char *c)
+void Entity::SetName(const string& s)
 {
-    name = c;
+    name = s;
 }
 
 int Entity::NumChildren()
@@ -144,6 +145,18 @@ void Entity::Draw()
 
         glPopMatrix();
     }
+}
+
+MeshEntity::MeshEntity()
+{
+    mesh=NULL;
+    material=NULL;
+}
+
+MeshEntity::~MeshEntity()
+{
+    delete mesh;
+    delete material;
 }
 
 void SphereEntity::Draw()
@@ -193,26 +206,31 @@ void StaticEntity::Draw()
 
         //The actual draw
 
-        //Kolla egentligen vilka texturer som fanns mha. type och bind dessa.
+        if(material != NULL)
+        {
+            glActiveTexture( GL_TEXTURE0 );
+            glBindTexture(GL_TEXTURE_2D, material->diffuseMap);
 
-        glActiveTexture( GL_TEXTURE0 );
-        glBindTexture(GL_TEXTURE_2D, material->diffuseMap);
+            glActiveTexture( GL_TEXTURE1 );
+            glBindTexture(GL_TEXTURE_2D, material->normalMap);
 
-        glActiveTexture( GL_TEXTURE1 );
-        glBindTexture(GL_TEXTURE_2D, material->normalMap);
+            glActiveTexture( GL_TEXTURE2 );
+            glBindTexture(GL_TEXTURE_2D, material->heightMap);
 
-        glActiveTexture( GL_TEXTURE2 );
-        glBindTexture(GL_TEXTURE_2D, material->heightMap);
+            glMaterialfv(GL_FRONT, GL_DIFFUSE, material->diffuse);
+            glMaterialfv(GL_FRONT, GL_AMBIENT, material->ambient);
+            glMaterialfv(GL_FRONT, GL_SPECULAR, material->specular);
+            glMaterialfv(GL_FRONT, GL_SHININESS, material->shininess);
 
-        glMaterialfv(GL_FRONT, GL_DIFFUSE, material->diffuse);
-        glMaterialfv(GL_FRONT, GL_AMBIENT, material->ambient);
-        glMaterialfv(GL_FRONT, GL_SPECULAR, material->specular);
-        glMaterialfv(GL_FRONT, GL_SHININESS, material->shininess);
+            setUniformVariables(material->shader,0,1,2,mesh->tangent);
 
-        setUniformVariables(material->shader,0,1,2,mesh->tangent);
+            glUseProgram( material->shader );
+        }
+        if(mesh != NULL)
+        {
+            mesh->draw();
+        }
 
-        glUseProgram( material->shader );
-        mesh->Draw();
         glUseProgram( 0 );
 
         glPopMatrix();

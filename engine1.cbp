@@ -33,8 +33,8 @@
 		<Unit filename="Material.h" />
 		<Unit filename="Mesh.cpp" />
 		<Unit filename="Mesh.h" />
-		<Unit filename="float3.cpp" />
-		<Unit filename="float3.h" />
+		<Unit filename="Vector3f.cpp" />
+		<Unit filename="Vector3f.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />

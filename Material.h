@@ -4,6 +4,8 @@
 #include <GL/glfw.h>
 #include <string>
 
+using std::string;
+
 /*
 Defaultstrukturen för ett material
 */
@@ -42,8 +44,9 @@ public:
     void setShininess(float f);
 };
 
-Material LoadMaterial(std::string s);
-void LoadMaterial(std::string s, Material &mat);
+Material LoadMaterial(const string& s);
+int LoadMaterial(const string& s, Material &mat);
+
 void setUniformVariables( GLuint programObj,
 			   int diff, int norm, int height, const GLvoid* tangentPointer);
 

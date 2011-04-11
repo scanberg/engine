@@ -9,18 +9,19 @@
 #include <math.h>
 #include <GL/glfw.h>
 #include "Mesh.h"
-//#include "Extensions.h"
+#include "Vector3f.h"
 
 using namespace std;
 
 //Hjälpfunktioner
 float toFloat(string s);
 int toInt(string s);
-void Normalize(Vector3f &v);
+void normalize(Vector3f &v);
+void normalize(float &x, float &y, float &z);
 void fillBuffers(float **varray, int **iarray, Mesh* mesh);
-void CalculateTangent(Vector3f &tangent,Vector3f v1, Vector3f v2, Vector2f st1, Vector2f st2);
+void calculateTangent(Vector3f &tangent,Vector3f v1, Vector3f v2, Vector2f st1, Vector2f st2);
 
-void Mesh::Init(unsigned int verts, unsigned int faces)
+void Mesh::init(unsigned int verts, unsigned int faces)
 {
     numVertices=verts;
     numFaces=faces;
@@ -29,7 +30,7 @@ void Mesh::Init(unsigned int verts, unsigned int faces)
     face = new Face[numFaces];
 }
 
-void Normalize(Vector3f &v)
+void normalize(Vector3f &v)
 {
     float length = sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
     if(length>0.0f)
@@ -41,7 +42,7 @@ void Normalize(Vector3f &v)
     }
 }
 
-void Normalize(float &x, float &y, float &z)
+void normalize(float &x, float &y, float &z)
 {
     float length = sqrt(x*x + y*y + z*z);
     if(length>0.0f)
@@ -53,13 +54,12 @@ void Normalize(float &x, float &y, float &z)
     }
 }
 
-Vector3f CreateVector(Vertex a, Vertex b)
+Vector3f createVector(const Vertex &a,const Vertex &b)
 {
     Vector3f v;
     v.x=b.x-a.x;
     v.y=b.y-a.y;
     v.z=b.z-a.z;
-
     return v;
 }
 
@@ -72,7 +72,7 @@ Vector3f VectorProduct(Vector3f a, Vector3f b)
     return n;
 }
 
-void Mesh::CalculateNormals()
+void Mesh::calculateNormals()
 {
     unsigned int sharedFaces[this->numVertices];
     unsigned int i;
@@ -88,9 +88,9 @@ void Mesh::CalculateNormals()
 
     for (i=0; i<this->numFaces; i++)
     {
-        a=CreateVector(vertex[face[i].point[0]],vertex[face[i].point[2]]);
-        b=CreateVector(vertex[face[i].point[0]],vertex[face[i].point[1]]);
-        normal=VectorProduct(b,a);
+        a=createVector(vertex[face[i].point[0]],vertex[face[i].point[2]]);
+        b=createVector(vertex[face[i].point[0]],vertex[face[i].point[1]]);
+        normal=cross(b,a);
 
         Vector2f st1, st2;
         st1.u = vertex[face[i].point[2]].u - vertex[face[i].point[0]].u;
@@ -99,9 +99,9 @@ void Mesh::CalculateNormals()
         st2.u = vertex[face[i].point[1]].u - vertex[face[i].point[0]].u;
         st2.v = vertex[face[i].point[1]].v - vertex[face[i].point[0]].v;
 
-        CalculateTangent(tang, a, b, st1, st2);
-        Normalize(normal);
-        Normalize(tang);
+        calculateTangent(tang, a, b, st1, st2);
+        normalize(normal);
+        normalize(tang);
 
         vertex[face[i].point[0]].nx += normal.x;
         vertex[face[i].point[0]].ny += normal.y;
@@ -147,23 +147,14 @@ void Mesh::CalculateNormals()
             tangent[i].z /= faces;
         }
 
-        Normalize(vertex[i].nx,vertex[i].ny,vertex[i].nz);
-        Normalize(tangent[i]);
+        normalize(vertex[i].nx,vertex[i].ny,vertex[i].nz);
+        normalize(tangent[i]);
     }
 
 }
 
-void CalculateTangent(Vector3f &tangent,Vector3f v1, Vector3f v2, Vector2f st1, Vector2f st2)
-{
-    float coef = 1.0/ (st1.u * st2.v - st2.u * st1.v);
-
-    tangent.x = coef * ((v1.x * st2.v)  + (v2.x * -st1.v));
-    tangent.y = coef * ((v1.y * st2.v)  + (v2.y * -st1.v));
-    tangent.z = coef * ((v1.z * st2.v)  + (v2.z * -st1.v));
-}
-
 // *CREDITS TO STEGU*
-void Mesh::CreateBuffers()
+void Mesh::createBuffers()
 {
     float *varray;
     int   *iarray;
@@ -171,9 +162,6 @@ void Mesh::CreateBuffers()
 
     glGenBuffers(1, &vBufferID);
     glGenBuffers(1, &iBufferID);
-
-    cout<<"vBuffer: "<<vBufferID<<endl;
-    cout<<"iBuffer: "<<iBufferID<<endl;
 
     glBindBuffer(GL_ARRAY_BUFFER, vBufferID);
     glBufferData(GL_ARRAY_BUFFER, this->numVertices*8*sizeof(float), varray, GL_STATIC_DRAW);
@@ -183,6 +171,27 @@ void Mesh::CreateBuffers()
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void Mesh::draw()
+{
+    glBindBuffer(GL_ARRAY_BUFFER, this->vBufferID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->iBufferID);
+
+    glInterleavedArrays(GL_T2F_N3F_V3F, 0, (GLubyte*)NULL);
+    glDrawElements(GL_TRIANGLES, 3*this->numFaces, GL_UNSIGNED_INT, (GLubyte*)NULL);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void calculateTangent(Vector3f &tangent,Vector3f v1, Vector3f v2, Vector2f st1, Vector2f st2)
+{
+    float coef = 1.0/ (st1.u * st2.v - st2.u * st1.v);
+
+    tangent.x = coef * ((v1.x * st2.v)  + (v2.x * -st1.v));
+    tangent.y = coef * ((v1.y * st2.v)  + (v2.y * -st1.v));
+    tangent.z = coef * ((v1.z * st2.v)  + (v2.z * -st1.v));
 }
 
 // *CREDITS TO STEGU*
@@ -203,7 +212,7 @@ void fillBuffers(float **varray, int **iarray, Mesh* mesh)
     (arr)[(i)*(stride)+6] = y; \
     (arr)[(i)*(stride)+7] = z
 
-    //Förmodligen använda struct direkt istället för setelment
+    //Förmodligen använda struct direkt istället för setelment för att stega igenom minnet
     for(i=0; i<mesh->numVertices; i++)
     {
         SETELEMENT(*varray, stride, i,
@@ -221,17 +230,6 @@ void fillBuffers(float **varray, int **iarray, Mesh* mesh)
         (*iarray)[3*i+2] = mesh->face[i].point[2];
     }
 
-}
-void Mesh::Draw()
-{
-    glBindBuffer(GL_ARRAY_BUFFER, this->vBufferID);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->iBufferID);
-
-    glInterleavedArrays(GL_T2F_N3F_V3F, 0, (GLubyte*)NULL);
-    glDrawElements(GL_TRIANGLES, 3*this->numFaces, GL_UNSIGNED_INT, (GLubyte*)NULL);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 float toFloat(string s)

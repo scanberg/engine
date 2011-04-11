@@ -2,6 +2,7 @@
 #define ASEREADER_H
 #include <string>
 #include "Mesh.h"
+#include "Entity.h"
 
 using std::string;
 
@@ -18,6 +19,7 @@ typedef struct {
         unsigned int sg;
 }TFace;
 
-int LoadAse(string filename, Mesh &mesh);
+int LoadAse(const string &filename, StaticEntity &entity);
+StaticEntity &LoadAse(const string &filename);
 
 #endif

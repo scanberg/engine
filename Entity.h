@@ -18,7 +18,7 @@ public:
     void SetPosition(float px, float py, float pz);
     void SetRotation(float rx, float ry, float rz);
     void SetVisibility(bool b);
-    void SetName(char *c);
+    void SetName(const string& s);
     int NumChildren();
     virtual void Draw();
 
@@ -27,7 +27,7 @@ public:
 
     int parentIndex;
 
-    char *name;
+    string name;
     bool visible;
     int numChildren;
     vector<Entity*> child;
@@ -48,6 +48,8 @@ public:
 class MeshEntity: public Entity
 {
 public:
+    MeshEntity();
+    ~MeshEntity();
     Mesh *mesh;
     Material *material;
 };

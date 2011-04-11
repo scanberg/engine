@@ -57,10 +57,8 @@ bool FileExists(string strFilename);
 GLFWimage mergeNormalAndHeight(string s);
 GLuint createShader( const char *vertfilename, const char *fragfilename );
 
-Material LoadMaterial(string s)
+int LoadMaterial(const string& s, Material& mat)
 {
-    Material mat;
-
     //Sätt materialets typ till none, i fallet då ingen textur hittas för materialet.
     mat.type = TEX_NONE;
 
@@ -120,8 +118,6 @@ Material LoadMaterial(string s)
         mat.type+=TEX_NORMAL;
     }
 
-
-
     //Ladda rätt shader beroende på vilka texturer som hittades.
     switch(mat.type)
     {
@@ -144,6 +140,14 @@ Material LoadMaterial(string s)
         default:
             mat.shader = createShader( "shaders/vertex_diffuse.glsl", "shaders/fragment_diffuse.glsl" );
     }
+    return 1;
+}
+
+Material LoadMaterial(const string& s)
+{
+    Material mat;
+
+    LoadMaterial(s,mat);
 
     return mat;
 }

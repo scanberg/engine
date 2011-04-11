@@ -26,17 +26,26 @@ void fpsCamera::setUp()
     glTranslated(-x,-y,-z); //translate the screen
 }
 
+void fpsCamera::setFollowMouse(bool b)
+{
+    followMouse=b;
+}
+
 void fpsCamera::update()
 {
-    lastmousex = mousex;
-    lastmousey = mousey;
 
-    glfwGetMousePos( &mousex, &mousey );
+        lastmousex = mousex;
+        lastmousey = mousey;
 
-    rz -= (lastmousex - mousex) * 0.5;
-    rx -= (lastmousey - mousey) * 0.5;
-    if ( rx < 179.5f ) rx = 179.5f;
-    if ( rx > 359.0f ) rx = 359.0f;
+        glfwGetMousePos( &mousex, &mousey );
+
+    if(followMouse)
+    {
+        rz -= (lastmousex - mousex) * 0.2f;
+        rx -= (lastmousey - mousey) * 0.2f;
+        if ( rx < 179.5f ) rx = 179.5f;
+        if ( rx > 359.0f ) rx = 359.0f;
+    }
 }
 
 void fpsCamera::position(float _x, float _y, float _z)
@@ -47,13 +56,10 @@ void fpsCamera::position(float _x, float _y, float _z)
 }
 void fpsCamera::move(float _x, float _y, float _z)
 {
-    float xrad = rx / 180 * 3.141592654f;
-    float yrad = ry / 180 * 3.141592654f;
     float zrad = rz / 180 * 3.141592654f;
 
     x += _z*float(sin(zrad)) + _x*float(cos(zrad));
     y += _z*float(cos(zrad)) - _x*float(sin(zrad));
-    //z -= _z*float(cos(xrad)) ;
 }
 void fpsCamera::rotate(float _rx, float _ry, float _rz)
 {

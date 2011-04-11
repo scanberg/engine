@@ -10,35 +10,30 @@
 #include "AseReader.h"
 #include "Material.h"
 #include "Error.h"
-#include "float3.h"
 #include "Camera.h"
 
 using namespace std;
 
-double t0 = 0.0;
-float t = 0.0;
-float dt = 0.0;
-int frames = 0;
 char titlestring[200];
-GLuint textureID;
 
 /*
  * Show the fps in the windowframe /Stegu
  */
 void showFPS()
 {
-
+    static double t0 = 0.0;
+    static int frames = 0;
     double t, fps;
 
     // Get current time
     t = glfwGetTime();  // Gets number of seconds since glfwInit()
     // If one second has passed, or if this is the very first frame
+
     if( (t-t0) > 1.0 || frames == 0 )
     {
         fps = (double)frames / (t-t0);
         sprintf(titlestring, "FPS: %.2f",fps);
         glfwSetWindowTitle(titlestring);
-        dt = t-t0;
         t0 = t;
         frames = 0;
     }
@@ -118,8 +113,11 @@ int main(int argc, char *argv[])
 {
     int width, height;
     int running = GL_TRUE; // Main loop exits when this is set to GL_FALSE
-    float speed;
+    float speed, xspeed, zspeed;
     int mousebtn, lastmousebtn;
+
+    float lastt=0.0;
+    float t, dt;
 
     //Did the init not succeed?
     if(!init())
@@ -135,29 +133,23 @@ int main(int argc, char *argv[])
     glEnable(GL_DEPTH_TEST); // Use the Z buffer
 
     fpsCamera camera;
-    //camera.rotate(90.0,0.0,0.0);
+    camera.rotate(-180.0,0.0,45.0);
 
     Entity scene;
+    scene.SetName("SCENE");
     StaticEntity object;
+    object.SetName("OBJECT");
 
     StaticEntity plane;
 
-    Mesh model;
-    LoadAse("media/box/box.ase",model);
-    model.CalculateNormals();
-    model.CreateBuffers();
-    object.mesh=&model;
+    LoadAse("media/box/boxes.ase",object);
 
     Material mat;
     mat = LoadMaterial("media/material/rockwall/rockwall");
 
-    object.material=&mat;
+    LoadAse("media/plane.ase",plane);
+    plane.SetName("OBJECT");
 
-    Mesh planeMesh;
-    LoadAse("media/plane.ase",planeMesh);
-    planeMesh.CalculateNormals();
-    planeMesh.CreateBuffers();
-    plane.mesh=&planeMesh;
     plane.material=&mat;
 
 
@@ -168,12 +160,6 @@ int main(int argc, char *argv[])
         cout<<"Vert "<<xx<<" :"<<"( "<<model.vertex[xx].nx<<", "<<model.vertex[xx].ny<<", "<<model.vertex[xx].nx<<" )"<<endl;
     }
     */
-
-    GLuint errorID = glGetError();
-    if(errorID != GL_NO_ERROR) {
-        printf("\nOpenGL error: %s\n", gluErrorString(errorID));
-        printf("Attempting to proceed anyway. Expect rendering errors or a crash.\n");
-    }
 
     GLint tex_units;
     glGetIntegerv(GL_MAX_TEXTURE_UNITS, &tex_units);
@@ -190,22 +176,37 @@ int main(int argc, char *argv[])
 
     glfwSwapInterval(0); // Do not wait for screen refresh between frames
 
+    GLuint errorID = glGetError();
+    if(errorID != GL_NO_ERROR) {
+        printf("\nOpenGL error: %s\n", gluErrorString(errorID));
+        printf("Attempting to proceed anyway. Expect rendering errors or a crash.\n");
+    }
+
     // Main loop
     while(running)
     {
         showFPS();
 
         t = (float)glfwGetTime();
-        speed=0.05*dt;
+        dt = t - lastt;
+        lastt = t;
+
+        speed=50.0*dt;
 
         mousebtn=glfwGetMouseButton( GLFW_MOUSE_BUTTON_1 );
 
         if(mousebtn == GLFW_PRESS)
+        {
             glfwEnable( GLFW_MOUSE_CURSOR );
+            camera.setFollowMouse(false);
+        }
 
         mousebtn=glfwGetMouseButton( GLFW_MOUSE_BUTTON_2 );
         if(mousebtn == GLFW_PRESS)
+        {
             glfwDisable( GLFW_MOUSE_CURSOR );
+            camera.setFollowMouse(true);
+        }
 
         glClearColor( 0.2f, 0.2f, 0.2f, 0.0f );
         // Clear the color buffer and the depth buffer.
@@ -216,15 +217,22 @@ int main(int argc, char *argv[])
 
         camera.update();
 
-        if(glfwGetKey('W'))
-            camera.move(0.0,0.0,speed);
-        if(glfwGetKey('S'))
-            camera.move(0.0,0.0,-speed);
-        if(glfwGetKey('A'))
-            camera.move(-speed,0.0,0.0);
-        if(glfwGetKey('D'))
-            camera.move(speed,0.0,0.0);
+        zspeed=0.0f;
+        xspeed=0.0f;
 
+        if(glfwGetKey('W'))
+            zspeed += 1.0f;
+        if(glfwGetKey('S'))
+            zspeed -= 1.0f;
+        if(glfwGetKey('A'))
+            xspeed -= 1.0f;
+        if(glfwGetKey('D'))
+            xspeed += 1.0f;
+
+        zspeed*=speed;
+        xspeed*=speed;
+
+        camera.move(xspeed,0.0,zspeed);
 
         handleResize();
 

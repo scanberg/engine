@@ -1,40 +1,43 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_layout_file>
 	<ActiveTarget name="default" />
-	<File name="AseReader.cpp" open="1" top="0" tabpos="9">
-		<Cursor position="6420" topLine="302" />
+	<File name="AseReader.cpp" open="1" top="1" tabpos="8">
+		<Cursor position="2374" topLine="72" />
 	</File>
-	<File name="AseReader.h" open="1" top="0" tabpos="10">
-		<Cursor position="329" topLine="0" />
+	<File name="AseReader.h" open="1" top="0" tabpos="7">
+		<Cursor position="469" topLine="0" />
 	</File>
-	<File name="Camera.cpp" open="1" top="1" tabpos="12">
-		<Cursor position="786" topLine="15" />
+	<File name="Camera.cpp" open="1" top="0" tabpos="9">
+		<Cursor position="1037" topLine="30" />
 	</File>
-	<File name="Camera.h" open="1" top="0" tabpos="11">
-		<Cursor position="77" topLine="0" />
+	<File name="Camera.h" open="1" top="0" tabpos="10">
+		<Cursor position="352" topLine="0" />
 	</File>
-	<File name="Entity.cpp" open="1" top="0" tabpos="2">
-		<Cursor position="5010" topLine="192" />
+	<File name="Entity.cpp" open="0" top="0" tabpos="2">
+		<Cursor position="212" topLine="66" />
+	</File>
+	<File name="Entity.h" open="1" top="0" tabpos="2">
+		<Cursor position="966" topLine="38" />
 	</File>
 	<File name="Material.cpp" open="1" top="0" tabpos="3">
-		<Cursor position="294" topLine="0" />
+		<Cursor position="4683" topLine="32" />
 	</File>
 	<File name="Material.h" open="1" top="0" tabpos="4">
-		<Cursor position="584" topLine="12" />
+		<Cursor position="968" topLine="23" />
 	</File>
 	<File name="Mesh.cpp" open="1" top="0" tabpos="5">
-		<Cursor position="601" topLine="211" />
+		<Cursor position="2479" topLine="69" />
 	</File>
-	<File name="Mesh.h" open="1" top="0" tabpos="8">
-		<Cursor position="315" topLine="6" />
+	<File name="Mesh.h" open="1" top="0" tabpos="6">
+		<Cursor position="968" topLine="38" />
 	</File>
-	<File name="float3.cpp" open="1" top="0" tabpos="7">
-		<Cursor position="856" topLine="0" />
+	<File name="Vector3f.cpp" open="1" top="0" tabpos="11">
+		<Cursor position="1871" topLine="68" />
 	</File>
-	<File name="float3.h" open="1" top="0" tabpos="6">
-		<Cursor position="125" topLine="0" />
+	<File name="Vector3f.h" open="1" top="0" tabpos="12">
+		<Cursor position="874" topLine="11" />
 	</File>
 	<File name="main.cpp" open="1" top="0" tabpos="1">
-		<Cursor position="5538" topLine="196" />
+		<Cursor position="3513" topLine="126" />
 	</File>
 </CodeBlocks_layout_file>
