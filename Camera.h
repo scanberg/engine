@@ -12,8 +12,8 @@ public:
     void setUp();
     void setFollowMouse(bool b);
     bool getFollowMouse(){return followMouse;};
-private:
     float x, y, z;
+private:
     float rx, ry, rz;
     int mousex, mousey, lastmousex, lastmousey;
     bool followMouse;

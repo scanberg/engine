@@ -21,12 +21,11 @@ void main (void)
 
 	float diffuse = max( dot(lVec, bump), 0.0 );
 
-
 	float specular = pow(clamp(dot(reflect(-vVec, bump), lVec), 0.0, 1.0), gl_FrontMaterial.shininess );
 	
 	vec4 vAmbient = gl_LightSource[0].ambient * gl_FrontMaterial.ambient;
 	vec4 vDiffuse = gl_LightSource[0].diffuse * gl_FrontMaterial.diffuse * diffuse;	
 	vec4 vSpecular = gl_LightSource[0].specular * gl_FrontMaterial.specular *specular;	
-	gl_FragColor = vAmbient*base + (vDiffuse*base + vSpecular);
+	gl_FragColor = (vAmbient*base + vDiffuse*base + vSpecular);
 
 }

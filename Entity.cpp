@@ -77,6 +77,7 @@ Entity::Entity()
     position.x=position.y=position.z=0.0;
     rotation=position;
     visible=true;
+    scale=1.0;
 }
 
 Entity::~Entity() {};
@@ -111,6 +112,7 @@ void Entity::SetRotation(float rx, float ry, float rz)
     rotation.y=ry;
     rotation.z=rz;
 }
+void Entity::SetScale(float s) { scale = s; }
 void Entity::SetVisibility(bool b)
 {
     visible=b;
@@ -129,12 +131,13 @@ void Entity::Draw()
 {
     if(visible)
     {
-
         glPushMatrix();
+
         glTranslatef(position.x, position.y, position.z);
         glRotatef(rotation.x, 1.0f, 0.0f, 0.0f);
         glRotatef(rotation.y, 0.0f, 1.0f, 0.0f);
         glRotatef(rotation.z, 0.0f, 0.0f, 1.0f);
+        glScalef(scale,scale,scale);
 
         cit=child.begin();
         while(cit!=child.end())
@@ -192,10 +195,12 @@ void StaticEntity::Draw()
     if(visible)
     {
         glPushMatrix();
+
         glTranslatef(position.x, position.y, position.z);
         glRotatef(rotation.x, 1.0f, 0.0f, 0.0f);
         glRotatef(rotation.y, 0.0f, 1.0f, 0.0f);
         glRotatef(rotation.z, 0.0f, 0.0f, 1.0f);
+        glScalef(scale,scale,scale);
 
         cit=child.begin();
         while(cit!=child.end())

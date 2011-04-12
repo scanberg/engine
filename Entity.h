@@ -17,6 +17,7 @@ public:
     void AddChild(Entity *obj);
     void SetPosition(float px, float py, float pz);
     void SetRotation(float rx, float ry, float rz);
+    void SetScale(float s);
     void SetVisibility(bool b);
     void SetName(const string& s);
     int NumChildren();
@@ -33,7 +34,9 @@ public:
     vector<Entity*> child;
     vector<Entity*>::const_iterator cit;
     Entity *parent;
+    float scale;
 private:
+
 };
 
 class SphereEntity: public Entity

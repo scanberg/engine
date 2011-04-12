@@ -109,6 +109,12 @@ int init()
     return 1;
 }
 
+void updateLighting(fpsCamera& camera)
+{
+    float vector4f[4]= {camera.x, camera.y, camera.z, 1.0f}; // Origin, in hom. coords
+    glLightfv(GL_LIGHT0, GL_POSITION, vector4f); // Set light position
+}
+
 int main(int argc, char *argv[])
 {
     int width, height;
@@ -135,22 +141,29 @@ int main(int argc, char *argv[])
     fpsCamera camera;
     camera.rotate(-180.0,0.0,45.0);
 
-    Entity scene;
+    Entity root;
+    root.SetName("ROOT");
+
+    StaticEntity scene;
+    StaticEntity beast;
+
     scene.SetName("SCENE");
-    StaticEntity object;
-    object.SetName("OBJECT");
 
-    StaticEntity plane;
+    LoadAse("media/testscene/testscene.ase",scene);
+    LoadAse("media/beast/beast.ase",beast);
 
-    LoadAse("media/box/boxes.ase",object);
+    root.AddChild(scene);
+    root.AddChild(beast);
 
-    Material mat;
-    mat = LoadMaterial("media/material/rockwall/rockwall");
+    root.SetPosition(0.0,0.0,0.0);
 
-    LoadAse("media/plane.ase",plane);
-    plane.SetName("OBJECT");
+    beast.SetPosition(-5.0,400.0,5.0);
+    beast.SetPosition(0.0,100.0,-50.0);
+    beast.SetRotation(0.0,0.0,-20.0);
 
-    plane.material=&mat;
+    scene.SetPosition(0.0,100.0,-50.0);
+    scene.SetRotation(0.0,0.0,-20.0);
+    scene.SetScale(10.0);
 
 
     /*
@@ -165,15 +178,6 @@ int main(int argc, char *argv[])
     glGetIntegerv(GL_MAX_TEXTURE_UNITS, &tex_units);
     cout<<"Max Texture units: "<<tex_units<<endl;
 
-    scene.AddChild(object);
-    scene.AddChild(plane);
-
-    scene.SetPosition(0.0,0.0,0.0);
-    object.SetPosition(-5.0,50.0,5.0);
-
-    plane.SetPosition(0.0,100.0,-50.0);
-    plane.SetRotation(-90.0,0.0,0.0);
-
     glfwSwapInterval(0); // Do not wait for screen refresh between frames
 
     GLuint errorID = glGetError();
@@ -181,6 +185,7 @@ int main(int argc, char *argv[])
         printf("\nOpenGL error: %s\n", gluErrorString(errorID));
         printf("Attempting to proceed anyway. Expect rendering errors or a crash.\n");
     }
+
 
     // Main loop
     while(running)
@@ -191,7 +196,7 @@ int main(int argc, char *argv[])
         dt = t - lastt;
         lastt = t;
 
-        speed=50.0*dt;
+        speed=100.0*dt;
 
         mousebtn=glfwGetMouseButton( GLFW_MOUSE_BUTTON_1 );
 
@@ -234,21 +239,14 @@ int main(int argc, char *argv[])
 
         camera.move(xspeed,0.0,zspeed);
 
+        updateLighting(camera);
+
         handleResize();
 
         camera.setUp();
 
-        // Update object.
-        object.SetRotation(0.0,0.0,15.0*t);
-
-        float vector4f[4]= {0.0f, -100.0f, 50.0f, 1.0f}; // Origin, in hom. coords
-        glLightfv(GL_LIGHT0, GL_POSITION, vector4f); // Set light position
-
-        float ambient[4]= {0.3f, 0.3f, 0.3f, 1.0f}; // Origin, in hom. coords
-        glLightfv(GL_LIGHT0, GL_AMBIENT, ambient); // Set light position
-
         // Finally, draw the scene.
-        scene.Draw();
+        root.Draw();
 
         // Swap buffers, i.e. display the image and prepare for next frame.
         glfwSwapBuffers();

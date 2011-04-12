@@ -30,6 +30,16 @@ void Mesh::init(unsigned int verts, unsigned int faces)
     face = new Face[numFaces];
 }
 
+void Mesh::scale(float s)
+{
+    for(unsigned int i=0; i<numVertices; i++)
+    {
+        vertex[i].x *= s;
+        vertex[i].y *= s;
+        vertex[i].z *= s;
+    }
+}
+
 void normalize(Vector3f &v)
 {
     float length = sqrt(v.x*v.x + v.y*v.y + v.z*v.z);

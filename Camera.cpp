@@ -33,7 +33,6 @@ void fpsCamera::setFollowMouse(bool b)
 
 void fpsCamera::update()
 {
-
         lastmousex = mousex;
         lastmousey = mousey;
 
