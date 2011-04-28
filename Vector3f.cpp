@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Vector3f.h"
 
 Vector3f::Vector3f()
@@ -10,6 +11,11 @@ Vector3f::Vector3f(float _x, float _y, float _z)
     x=_x;
     y=_y;
     z=_z;
+}
+
+float Vector3f::lengthSquared()
+{
+    return dot(*this,*this);
 }
 
 Vector3f operator+(const Vector3f &a, const Vector3f &b)
@@ -68,11 +74,36 @@ Vector3f operator / ( const Vector3f& v, float f )
     return temp;
 }
 
-Vector3f operator += (const Vector3f& v1, const Vector3f& v2)
+Vector3f& Vector3f::operator = (const Vector3f& v)
 {
-    Vector3f temp;
-    temp = v1+v2;
-    return temp;
+    x=v.x;
+    y=v.y;
+    z=v.z;
+    return *this;
+}
+
+Vector3f& Vector3f::operator += (const Vector3f& v)
+{
+   x += v.x;
+   y += v.y;
+   z += v.z;
+   return *this;
+}
+
+Vector3f& Vector3f::operator -= (const Vector3f& v)
+{
+   x -= v.x;
+   y -= v.y;
+   z -= v.z;
+   return *this;
+}
+
+Vector3f& Vector3f::operator *= (float val)
+{
+   x *= val;
+   y *= val;
+   z *= val;
+   return *this;
 }
 
 Vector3f cross(const Vector3f &v1, const Vector3f &v2)
@@ -92,7 +123,15 @@ float dot(const Vector3f &v1, const Vector3f &v2)
 Vector3f normalize(const Vector3f &v)
 {
     Vector3f u;
-    float oneOverLength = 1.0f/sqrt(dot(u,u));
-    u = v*oneOverLength;
-    return u;
+    float length = sqrt(dot(v,v));
+    if(length>0.0f)
+    {
+        u = v/length;
+        return u;
+    }
+    else
+    {
+        cout<<"DIVIDE BY ZERO!"<<endl;
+        return v;
+    }
 }

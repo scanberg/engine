@@ -11,6 +11,16 @@
 #include "Mesh.h"
 #include "Vector3f.h"
 
+#define SETELEMENT(arr, stride, i, u, v, nx, ny, nz, x, y, z) \
+    (arr)[(i)*(stride)] = u; \
+    (arr)[(i)*(stride)+1] = v; \
+    (arr)[(i)*(stride)+2] = nx; \
+    (arr)[(i)*(stride)+3] = ny; \
+    (arr)[(i)*(stride)+4] = nz; \
+    (arr)[(i)*(stride)+5] = x; \
+    (arr)[(i)*(stride)+6] = y; \
+    (arr)[(i)*(stride)+7] = z
+
 using namespace std;
 
 //Hjälpfunktioner
@@ -89,12 +99,21 @@ void Mesh::calculateNormals()
     float faces;
     Vector3f normal,tang, a, b;
 
+    center = Vector3f::zero();
+
     for (i=0; i<this->numVertices; i++)
     {
         vertex[i].nx=vertex[i].ny=vertex[i].nz=0.0;
         tangent[i].x=tangent[i].y=tangent[i].z=0.0;
         sharedFaces[i]=0;
+        center.x += vertex[i].x;
+        center.y += vertex[i].y;
+        center.z += vertex[i].z;
     }
+
+    center.x /= (float)numVertices;
+    center.y /= (float)numVertices;
+    center.z /= (float)numVertices;
 
     for (i=0; i<this->numFaces; i++)
     {
@@ -212,16 +231,6 @@ void fillBuffers(float **varray, int **iarray, Mesh* mesh)
     *varray = (float*)malloc(mesh->numVertices*sizeof(Vertex));
     *iarray = (int*)malloc(mesh->numFaces*sizeof(Face));
 
-#define SETELEMENT(arr, stride, i, u, v, nx, ny, nz, x, y, z) \
-    (arr)[(i)*(stride)] = u; \
-    (arr)[(i)*(stride)+1] = v; \
-    (arr)[(i)*(stride)+2] = nx; \
-    (arr)[(i)*(stride)+3] = ny; \
-    (arr)[(i)*(stride)+4] = nz; \
-    (arr)[(i)*(stride)+5] = x; \
-    (arr)[(i)*(stride)+6] = y; \
-    (arr)[(i)*(stride)+7] = z
-
     //Förmodligen använda struct direkt istället för setelment för att stega igenom minnet
     for(i=0; i<mesh->numVertices; i++)
     {
@@ -230,8 +239,6 @@ void fillBuffers(float **varray, int **iarray, Mesh* mesh)
                    mesh->vertex[i].nx, mesh->vertex[i].ny, mesh->vertex[i].nz,
                    mesh->vertex[i].x, mesh->vertex[i].y, mesh->vertex[i].z);
     }
-
-#undef SETELEMENT
 
     for(i=0; i<mesh->numFaces; i++)
     {

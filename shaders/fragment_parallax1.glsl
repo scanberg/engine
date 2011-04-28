@@ -7,7 +7,7 @@ uniform sampler2D normalMap;
 	
 void main (void)
 {
-	float totLight = 10000.0/dot(lightVec,lightVec);
+	float totLight = 20000.0/dot(lightVec,lightVec);
 	totLight = clamp(totLight,0.0,1.0);
 	totLight = 1.0;
 
@@ -16,9 +16,11 @@ void main (void)
 	vec3 vVec = normalize(viewVec);
 		
 	// Calculate offset, scale & biais
+	float height = texture2D(normalMap, texCoord).w; // Get the forth component in normalMap
+	vec2 newTexCoord = texCoord + ((height * 0.04 - 0.02) * (vVec.xy));
 		
-	vec4 base = texture2D(diffuseMap, texCoord);
-	vec3 bump = normalize(texture2D(normalMap, texCoord).xyz * 2.0 - 1.0);
+	vec4 base = texture2D(diffuseMap, newTexCoord);
+	vec3 bump = normalize(texture2D(normalMap, newTexCoord).xyz * 2.0 - 1.0);
 
 	float diffuse = max( dot(lVec, bump), 0.0 );
 
@@ -27,6 +29,6 @@ void main (void)
 	vec4 vAmbient = gl_LightSource[0].ambient * gl_FrontMaterial.ambient;
 	vec4 vDiffuse = gl_LightSource[0].diffuse * gl_FrontMaterial.diffuse * diffuse;	
 	vec4 vSpecular = gl_LightSource[0].specular * gl_FrontMaterial.specular *specular;	
-	gl_FragColor = totLight*(vAmbient*base + vDiffuse*base + vSpecular);
+	gl_FragColor = vAmbient*base + totLight*(vDiffuse*base + vSpecular);
 
 }

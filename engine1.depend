@@ -72,35 +72,45 @@
 	"Material.h"
 	"Error.h"
 
-1302637430 source:c:\users\gespachelor\engine\entity.cpp
+1304026053 source:c:\users\gespachelor\engine\entity.cpp
 	<GL/glew.h>
 	<GL/glfw.h>
 	<math.h>
 	<iostream>
+	<cstdio>
+	<cmath>
+	<set>
 	"Entity.h"
 	"Mesh.h"
 	"Material.h"
+	"SceneHandler.h"
 
-1302637275 c:\users\gespachelor\engine\entity.h
+1304017952 c:\users\gespachelor\engine\entity.h
 	<vector>
+	<Newton.h>
+	<JointLibrary.h>
 	"Mesh.h"
+	"Camera.h"
 	"Material.h"
+	"dMath\dMatrix.h"
+	"dMath\dVector.h"
+	"dMath\dQuaternion.h"
 
-1302427985 c:\users\gespachelor\engine\mesh.h
+1303824316 c:\users\gespachelor\engine\mesh.h
 	<GL/glfw.h>
 	"Vector3f.h"
 
-1302528371 c:\users\gespachelor\engine\material.h
+1303844762 c:\users\gespachelor\engine\material.h
 	<GL/glfw.h>
 	<string>
 
-1302154008 source:c:\users\gespachelor\engine\error.cpp
+1302154010 source:c:\users\gespachelor\engine\error.cpp
 	<stdio.h>
 	"Error.h"
 
-1302154008 c:\users\gespachelor\engine\error.h
+1302154010 c:\users\gespachelor\engine\error.h
 
-1302528286 source:c:\users\gespachelor\engine\material.cpp
+1303844768 source:c:\users\gespachelor\engine\material.cpp
 	<GL/glew.h>
 	<string>
 	<cstring>
@@ -111,7 +121,7 @@
 	"Material.h"
 	"Error.h"
 
-1302636962 source:c:\users\gespachelor\engine\mesh.cpp
+1303824376 source:c:\users\gespachelor\engine\mesh.cpp
 	<GL/glew.h>
 	<iostream>
 	<fstream>
@@ -122,7 +132,7 @@
 	"Mesh.h"
 	"Vector3f.h"
 
-1302639185 source:c:\users\gespachelor\engine\main.cpp
+1304025976 source:c:\users\gespachelor\engine\main.cpp
 	<GL/glew.h>
 	<GL/glfw.h>
 	<iostream>
@@ -133,13 +143,14 @@
 	"Material.h"
 	"Error.h"
 	"Camera.h"
+	"SceneHandler.h"
 
-1302524048 c:\users\gespachelor\engine\asereader.h
+1303302462 c:\users\gespachelor\engine\asereader.h
 	<string>
 	"Mesh.h"
 	"Entity.h"
 
-1302636755 source:c:\users\gespachelor\engine\asereader.cpp
+1304025921 source:c:\users\gespachelor\engine\asereader.cpp
 	<iostream>
 	<fstream>
 	<string>
@@ -157,12 +168,17 @@
 1302358699 c:\users\gespachelor\engine\float3.h
 	<math.h>
 
-1302639168 source:c:\users\gespachelor\engine\camera.cpp
+1303839240 source:c:\users\gespachelor\engine\camera.cpp
 	<GL/glfw.h>
 	<math.h>
+	<iostream>
 	"Camera.h"
+	"Vector3f.h"
 
-1302639212 c:\users\gespachelor\engine\camera.h
+1303642940 c:\users\gespachelor\engine\camera.h
+	"Vector3f.h"
+	<Newton.h>
+	<JointLibrary.h>
 
 1302379856 source:c:\users\gespachelor\engine\fpscamera.cpp
 	<GL/glfw.h>
@@ -171,9 +187,312 @@
 
 1302379867 c:\users\gespachelor\engine\fpscamera.h
 
-1302427926 c:\users\gespachelor\engine\vector3f.h
+1302788476 c:\users\gespachelor\engine\vector3f.h
 	<math.h>
 
-1302427469 source:c:\users\gespachelor\engine\vector3f.cpp
+1302788490 source:c:\users\gespachelor\engine\vector3f.cpp
+	<iostream>
 	"Vector3f.h"
+
+1303813504 source:c:\users\gespachelor\engine\engine.cpp
+	<GL/glew.h>
+	<GL/glfw.h>
+	<iostream>
+	<stdlib.h>
+	<cstdio>
+	<Newton.h>
+	<JointLibrary.h>
+	"Engine.h"
+	"Vector3f.h"
+	"Error.h"
+	"Entity.h"
+	"AseReader.h"
+	"Physics.h"
+	"dMath\dVector.h"
+	"dMath\dMatrix.h"
+	"dMath\dQuaternion.h"
+
+1303813141 c:\users\gespachelor\engine\engine.h
+	<vector>
+	"Entity.h"
+	"Light.h"
+	"dMath\dMathDefines.h"
+
+1303294710 c:\users\gespachelor\engine\dmath\dmatrix.h
+	"dVector.h"
+
+1298624770 c:\users\gespachelor\engine\dmath\dvector.h
+	"dMathDefines.h"
+
+1301545672 c:\users\gespachelor\engine\dmath\dmathdefines.h
+	<math.h>
+	<float.h>
+
+1303288090 c:\users\gespachelor\engine\dmath\dquaternion.h
+	"dVector.h"
+
+1298624770 source:c:\users\gespachelor\engine\dmath\dmathdefines.cpp
+	"dStdAfxMath.h"
+	"dMathDefines.h"
+	<stdio.h>
+
+1301545668 c:\users\gespachelor\engine\dmath\dstdafxmath.h
+	<windows.h>
+	<crtdbg.h>
+	<crtdbg.h>
+
+1301509154 source:c:\users\gespachelor\engine\dmath\dmatrix.cpp
+	"dStdAfxMath.h"
+	"dMathDefines.h"
+	"dVector.h"
+	"dMatrix.h"
+	"dQuaternion.h"
+
+1298624770 source:c:\users\gespachelor\engine\dmath\dquaternion.cpp
+	"dStdAfxMath.h"
+	"dMathDefines.h"
+	"dVector.h"
+	"dMatrix.h"
+	"dQuaternion.h"
+
+1298624770 source:c:\users\gespachelor\engine\dmath\dstdafxmath.cpp
+	"dStdAfxMath.h"
+
+1298624770 source:c:\users\gespachelor\engine\dmath\dvector.cpp
+	"dStdAfxMath.h"
+
+1303842222 c:\users\gespachelor\engine\light.h
+	<GL/glew.h>
+	<GL/glfw.h>
+	"dMath\dVector.h"
+
+1303937360 source:c:\users\gespachelor\engine\light.cpp
+	"Light.h"
+	<cstdio>
+
+1303813560 c:\users\gespachelor\engine\physics.h
+	<Newton.h>
+	"Entity.h"
+
+1303908780 source:c:\users\gespachelor\engine\physics.cpp
+	"Physics.h"
+	<GL/glfw.h>
+
+1304008575 c:\users\gespachelor\engine\scenehandler.h
+	<vector>
+	"Entity.h"
+	"Light.h"
+	"dMath\dMathDefines.h"
+
+1304026110 source:c:\users\gespachelor\engine\scenehandler.cpp
+	<GL/glew.h>
+	<GL/glfw.h>
+	<iostream>
+	<stdlib.h>
+	<cstdio>
+	<Newton.h>
+	<JointLibrary.h>
+	<windows.h>
+	"SceneHandler.h"
+	"Vector3f.h"
+	"Error.h"
+	"Entity.h"
+	"AseReader.h"
+	"Physics.h"
+	"dMath\dVector.h"
+	"dMath\dMatrix.h"
+	"dMath\dQuaternion.h"
+
+1303771186 source:c:\users\göran\desktop\3d proj\asereader.cpp
+	<iostream>
+	<fstream>
+	<string>
+	<cstring>
+	<cstdlib>
+	<vector>
+	<utility>
+	"Material.h"
+	"Entity.h"
+	"AseReader.h"
+
+1303844762 c:\users\göran\desktop\3d proj\material.h
+	<GL/glfw.h>
+	<string>
+
+1303973951 c:\users\göran\desktop\3d proj\entity.h
+	<vector>
+	<Newton.h>
+	<JointLibrary.h>
+	"Mesh.h"
+	"Camera.h"
+	"Material.h"
+	"dMath\dMatrix.h"
+	"dMath\dVector.h"
+	"dMath\dQuaternion.h"
+
+1303824316 c:\users\göran\desktop\3d proj\mesh.h
+	<GL/glfw.h>
+	"Vector3f.h"
+
+1302788476 c:\users\göran\desktop\3d proj\vector3f.h
+	<math.h>
+
+1303642940 c:\users\göran\desktop\3d proj\camera.h
+	"Vector3f.h"
+	<Newton.h>
+	<JointLibrary.h>
+
+1303294712 c:\users\göran\desktop\3d proj\dmath\dmatrix.h
+	"dVector.h"
+
+1298624770 c:\users\göran\desktop\3d proj\dmath\dvector.h
+	"dMathDefines.h"
+
+1301545672 c:\users\göran\desktop\3d proj\dmath\dmathdefines.h
+	<math.h>
+	<float.h>
+
+1303288092 c:\users\göran\desktop\3d proj\dmath\dquaternion.h
+	"dVector.h"
+
+1303302462 c:\users\göran\desktop\3d proj\asereader.h
+	<string>
+	"Mesh.h"
+	"Entity.h"
+
+1303839240 source:c:\users\göran\desktop\3d proj\camera.cpp
+	<GL/glfw.h>
+	<math.h>
+	<iostream>
+	"Camera.h"
+	"Vector3f.h"
+
+1303977170 source:c:\users\göran\desktop\3d proj\entity.cpp
+	<GL/glew.h>
+	<GL/glfw.h>
+	<math.h>
+	<iostream>
+	<cstdio>
+	<set>
+	"Entity.h"
+	"Mesh.h"
+	"Material.h"
+	"SceneHandler.h"
+
+1303972707 c:\users\göran\desktop\3d proj\scenehandler.h
+	<vector>
+	"Entity.h"
+	"Light.h"
+	"dMath\dMathDefines.h"
+
+1303842222 c:\users\göran\desktop\3d proj\light.h
+	<GL/glew.h>
+	<GL/glfw.h>
+	"dMath\dVector.h"
+
+1302154010 source:c:\users\göran\desktop\3d proj\error.cpp
+	<stdio.h>
+	"Error.h"
+
+1302154010 c:\users\göran\desktop\3d proj\error.h
+
+1303937360 source:c:\users\göran\desktop\3d proj\light.cpp
+	"Light.h"
+	<cstdio>
+
+1303844768 source:c:\users\göran\desktop\3d proj\material.cpp
+	<GL/glew.h>
+	<string>
+	<cstring>
+	<fstream>
+	<iostream>
+	<stdio.h>
+	<stdlib.h>
+	"Material.h"
+	"Error.h"
+
+1303824376 source:c:\users\göran\desktop\3d proj\mesh.cpp
+	<GL/glew.h>
+	<iostream>
+	<fstream>
+	<string>
+	<stdlib.h>
+	<math.h>
+	<GL/glfw.h>
+	"Mesh.h"
+	"Vector3f.h"
+
+1303908780 source:c:\users\göran\desktop\3d proj\physics.cpp
+	"Physics.h"
+	<GL/glfw.h>
+
+1303813560 c:\users\göran\desktop\3d proj\physics.h
+	<Newton.h>
+	"Entity.h"
+
+1303972736 source:c:\users\göran\desktop\3d proj\scenehandler.cpp
+	<GL/glew.h>
+	<GL/glfw.h>
+	<iostream>
+	<stdlib.h>
+	<cstdio>
+	<Newton.h>
+	<JointLibrary.h>
+	<windows.h>
+	"SceneHandler.h"
+	"Vector3f.h"
+	"Error.h"
+	"Entity.h"
+	"AseReader.h"
+	"Physics.h"
+	"dMath\dVector.h"
+	"dMath\dMatrix.h"
+	"dMath\dQuaternion.h"
+
+1302788490 source:c:\users\göran\desktop\3d proj\vector3f.cpp
+	<iostream>
+	"Vector3f.h"
+
+1298624770 source:c:\users\göran\desktop\3d proj\dmath\dmathdefines.cpp
+	"dStdAfxMath.h"
+	"dMathDefines.h"
+	<stdio.h>
+
+1301545668 c:\users\göran\desktop\3d proj\dmath\dstdafxmath.h
+	<windows.h>
+	<crtdbg.h>
+	<crtdbg.h>
+
+1301509154 source:c:\users\göran\desktop\3d proj\dmath\dmatrix.cpp
+	"dStdAfxMath.h"
+	"dMathDefines.h"
+	"dVector.h"
+	"dMatrix.h"
+	"dQuaternion.h"
+
+1298624770 source:c:\users\göran\desktop\3d proj\dmath\dquaternion.cpp
+	"dStdAfxMath.h"
+	"dMathDefines.h"
+	"dVector.h"
+	"dMatrix.h"
+	"dQuaternion.h"
+
+1298624770 source:c:\users\göran\desktop\3d proj\dmath\dstdafxmath.cpp
+	"dStdAfxMath.h"
+
+1298624770 source:c:\users\göran\desktop\3d proj\dmath\dvector.cpp
+	"dStdAfxMath.h"
+
+1303937338 source:c:\users\göran\desktop\3d proj\main.cpp
+	<GL/glew.h>
+	<GL/glfw.h>
+	<iostream>
+	<cstdio>
+	<math.h>
+	"Entity.h"
+	"AseReader.h"
+	"Material.h"
+	"Error.h"
+	"Camera.h"
+	"SceneHandler.h"
 

@@ -2,8 +2,14 @@
 #define Entity_H
 
 #include <vector>
+#include <Newton.h>
+#include <JointLibrary.h>
 #include "Mesh.h"
+#include "Camera.h"
 #include "Material.h"
+#include "dMath\dMatrix.h"
+#include "dMath\dVector.h"
+#include "dMath\dQuaternion.h"
 
 using std::vector;
 
@@ -13,39 +19,59 @@ public:
     Entity();
     ~Entity();
     void Remove();
-    void AddChild(Entity &obj);
-    void AddChild(Entity *obj);
     void SetPosition(float px, float py, float pz);
     void SetRotation(float rx, float ry, float rz);
-    void SetScale(float s);
     void SetVisibility(bool b);
     void SetName(const string& s);
-    int NumChildren();
-    virtual void Draw();
+    virtual void Update(dFloat interpolationParam, NewtonWorld* world){}
+    virtual void Draw(){}
+    virtual void DrawGeometry(){}
+    virtual void CalculateBounds();
 
     Vector3f position;
     Vector3f rotation;
 
-    int parentIndex;
+    //NEWTON
+	// these are the element to represent the position and orientation state of a graphics object in the world
+	dMatrix m_matrix;					// current interpolated visual matrix
+	dVector m_curPosition;				// position one physics simulation step in the future
+	dVector m_prevPosition;             // position at the current physics simulation step
+	dQuaternion m_curRotation;          // rotation one physics simulation step in the future
+	dQuaternion m_prevRotation;         // rotation at the current physics simulation step
+	dVector m_minBox;                   // BoundingBox min
+	dVector m_maxBox;                   // BoundingBox max
+	dFloat m_radius;                    // Sphere containing object
+
+	NewtonBody* body;
 
     string name;
     bool visible;
-    int numChildren;
-    vector<Entity*> child;
-    vector<Entity*>::const_iterator cit;
-    Entity *parent;
     float scale;
 private:
 
 };
 
-class SphereEntity: public Entity
+class PlayerEntity: public Entity
 {
-public:
-    SphereEntity(float r=1.0f) : Entity() , radius(r) {};
+    public:
+    static Camera* camera;
+    static bool followMouse;
+    static void ApplyPlayerInput (const NewtonUserJoint* me, dFloat timestep, int threadIndex);
+    static void SetTransform (const NewtonBody* body, const dFloat* matrix, int threadId);
+    static void SetCamera(Camera* cam) {PlayerEntity::camera = cam;}
+    //static void BodyIterator (const NewtonBody* body, void* userData);
+
+    NewtonUserJoint* playerController;
+    NewtonBody* playerBody;
+    void (*m_setTransformOriginal) (const NewtonBody* body, const dFloat* matrix, int threadIndex);
+    void Update(dFloat interpolationParam, NewtonWorld* world);
     void Draw();
-    void SetRadius(float r);
-    float radius;
+
+    void UpdateCollision(NewtonBody* body);
+
+    private:
+    bool airborne;
+    dVector velocity;
 };
 
 class MeshEntity: public Entity
@@ -53,14 +79,19 @@ class MeshEntity: public Entity
 public:
     MeshEntity();
     ~MeshEntity();
-    Mesh *mesh;
-    Material *material;
+    void Scale(float s);
+    unsigned int totalVertices;
+    vector<Mesh*> mesh;
+    vector<Material*> material;
 };
 
 class StaticEntity: public MeshEntity
 {
 public:
+    void Update(dFloat interpolationParam, NewtonWorld* world);
     void Draw();
+    void DrawGeometry();
+    void CalculateBounds();
 };
 
 class AnimatedEntity: public MeshEntity

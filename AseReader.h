@@ -19,7 +19,7 @@ typedef struct {
         unsigned int sg;
 }TFace;
 
-int LoadAse(const string &filename, StaticEntity &entity);
-StaticEntity &LoadAse(const string &filename);
+int LoadAse(const string &filename, StaticEntity &entity, float scale=1.0);
+StaticEntity *LoadAse(const string &filename);
 
 #endif

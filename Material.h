@@ -25,9 +25,9 @@ public:
     GLuint specularMap;
     GLuint shader;
 
-    GLfloat ambient[3];
-    GLfloat diffuse[3];
-    GLfloat specular[3];
+    GLfloat ambient[4];
+    GLfloat diffuse[4];
+    GLfloat specular[4];
     GLfloat shininess[1];
 
     Material();
@@ -49,5 +49,7 @@ int LoadMaterial(const string& s, Material &mat);
 
 void setUniformVariables( GLuint programObj,
 			   int diff, int norm, int height, const GLvoid* tangentPointer);
+
+void setUniformVariable( GLuint programObj, GLint var, char* name);
 
 #endif

@@ -180,7 +180,7 @@ void extract_vertex_list(istream &is, vector<TVertex> &vectex)
             tempvertex.sg = 0;
 
             vectex.push_back(tempvertex);
-            printf("vertex: %.2f %.2f %.2f \n",tempvertex.x,tempvertex.y,tempvertex.z);
+            //printf("vertex: %.2f %.2f %.2f \n",tempvertex.x,tempvertex.y,tempvertex.z);
             x++;
         }
     }
@@ -287,7 +287,7 @@ void extract_face_list(istream &is,vector<TVertex> &vectex, vector<Face> &faceex
 
             faceex.push_back(tempface);
 
-            printf("face %i %i %i \n",tempface.point[0],tempface.point[1],tempface.point[2]);
+            //printf("face %i %i %i \n",tempface.point[0],tempface.point[1],tempface.point[2]);
 
             x++;
         }
@@ -370,7 +370,7 @@ void extract_tface_list(istream& is, vector<TVertex>& vectex, vector<Face>& face
     }
 }
 
-void extract_mesh(istream& is, Mesh& mesh)
+void extract_mesh(istream& is, Mesh& mesh, float scale)
 {
 	vector<float>	MESH_VERTEX_LIST_X, MESH_VERTEX_LIST_Y, MESH_VERTEX_LIST_Z,
 								MESH_TVERTLIST_U, MESH_TVERTLIST_V;
@@ -407,7 +407,7 @@ void extract_mesh(istream& is, Mesh& mesh)
         }
     }
 	cout<<endl<<"DONE!"<<endl;
-	mesh.init(vectex.size(),faceex.size());
+
     unsigned int i;
 
     //cout<<endl<<"Vertices "<<vectex.size()<<endl<<endl;
@@ -441,6 +441,8 @@ void extract_mesh(istream& is, Mesh& mesh)
 		}
     //cout<<endl<<"Vertices after "<<vectex.size()<<endl<<endl;
 
+    mesh.init(vectex.size(),faceex.size());
+
     for(i=0;i<vectex.size();i++)
     {
         mesh.vertex[i].x=vectex.at(i).x;
@@ -463,11 +465,12 @@ void extract_mesh(istream& is, Mesh& mesh)
         //printf("face[%i] p0:%i p1:%i p2:%i \n",i,mesh.face[i].point[0],mesh.face[i].point[1],mesh.face[i].point[2]);
     }
 
+    mesh.scale(scale);
     mesh.calculateNormals();
     mesh.createBuffers();
 }
 
-int LoadAse(const string &filename, StaticEntity &entity)
+int LoadAse(const string &filename, StaticEntity &entity, float scale)
 {
 	//constants
 	string SCENE_FILENAME;
@@ -547,7 +550,7 @@ int LoadAse(const string &filename, StaticEntity &entity)
 			    {
 			        cout<<endl<<"NEW MESH "<<endl;
 			        meshptr = new Mesh();
-                    extract_mesh(is,*meshptr);
+                    extract_mesh(is,*meshptr,scale);
                     MESH_LIST.push_back(meshptr);
                     loop=false;
 			    }
@@ -559,35 +562,22 @@ int LoadAse(const string &filename, StaticEntity &entity)
 		}
     }
 
+    entity.totalVertices = 0;
 
- //   Om det finns flera meshes samma ase-fil s� l�gg alla dessa som children i entity
-    StaticEntity *entityptr;
-
-    if(MESH_LIST.size()>1)
+    for(unsigned int i=0; i<MESH_LIST.size(); i++)
     {
-        for(unsigned int i=0; i<MESH_LIST.size(); i++)
-        {
-            entityptr = new StaticEntity();
-            entityptr->SetName(ENTITY_NAME.at(i));
-            entityptr->mesh = MESH_LIST.at(i);
-            entityptr->material = MATERIAL_LIST.at(MATERIAL_INDEX.at(i));
-            entity.AddChild(*entityptr);
-        }
+        entity.mesh.push_back(MESH_LIST.at(i));
+        entity.material.push_back(MATERIAL_LIST.at(MATERIAL_INDEX.at(i)));
+        entity.totalVertices += MESH_LIST.at(i)->numVertices;
     }
- //   Annars så läggs mesh och material direkt i entity
-    else
-    {
-        entity.SetName(ENTITY_NAME.at(0));
-        entity.mesh = MESH_LIST.at(0);
-        entity.material = MATERIAL_LIST.at(MATERIAL_INDEX.at(0));
-    }
+    entity.CalculateBounds();
 
 	return 1; //success!
 }
 
-StaticEntity &LoadAse(const string &filename)
+StaticEntity *LoadAse(const string &filename)
 {
     StaticEntity *entity = new StaticEntity();
     LoadAse(filename, *entity);
-    return *entity;
+    return entity;
 }

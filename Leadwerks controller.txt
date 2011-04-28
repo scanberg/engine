@@ -1,0 +1,939 @@
+    'SuperStrict
+
+    Type TController Extends TBody {expose}
+       
+       Global Current:TController {hidden}
+       
+       Field link:TLink {hidden}
+       Field velocity_:TVec3=vec3() {hidden}
+       Field airborne:Int {hidden}
+       Field direction:TVec3[2] {hidden}
+       Field maxslope:Float=45 {hidden}
+       Field hardness:Float=1.0 {hidden}
+       Field movement:TVec3=vec3(0) {hidden}
+       Field deepest:Float {hidden}
+       Field iterations:Int=1 {hidden}
+       Field stepheight:Float=0.501 {hidden}
+       Field stopfalling:Int {hidden}
+       Field moving:Int {hidden}
+       Field prevposition:TVec3 {hidden}
+       Field height:Float=2.0 {hidden}
+       Field radius:Float=0.5 {hidden}
+       Field stepextra:Float=0.05 {hidden}
+       Field climbspeed:Float=0.0 {hidden}
+       Field groundbody:TBody {hidden}
+       Field collidedWithGroundPosition:TVec3=vec3(0) {hidden}
+       Field groundvelocity:TVec3=vec3(0) {hidden}
+       Field pickradiusoffset:Float=-0.01 {hidden}
+       Field moveinput:TVec3=vec3(0) {hidden}
+       Field maxacceleration:Float=0.5 {hidden}
+       Field angle:Float {hidden}
+       Field _isactive:Int
+       Field precollisionposition:TVec3=New TVec3
+       Field groundnormal:TVec3
+       'Field iscrouched:Int=False
+       Field crouchcollisionoccured:Int
+       Field crouchheight:Float
+       Field crouchmode:Int
+       Field standbody:Byte Ptr
+       
+       Method New() {hidden}
+          link=world.controllers.addfirst(Self)
+          setkey "class","Controller"
+          direction[0]=New TVec3
+          direction[1]=New TVec3
+       EndMethod
+       
+       Method Free()
+          'If newtoncrouchbody
+          '   NewtonDestroyBody(world.newtonworld,newtoncrouchbody)
+          '   newtoncrouchbody=Null
+          'EndIf
+          'If standbody
+          '   NewtonDestroyBody(world.newtonworld,newtoncrouchbody)
+          '   newtoncrouchbody=Null         
+          'EndIf
+          If link
+             link.remove()
+             link=Null
+          EndIf
+          Super.free()
+       EndMethod
+       
+       Method GetClass:Int()
+          Return ENTITY_CONTROLLER
+       EndMethod
+       
+       Field newangle:Float
+       
+       Method Update(angle:Float,move:Float,strafe:Float=0.0,jump:Float=0.0,maxacceleration:Float=0.5,iterations:Int=1,crouchmode:Int=0)
+          Self.newangle=angle
+          moveinput.x=strafe
+          moveinput.y=Max(moveinput.y,jump)
+          moveinput.z=move
+          Self.Crouch(crouchmode)
+          Self.maxacceleration=maxacceleration
+          Self.iterations=iterations
+       EndMethod
+       
+       Method IsCrouched:Int()
+          Return Self.crouchmode
+       EndMethod
+       
+       'Simplified tween routine that skips rotation
+       Rem
+       Method Tween()
+          mat.tx=prevmat.tx*(1.0-world.accumulatedPhysicsSteps)+nextmat.tx*world.accumulatedPhysicsSteps
+          mat.ty=prevmat.ty*(1.0-world.accumulatedPhysicsSteps)+nextmat.ty*world.accumulatedPhysicsSteps
+          mat.tz=prevmat.tz*(1.0-world.accumulatedPhysicsSteps)+nextmat.tz*world.accumulatedPhysicsSteps
+          If parent
+             position=TFormPoint(mat.translation(),parent,Null)
+          Else
+             MemCopy position,Varptr mat.tx,12
+          EndIf      
+          localOrientationChanged=True
+          DoUpdateMatrixStuff()
+          UpdateChildren()
+       EndMethod         
+       EndRem
+
+       Method SetVelocity(v:Byte Ptr,glob:Int=True) {hidden}
+          If glob
+             MemCopy(velocity_,v,12)
+          Else
+             Local v_:TVec3=New TVec3
+             MemCopy v_,v,12
+             MemCopy(velocity_,TFormVector(v_,Null,Self),12)
+          EndIf
+       EndMethod
+       
+       Method GetVelocity:TVec3(glob:Int=True) {hidden}
+          If glob
+             Return velocity_.copy()
+          Else
+             Return TFormVector(velocity_,Self,Null)
+          EndIf
+       EndMethod
+       
+       Function UpdateCallback(entity:TEntity) {hidden}
+          Local player:TController
+          player=TController(entity)
+          player.update_()
+       EndFunction
+       
+       Method IsAirborne:Int()
+          Return airborne
+       EndMethod
+       
+       Method Active:Int()
+          If velocity_.x<>0.0 Or velocity_.y<>0.0 Or velocity_.z<>0.0 Return True Else Return _isactive
+       EndMethod
+       
+       Method SetMass(mass:Float) {hidden}
+          Self.mass=mass
+       EndMethod
+       
+       Function Inc:Float(target:Float,Current:Float,stepsize:Float=1.0) {hidden}
+          If Current<target
+             Current:+stepsize
+             Current=Min(Current,target)
+          ElseIf Current>target
+             Current:-stepsize
+             Current=Max(Current,target)
+          EndIf
+          Return Current
+       EndFunction
+       
+       Method Update_(extraiterations:Int=0) {hidden}
+          Local translation:TVec3
+          Local move:Int,strafe:Int
+          Local desiredvelocity_:TVec3=New TVec3
+          Local finalvelocity_:TVec3=New TVec3
+          Local pick:TPick
+          Local jumping:Int
+          Local MoveSpeed:Float
+          Local rp:TVec3
+          Local omega:TVec3
+          
+          'Print Rand(100)
+          
+          Local oldangle:Float=angle
+          angle=newangle
+          
+          If mass=0.0 Return
+
+          Local startpos:TVec3=position.copy()
+
+          MemCopy desiredvelocity_,Varptr mat.tx,12
+          TMat4.FromRotation(vec3(0.0,angle,0.0).toQuat(),mat)   
+          MemCopy Varptr mat.tx,desiredvelocity_,12
+          
+          Current=Self
+          finalvelocity_=TFormVector(velocity_,Null,Self)
+          
+          'Key controls
+          'moving=False
+          'If airborne
+          '   Acceleration:Float=0.0002
+          '   Movespeed:Float=0.05
+          'Else
+          '   Acceleration:Float=0.0075
+          '   Movespeed:Float=0.05
+          'EndIf
+          
+          Rem
+          move=KeyDown(KEY_W)-KeyDown(KEY_S)
+          strafe=KeyDown(KEY_D)-KeyDown(KEY_A)
+          If move moving=True
+          If strafe moving=True
+          Select strafe
+             Case 1 desiredvelocity_.x=Movespeed
+             Case 0 desiredvelocity_.x=0.0
+             Case -1 desiredvelocity_.x=-Movespeed
+          EndSelect
+          Select move
+             Case 1 desiredvelocity_.z=Movespeed
+             Case 0 desiredvelocity_.z=0.0
+             Case -1 desiredvelocity_.z=-Movespeed
+          EndSelect
+          EndRem
+          
+          desiredvelocity_.x=moveinput.x'/world.physicsspeed'/60.0
+          desiredvelocity_.z=moveinput.z'/world.physicsspeed'/60.0
+          
+          desiredvelocity_=desiredvelocity_.plus(TFormVector(groundvelocity,Null,Self))
+          finalvelocity_.x=Inc(desiredvelocity_.x,finalvelocity_.x,maxacceleration/60.0)
+          finalvelocity_.z=Inc(desiredvelocity_.z,finalvelocity_.z,maxacceleration/60.0)
+          
+          velocity_=TFormVector(finalvelocity_,Self,Null)
+          If moveinput.y>0.0
+             jumping=True
+             velocity_.y:+moveinput.y/world.physicsspeed
+          EndIf
+          
+          'moveinput.x=0.0
+          moveinput.y=0.0
+          'moveinput.z=0.0
+          
+          'Gravity
+          If usegravity
+             velocity_.y:+world.gravity.y/60.0'/world.physicsspeed
+          EndIf
+          
+          airborne=True
+          
+          groundbody=Null
+          Local m#=groundvelocity.length()
+          If m>0
+             Local nm#
+             nm=m-0.1
+             nm=Max(nm,0)
+             groundvelocity.x=groundvelocity.x/m*nm
+             groundvelocity.y=groundvelocity.y/m*nm
+             groundvelocity.z=groundvelocity.z/m*nm
+          EndIf
+          
+          If nextquat
+             If Not prevquat prevquat=New TQuat
+             MemCopy prevquat,nextquat,16
+          EndIf
+          
+          If nextmat
+             MemCopy mat,nextmat,64
+             If Not prevmat prevmat=New TMat4
+             MemCopy prevmat,nextmat,64
+             MemCopy position,Varptr nextmat.tx,12
+          EndIf
+          
+          If velocity_.y<=0.0
+             AlignToGroundConvex()
+          EndIf
+          
+          'Move the entity by the velocity_
+          
+          prevposition=mat.translation()
+          
+          mat.tx:+velocity_.x/60.0/world.physicsspeed
+          mat.ty:+velocity_.y/60.0/world.physicsspeed
+          mat.tz:+velocity_.z/60.0/world.physicsspeed
+          
+          NewtonBodySetMatrix newtonBody,mat
+          
+          precollisionposition=mat.translation()
+          
+          For Local l:Int=1 To iterations
+             
+             'Collision routine
+             direction[0]=vec3(0)
+             direction[1]=vec3(0)
+             
+             Local point0:Float[3]
+             Local point1:Float[3]
+             point0[0]=aabb.x0-2.0
+             point0[1]=aabb.y0-2.0
+             point0[2]=aabb.z0-2.0
+             point1[0]=aabb.x1+2.0
+             point1[1]=aabb.y1+2.0
+             point1[2]=aabb.z1+2.0
+             
+             'Perform collisions
+             NewtonWorldForEachBodyInAABBDo(world.newtonWorld,point0,point1,NewtonBodyIterator,Null)
+             
+             'Get collision results and move controller
+             direction[0].x=(direction[0].x+direction[1].x)*hardness
+             direction[0].y=(direction[0].y+direction[1].y)*hardness
+             direction[0].z=(direction[0].z+direction[1].z)*hardness
+             'Local maxd#=0.02
+             'If direction[0].length()>maxd
+             '   direction[0]=direction[0].normalize()
+             '   direction[0]=direction[0].scale(maxd)
+             'EndIf
+             mat.tx:+direction[0].x
+             mat.ty:+direction[0].y
+             mat.tz:+direction[0].z
+             
+             NewtonBodySetMatrix newtonBody,mat
+             
+             If Not extraiterations Exit
+          Next
+          
+          If jumping airborne=True
+          
+          'Calculate new velocity_
+          velocity_.x=(mat.tx-prevposition.x)*60.0*world.physicsspeed
+          velocity_.y=(mat.ty-prevposition.y)*60.0*world.physicsspeed
+          velocity_.z=(mat.tz-prevposition.z)*60.0*world.physicsspeed
+          If Not airborne velocity_.y=Min(velocity_.y,0)
+          
+          If groundbody
+             If groundbody.mass>0.0
+                rp=collidedWithGroundPosition.minus(groundbody.mat.translation())            
+                omega=groundbody.getomega()
+                omega.x=Radians(omega.x)
+                omega.y=Radians(omega.y)
+                omega.z=Radians(omega.z)
+                groundvelocity=groundbody.getvelocity().minus(rp.cross(omega))
+                'groundvelocity.x':/60.0
+                'groundvelocity.y':/60.0
+                'groundvelocity.z':/60.0
+             EndIf
+          EndIf
+          
+          Current=Null
+       
+          AddToActiveList(0)
+          
+          TMat4.FromRotation(vec3(0.0,angle,0.0).toQuat(),mat)
+          
+          If Not nextmat nextmat=New TMat4
+          MemCopy Varptr nextmat.tx,Varptr mat.tx,12
+          'NewtonBodySetMatrix newtonBody,nextmat
+          
+          If Not nextquat nextquat=New TQuat
+          nextquat=vec3(0,angle,0).toquat()
+          
+          If startpos.x=position.x And startpos.y=position.y And startpos.z=position.z And angle=oldangle
+             _isactive=0
+          Else
+             _isactive=1
+          EndIf
+       EndMethod
+       
+       Method AlignToGroundConvex()    {hidden}
+          Local pos:TVec3=vec3(0)
+          Local i:Int
+          Local hit:Int
+          Local m#=velocity_.xz().length()
+          Local y:Float=-infinity
+          Local pick:TPick
+          
+          groundnormal=Null
+          pos.x=mat.tx'-radius
+          pos.y=mat.ty+stepheight'-height*0.5+stepheight
+          'pos.y=mat.ty+stepheight+stepheight
+          pos.z=mat.tz'+radius
+          pick=PickGround(pos,vec3(mat.tx,mat.ty-stepextra,mat.tz),shape.newtonCollision)
+          If pick
+             'pick.y:+height*0.5
+             If climbspeed<>0.0
+                If pick.y-mat.ty>climbspeed pick.y=mat.ty+climbspeed
+             EndIf
+             mat.tx=mat.tx
+             mat.ty=pick.y
+             mat.tz=mat.tz
+             groundnormal=pick.normal
+             'setposition([position.x,pick.y,position.z])
+             airborne=False
+             velocity_.y=Max(velocity_.y,0.0)
+          EndIf
+       EndMethod
+       
+       Field newtonmodifier:Byte Ptr
+       
+       Method Crouch(mode:Int)
+          If Self.crouchmode=mode Return
+          'Local mat:TMat4=TMat4.identity()
+          
+          If mode
+             Self.crouchmode=True
+          '   mat.jy=2.0/3.0
+             shape=CreateShapeCylinder(radius,Self.crouchheight,[0.0,Self.crouchheight*0.5,0.0])
+             CreateNewtonBody(shape)
+          '   NewtonConvexHullModifierSetMatrix(newtonmodifier,mat)
+          Else
+             Local point0:Float[3]
+             Local point1:Float[3]
+
+             shape=CreateShapeCylinder(Self.radius*0.98,Self.height,[0.0,height*0.5,0.0])
+             CreateNewtonBody(shape)
+             
+             point0[0]=Self.aabb.x0-0.5
+             point0[1]=Self.aabb.y0-0.5
+             point0[2]=Self.aabb.z0-0.5
+             point1[0]=Self.aabb.x1+0.5
+             point1[1]=Self.aabb.y1+0.5
+             point1[2]=Self.aabb.z1+0.5
+             Current=Self
+             crouchcollisionoccured=False
+             NewtonWorldForEachBodyInAABBDo(world.newtonWorld,point0,point1,NewtonBodyCrouchIterator,Null)
+             Current=Null
+             If Not crouchcollisionoccured
+                crouchmode=False
+                
+                shape=CreateShapeCylinder(Self.radius,Self.height,[0.0,height*0.5,0.0])
+                CreateNewtonBody(shape)
+             '   NewtonConvexHullModifierSetMatrix(newtonmodifier,mat)
+             Else
+                shape=CreateShapeCylinder(radius,Self.crouchheight,[0.0,Self.crouchheight*0.5,0.0])
+                CreateNewtonBody(shape)            
+             EndIf
+          EndIf
+       EndMethod
+       
+       Field newtoncrouchBody:Byte Ptr {hidden}
+       
+       Method UpdateCrouchCollision(entity:TEntity) {hidden}
+          Const maxsize:Int=64
+          Global position:TVec3=New tVec3
+          Global normal:TVec3=New TVec3
+          Global p:TPlane=New TPlane
+          Local contacts:Float[maxsize*3]
+          Local normals:Float[maxsize*3]
+          Local penetration:Float[maxsize]
+          Local time:Float[maxsize]
+          Local count:Int
+          Local i:Int
+          
+          count=NewtonBodyCollide(world.Newtonworld,maxsize,entity.newtonBody,Self.newtonbody,contacts,normals,penetration)
+          
+          For i=0 To count-1
+             position.x=contacts[i*3+0]
+             position.y=contacts[i*3+1]
+             position.z=contacts[i*3+2]
+             normal.x=normals[i*3+0]
+             normal.y=normals[i*3+1]
+             normal.z=normals[i*3+2]
+             If position.y>=Self.mat.ty+Self.crouchheight
+                Current.crouchcollisionoccured=True
+             EndIf
+          Next
+       EndMethod
+       
+       Function NewtonBodyCrouchIterator(newtonBody:Byte Ptr,userdata:Byte Ptr) {hidden}
+          Local entity:TEntity
+          entity=TEntity(NewtonBodyGetUserData(newtonBody))
+          If Not entity Return
+          If entity=Current Return
+          If entity.hidden() Return
+          If GetCollisionResponse(Current.collisiontype,entity.collisiontype)=0 Return
+          Current.UpdateCrouchCollision(entity)
+       EndFunction   
+       
+       Rem
+       Function NewtonBodyCollideContinue:Int(newtonworld:Byte Ptr,maxsize:Int,timestep:Byte Ptr,newtonBody0:Byte Ptr,velocity_0:Byte Ptr,omega0:Byte Ptr,newtonBody1:Byte Ptr,velocity_1:Byte Ptr,omega1:Byte Ptr,time:Byte Ptr,contacts:Byte Ptr,normals:Byte Ptr,penetration:Byte Ptr) {hidden}
+          Local collision:Byte Ptr[2]
+          Local mat0:Float[16]
+          Local mat1:Float[16]
+          collision[0]=NewtonBodyGetCollision(newtonBody0)
+          collision[1]=NewtonBodyGetCollision(newtonBody1)
+          NewtonBodyGetMatrix(newtonBody0,mat0)
+          NewtonBodyGetMatrix(newtonBody1,mat1)
+          Return NewtonCollisionCollideContinue(newtonworld,maxsize,Varptr timestep,collision[0],Varptr mat0[0],velocity_0,omega0,collision[1],Varptr mat1[0],velocity_1,omega1,time,contacts,normals,penetration,0)
+       EndFunction
+       
+       Function NewtonBodyCollide:Int(newtonworld:Byte Ptr,maxsize:Int,newtonBody0:Byte Ptr,newtonBody1:Byte Ptr,contacts:Byte Ptr,normals:Byte Ptr,penetration:Byte Ptr) {hidden}
+          Local collision:Byte Ptr[2]
+          Local mat0:Float[16]
+          Local mat1:Float[16]
+          collision[0]=NewtonBodyGetCollision(newtonBody0)
+          collision[1]=NewtonBodyGetCollision(newtonBody1)
+          NewtonBodyGetMatrix(newtonBody0,mat0)
+          NewtonBodyGetMatrix(newtonBody1,mat1)
+          Return NewtonCollisionCollide(newtonworld,maxsize,collision[0],mat0,collision[1],mat1,contacts,normals,penetration,0)
+       EndFunction
+       EndRem
+       
+       Method AlignToGround() {hidden}
+          Local pos:TVec3=vec3(0)
+          Local i:Int
+          Local hit:Int
+          Local m#=velocity_.xz().length()
+          Local y:Float=-infinity
+          Local pick:TPick[5]
+          'Local position:TVec3
+          
+          'position=mat.translation()
+          
+          'pos.y=position.y-height*0.5+stepheight
+          pos.y=position.y+stepheight
+          
+          pos.x=position.x+radius
+          pos.z=position.z+radius
+          pick[0]=PickGround2(pos,vec3(pos.x,pos.y-stepheight-stepextra,pos.z))
+          pos.x=position.x-radius
+          pos.z=position.z+radius
+          pick[1]=PickGround2(pos,vec3(pos.x,pos.y-stepheight-stepextra,pos.z))
+          pos.x=position.x+radius
+          pos.z=position.z-radius
+          pick[2]=PickGround2(pos,vec3(pos.x,pos.y-stepheight-stepextra,pos.z))
+          pos.x=position.x-radius
+          pos.z=position.z-radius
+          pick[3]=PickGround2(pos,vec3(pos.x,pos.y-stepheight-stepextra,pos.z))
+          pos.x=position.x
+          pos.z=position.z
+          pick[4]=PickGround2(pos,vec3(pos.x,pos.y-stepheight-stepextra,pos.z))
+
+          For i=0 To pick.length-1
+             If pick[i]
+                hit=True
+                If Not groundbody
+                   If TBody(pick[i].entity)
+                      groundbody=TBody(pick[i].entity)
+                      collidedWithGroundPosition.x=pick[i].x
+                      collidedWithGroundPosition.y=pick[i].y
+                      collidedWithGroundPosition.z=pick[i].z
+                   EndIf
+                EndIf
+                y=Max(y,pick[i].y)
+             EndIf
+          Next
+          If hit
+             'y:+height*0.5
+             If climbspeed<>0.0
+                If y-position.y>climbspeed y=position.y+climbspeed
+             EndIf
+             mat.ty=y
+             'setposition([position.x,y,position.z])
+             airborne=False
+             velocity_.y=Max(velocity_.y,0.0)
+          EndIf
+       EndMethod
+       
+       Method UpdateCollision(entity:TEntity) {hidden}
+          Const maxsize:Int=64
+          Global position:TVec3=New tVec3
+          Global normal:TVec3=New TVec3
+          Global p:TPlane=New TPlane
+          Local contacts:Float[maxsize*3]
+          Local normals:Float[maxsize*3]
+          Local penetration:Float[maxsize]
+          Local time:Float[maxsize]
+          Local count:Int
+          Local i:Int
+          Local timestep:Float=1.0
+          Local slope:Float
+          Local body1:TBody
+          Local terrain:TTerrain
+          Local center:TVec3=Self.position.Copy()
+          center.y:+height*0.5
+          
+          'If entity.getkey("class")="Terrain" Return
+          'Print entity.getkey("class")
+          
+          'Perform collision - don't use continuous
+          'count=NewtonBodyCollideContinue(TWorld.current.Newtonworld,maxsize,Varptr timestep,newtonBody,velocity_,[0.0,0.0,0.0],entity.newtonBody,[0.0,0.0,0.0],[0.0,0.0,0.0],time,contacts,normals,penetration)
+          count=NewtonBodyCollide(world.Newtonworld,maxsize,entity.newtonBody,newtonBody,contacts,normals,penetration)
+          
+          For i=0 To count-1
+             position.x=contacts[i*3+0]
+             position.y=contacts[i*3+1]
+             position.z=contacts[i*3+2]
+             normal.x=normals[i*3+0]
+             normal.y=normals[i*3+1]
+             normal.z=normals[i*3+2]
+             
+             'Correct the normal so it points towards the body
+             TPlane.FromPointNormal(position,normal,p)
+             If p.DistanceToPoint(center)<0.0
+                normal.x:*-1.0
+                normal.y:*-1.0
+                normal.z:*-1.0
+             EndIf
+             
+             'penetration[i]=Min(Abs(penetration[i]),0.01)
+             'Print penetration[i]
+             
+             'Dismiss collisions with hidden tiles
+             If entity.GetClass()=ENTITY_TERRAIN
+                terrain=TTerrain(entity)
+                If terrain.counthiddentiles
+                   Local ix:Int,iy:Int
+                   ix=Round(position.x/terrain.scale.x+terrain.resolution/2)
+                   iy=Round(position.z/terrain.scale.z+terrain.resolution/2)
+                   If terrain.GetTileVisibility(ix,iy)=0
+                      Continue
+                   EndIf
+                EndIf
+             EndIf
+             
+             'If pointdistance(vec3(Self.mat.tx,0,Self.mat.tz),vec3(position.x,0.0,position.z))>Self.radius*0.9 Continue
+             'If position.y<Self.mat.ty-height*0.5+stepheight
+             If position.y<Self.mat.ty+stepheight
+                If (90.0-ASin(normal.y))>45.0
+             '      Continue
+                EndIf
+             EndIf
+             
+             RecordCollision(Self,entity,position,normal)
+             If GetCollisionResponse(collisiontype,entity.collisiontype)=2 Continue
+
+
+             
+             
+             body1=TBody(entity)
+             If body1
+                If body1.mass>0.0
+                   Local force:TVec3=New TVec3
+                   force.x=-normal.x*penetration[i]*60.0*mass/body1.mass
+                   force.y=-normal.y*penetration[i]*60.0*mass/body1.mass
+                   force.z=-normal.z*penetration[i]*60.0*mass/body1.mass
+                   AddBodyForceAtPoint(body1,force,position)
+                EndIf
+             EndIf
+             
+
+             'Adjust normal if slope is too steep
+             slope=90.0-ASin(normal.y)
+             If normal.y=>0.0
+                If slope<maxslope
+                   airborne=False
+                   'Attempted to ignore collisions below the stepheight, bad results:
+                   'If position.y<=position.y-1.0+stepheight
+                   '   setposition([position.x,position.y+height*0.5,position.z])
+                   '   prevposition.y=position.y
+                   '   Continue
+                   'EndIf
+                   normal.x=0.0
+                   normal.z=0.0
+                   normal.y=1.0
+                   If body1
+                      groundbody=body1
+                      collidedWithGroundPosition.x=position.x
+                      collidedWithGroundPosition.y=position.y
+                      collidedWithGroundPosition.z=position.z
+                   EndIf
+                Else
+                   normal.y=0.0
+                   normal=normal.normalize()
+                EndIf
+             EndIf
+             'Attempted to ignore collisions below the stepheight, bad results:
+             'If position.y<position.y-height*0.5+stepheight Continue
+             
+             If penetration[i]=0.0 Continue
+             
+             'Global mp#
+             'mp=Max(mp,penetration[i])
+             'Print mp
+             
+             
+             
+             'Adjust normal for penetration value
+             normal.x:*penetration[i]
+             normal.y:*penetration[i]
+             normal.z:*penetration[i]
+             
+             'Calculate max vectors
+             direction[0].x=Min(direction[0].x,normal.x)
+             direction[0].y=Min(direction[0].y,normal.y)
+             direction[0].z=Min(direction[0].z,normal.z)
+             direction[1].x=Max(direction[1].x,normal.x)
+             direction[1].y=Max(direction[1].y,normal.y)
+             direction[1].z=Max(direction[1].z,normal.z)
+                   
+          Next   
+          Rem
+          Local m:Float=0.003         
+          direction[0].x=Sgn(direction[0].x)*Min(Abs(direction[0].x),m)
+          direction[0].y=Sgn(direction[0].y)*Min(Abs(direction[0].y),m)
+          direction[0].z=Sgn(direction[0].z)*Min(Abs(direction[0].z),m)
+          direction[1].x=Sgn(direction[1].x)*Min(Abs(direction[1].x),m)
+          direction[1].y=Sgn(direction[1].y)*Min(Abs(direction[1].y),m)
+          direction[1].z=Sgn(direction[1].z)*Min(Abs(direction[1].z),m)
+          EndRem
+       EndMethod
+       
+       Function NewtonBodyCollideContinue:Int(newtonworld:Byte Ptr,maxsize:Int,timestep:Byte Ptr,newtonBody0:Byte Ptr,velocity_0:Byte Ptr,omega0:Byte Ptr,newtonBody1:Byte Ptr,velocity_1:Byte Ptr,omega1:Byte Ptr,time:Byte Ptr,contacts:Byte Ptr,normals:Byte Ptr,penetration:Byte Ptr) {hidden}
+          Local collision:Byte Ptr[2]
+          Local mat0:Float[16]
+          Local mat1:Float[16]
+          collision[0]=NewtonBodyGetCollision(newtonBody0)
+          collision[1]=NewtonBodyGetCollision(newtonBody1)
+          NewtonBodyGetMatrix(newtonBody0,mat0)
+          NewtonBodyGetMatrix(newtonBody1,mat1)
+          Return NewtonCollisionCollideContinue(newtonworld,maxsize,Varptr timestep,collision[0],Varptr mat0[0],velocity_0,omega0,collision[1],Varptr mat1[0],velocity_1,omega1,time,contacts,normals,penetration,0)
+       EndFunction
+       
+       Function NewtonBodyCollide:Int(newtonworld:Byte Ptr,maxsize:Int,newtonBody0:Byte Ptr,newtonBody1:Byte Ptr,contacts:Byte Ptr,normals:Byte Ptr,penetration:Byte Ptr) {hidden}
+          Local collision:Byte Ptr[2]
+          Local mat0:Float[16]
+          Local mat1:Float[16]
+          collision[0]=NewtonBodyGetCollision(newtonBody0)
+          collision[1]=NewtonBodyGetCollision(newtonBody1)
+          NewtonBodyGetMatrix(newtonBody0,mat0)
+          NewtonBodyGetMatrix(newtonBody1,mat1)
+          Return NewtonCollisionCollide(newtonworld,maxsize,collision[0],mat0,collision[1],mat1,contacts,normals,penetration,0)
+       EndFunction
+       
+       Function NewtonBodyIterator(newtonBody:Byte Ptr,userdata:Byte Ptr) {hidden}
+          Local entity:TEntity
+          entity=TEntity(NewtonBodyGetUserData(newtonBody))
+          If Not entity Return
+          If entity=Current Return
+          If entity.hidden() Return
+          If GetCollisionResponse(Current.collisiontype,entity.collisiontype)=0 Return
+          'Print entity.GetClass()
+          
+          Current.UpdateCollision(entity)
+       EndFunction
+       
+       Method PickGround:TPick(a:TVec3,b:TVec3,shape:Byte Ptr) {hidden}
+          Const maxContactsCount:Int=10
+          
+          Local tag:TNewtonWorldConvexCastReturnInfoTag=New TNewtonWorldConvexCastReturnInfoTag
+          Local mat:TMat4=TMat4.identity()
+          Local maxy#=-infinity
+          Local result:TPick
+          Local hitParam:Float[maxContactsCount]
+          Local o:Object
+          Local entity:TEntity
+          Local contacts:Int
+          Local n:Int
+          Local maxheight:Float=-infinity
+          Local slope:Float
+          Local SizeOfTNewtonWorldConvexCastReturnInfoTag:Int=SizeOf(tag)
+          Local contactdata:Byte[maxContactsCount*SizeOfTNewtonWorldConvexCastReturnInfoTag]
+          Local body:TBody,terrain:TTerrain
+          Local ix:Int,iy:Int
+          
+          mat.tx=a.x
+          mat.ty=a.y
+          mat.tz=a.z
+          
+          contacts=NewtonWorldConvexCast(world.newtonWorld,mat,b,shape,hitParam,Null,NewtonWorldRayPrefilterCallback,contactData,maxContactsCount,0)
+          
+          For n=0 To contacts-1
+             MemCopy tag,Varptr contactdata[n*SizeOfTNewtonWorldConvexCastReturnInfoTag],SizeOfTNewtonWorldConvexCastReturnInfoTag         
+             o=NewtonBodyGetUserData(tag.m_hitBody)
+             If o
+                entity=TEntity(o)
+                'If tag.point1<Self.mat.ty-Self.height*0.5+Self.stepheight And tag.point1>=b.y-Self.height*0.5-stepextra
+                If tag.point1<Self.mat.ty+Self.stepheight And tag.point1>=b.y-stepextra
+                   If tag.normalonhitpoint1>0.0
+                      slope=90.0-ASin(tag.normalonhitpoint1)
+                      If slope=<maxslope
+                         'If hitparam[n]<maxheight
+                         If tag.point1>maxheight
+                            o=NewtonBodyGetUserData(tag.m_hitBody)
+                            body=TBody(o)
+                            If body
+                               If body.GetClass()=ENTITY_TERRAIN
+                                  terrain=TTerrain(entity)
+                                  If terrain.counthiddentiles
+                                     ix=Round(tag.point0/terrain.scale.x+terrain.resolution/2)
+                                     iy=Round(tag.point2/terrain.scale.z+terrain.resolution/2)
+                                     If terrain.GetTileVisibility(ix,iy)=0
+                                        Continue
+                                     EndIf
+                                  EndIf                           
+                               EndIf
+                               maxheight=tag.point1'hitparam[n]
+                               maxy=tag.point1
+                               If Not result result=New TPick
+                               result.entity=body
+                               result.x=tag.point0
+                               result.y=tag.point1
+                               result.z=tag.point2
+                               result.nx=tag.normalonhitpoint0
+                               result.ny=tag.normalonhitpoint1
+                               result.nz=tag.normalonhitpoint2
+                               result.position.x=tag.point0
+                               result.position.y=tag.point1
+                               result.position.z=tag.point2
+                               result.normal.x=tag.normalonhitpoint0
+                               result.normal.y=tag.normalonhitpoint1
+                               result.normal.z=tag.normalonhitpoint2
+                            EndIf
+                         EndIf
+                      EndIf
+                   EndIf
+                EndIf
+             EndIf
+          Next
+          Return result
+       EndMethod
+       
+       Function NewtonWorldRayPrefilterCallback:Int(newtonbody:Byte Ptr,newtoncollision:Byte Ptr,userData:Byte Ptr) {hidden}
+          Local o:Object
+          Local entity:TEntity
+          Local body:TBody
+          o=NewtonBodyGetUserData(newtonbody)
+          If Not o Return False
+          entity=TEntity(o)
+          If Not entity Return False
+          If entity=Current Return False
+          If entity.hidden() Return False
+          body=TBody(entity)
+          If body
+             If Not body.stepmode Return False
+          EndIf
+          If GetCollisionResponse(Current.collisiontype,entity.collisiontype)<>1 Return False
+          Return True
+       EndFunction
+       
+       Global PickResult:TPick
+       Global PickIntersectParam:Float
+       Global pickstart:TVec3
+       Global pickend:TVec3
+       
+       Function PickGround2:TPick(a:TVec3,b:TVec3) {hidden}
+          PickIntersectParam=infinity
+          PickResult=Null
+          pickstart=a
+          pickend=b
+          GCSuspend()
+          NewtonWorldRayCast(Current.world.NewtonWorld,[a.x,a.y,a.z],[b.x,b.y,b.z],NewtonWorldRayFilterCallback,Null,NewtonWorldRayPreFilterCallback)
+          GCResume()
+          Return PickResult
+          
+          Function NewtonWorldRayFilterCallback:Float(newtonbody:Byte Ptr,normal:Byte Ptr,collisionID:Int,userData:Byte Ptr,intersectParam:Float)
+             Local handle:Int Ptr
+             Local entity:TEntity
+             Local o:Object
+             Local normal_:Float[3]
+             Local slope:Float
+
+             MemCopy normal_,normal,12
+             If normal_[1]<0.0 Return intersectParam
+             slope=90.0-ASin(normal_[1])
+             If slope>Current.maxslope Return intersectParam
+             If intersectParam<PickIntersectParam      
+                o=NewtonBodyGetUserData(newtonbody)
+                entity=TEntity(o)
+                
+                If entity.getclass()=ENTITY_TERRAIN
+                   If collisionID=0
+                      Return intersectParam
+                   EndIf
+                EndIf         
+                
+                RecordCollision(Current,entity)
+                If GetCollisionResponse(Current.collisiontype,entity.collisiontype)=2 Return PickIntersectParam
+                
+                PickIntersectParam=intersectParam
+                If Not PickResult PickResult=New TPick
+                PickResult.entity=entity
+                PickResult.x=(pickend.x*intersectParam+pickstart.x*(1.0-intersectParam))
+                PickResult.y=(pickend.y*intersectParam+pickstart.y*(1.0-intersectParam))
+                PickResult.z=(pickend.z*intersectParam+pickstart.z*(1.0-intersectParam))
+                MemCopy Varptr pickresult.nx,normal,12
+                
+                PickResult.position.x=(pickend.x*intersectParam+pickstart.x*(1.0-intersectParam))
+                PickResult.position.y=(pickend.y*intersectParam+pickstart.y*(1.0-intersectParam))
+                PickResult.position.z=(pickend.z*intersectParam+pickstart.z*(1.0-intersectParam))            
+                MemCopy pickresult.normal,normal,12
+                
+             EndIf
+             Return intersectParam
+          EndFunction
+          
+       EndFunction
+          
+    EndType
+
+    Private
+
+    Function RecordCollision(entity0:TEntity,entity1:TEntity,position:Byte Ptr=Null,normal:Byte Ptr=Null,force:Byte Ptr=Null,speed:Float=0.0) {hidden}
+       Const threadindex:Int=0
+       Local n:Int
+       Local entity:TEntity[2]
+       Local ok:Int
+       
+       entity[0]=entity0
+       entity[1]=entity1
+       For n=0 To 1
+          If TWorld.CollisionCallbackCount[threadindex]<MAX_COLLISIONCALLBACKS
+             ok=0
+             If entity[n].collisioncallback
+                ok=1
+             EndIf
+             If Not ok
+                If entity[n].GetClass()=ENTITY_MODEL
+                   If TModel(entity[n]).UseCollisionScript()
+                      ok=1
+                   EndIf
+                EndIf
+             EndIf
+             If ok
+                TWorld.CollisionCallbackEntity[threadindex,TWorld.CollisionCallbackCount[threadindex],0]=entity[n]
+                TWorld.CollisionCallbackEntity[threadindex,TWorld.CollisionCallbackCount[threadindex],1]=entity[1-n]
+                If position MemCopy Varptr TWorld.CollisionCallbackParameters[threadindex,TWorld.CollisionCallbackCount[threadindex],0],position,12
+                'CollisionCallbackParameters[threadindex,CollisionCallbackCount[threadindex],0]=position.x
+                'CollisionCallbackParameters[threadindex,CollisionCallbackCount[threadindex],1]=position.y
+                'CollisionCallbackParameters[threadindex,CollisionCallbackCount[threadindex],2]=position.z
+                If normal MemCopy Varptr TWorld.CollisionCallbackParameters[threadindex,TWorld.CollisionCallbackCount[threadindex],3],normal,12
+                'CollisionCallbackParameters[threadindex,CollisionCallbackCount[threadindex],3]=normal.x
+                'CollisionCallbackParameters[threadindex,CollisionCallbackCount[threadindex],4]=normal.y
+                'CollisionCallbackParameters[threadindex,CollisionCallbackCount[threadindex],5]=normal.z
+                If force MemCopy Varptr TWorld.CollisionCallbackParameters[threadindex,TWorld.CollisionCallbackCount[threadindex],6],force,12
+                'CollisionCallbackParameters[threadindex,CollisionCallbackCount[threadindex],6]=0.0
+                'CollisionCallbackParameters[threadindex,CollisionCallbackCount[threadindex],7]=0.0
+                'CollisionCallbackParameters[threadindex,CollisionCallbackCount[threadindex],8]=0.0
+                TWorld.CollisionCallbackParameters[threadindex,TWorld.CollisionCallbackCount[threadindex],9]=speed
+                TWorld.CollisionCallbackCount[threadindex]:+1
+             EndIf
+          EndIf
+       Next
+    EndFunction
+
+    Public
+
+    Function CreateController:TController(height:Float=1.8,radius:Float=0.5,stepheight:Float=0.5,maxslope:Float=45.0,crouchheight:Float=0.0)
+       Local shape:TShape
+       Local controller:TController
+       
+       controller=New TController
+       controller.radius=radius
+       controller.height=height
+       controller.stepheight=stepheight+0.01
+       controller.maxslope=maxslope
+       shape=CreateShapeCylinder(radius,height,[0.0,height*0.5,0.0])
+       controller.CreateNewtonBody(shape)
+       NewtonBodySetTransformCallback controller.newtonBody,Null
+       NewtonBodySetForceAndTorqueCallback controller.newtonBody,Null
+       controller.crouchheight=crouchheight
+       If crouchheight=0.0 controller.crouchheight=height/2.0   
+       Return controller
+    EndFunction
+
+    Function ControllerCrouched:Int(controller:TController)
+       Return controller.IsCrouched()
+    EndFunction
+
+    Function UpdateController(controller:TController,angle:Float,move:Float,strafe:Float=0.0,jump:Float=0.0,maxacceleration:Float=0.5,iterations:Int=1,crouchmode:Int=0)
+       controller.Update(angle,move,strafe,jump,maxacceleration,iterations,crouchmode)
+    EndFunction
+
+    Function ControllerAirborne:Int(controller:TController)
+       Return controller.isairborne()
+    EndFunction

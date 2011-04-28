@@ -9,14 +9,19 @@ class Vector3f
 {
 public:
     float x,y,z;
+    static const Vector3f zero() { return Vector3f(0.0,0.0,0.0); }
 
     Vector3f();
     Vector3f(float _x, float _y, float _z);
 
-    Vector3f& operator += (const Vector3f& v);
-
     float length();
     float lengthSquared();
+
+    Vector3f& operator =  (const Vector3f& v);
+
+    Vector3f& operator += (const Vector3f& v);
+    Vector3f& operator -= (const Vector3f& v);
+    Vector3f& operator *= (float val);
 
 private:
     //float data[3];

@@ -20,6 +20,8 @@
 			<Add library="glfw" />
 			<Add library="opengl32" />
 			<Add library="glu32" />
+			<Add library="Newton" />
+			<Add library="dJointLibrary" />
 		</Linker>
 		<Unit filename="AseReader.cpp" />
 		<Unit filename="AseReader.h" />
@@ -29,12 +31,28 @@
 		<Unit filename="Entity.h" />
 		<Unit filename="Error.cpp" />
 		<Unit filename="Error.h" />
+		<Unit filename="Light.cpp" />
+		<Unit filename="Light.h" />
 		<Unit filename="Material.cpp" />
 		<Unit filename="Material.h" />
 		<Unit filename="Mesh.cpp" />
 		<Unit filename="Mesh.h" />
+		<Unit filename="Physics.cpp" />
+		<Unit filename="Physics.h" />
+		<Unit filename="SceneHandler.cpp" />
+		<Unit filename="SceneHandler.h" />
 		<Unit filename="Vector3f.cpp" />
 		<Unit filename="Vector3f.h" />
+		<Unit filename="dMath\dMathDefines.cpp" />
+		<Unit filename="dMath\dMathDefines.h" />
+		<Unit filename="dMath\dMatrix.cpp" />
+		<Unit filename="dMath\dMatrix.h" />
+		<Unit filename="dMath\dQuaternion.cpp" />
+		<Unit filename="dMath\dQuaternion.h" />
+		<Unit filename="dMath\dStdAfxMath.cpp" />
+		<Unit filename="dMath\dStdAfxMath.h" />
+		<Unit filename="dMath\dVector.cpp" />
+		<Unit filename="dMath\dVector.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />

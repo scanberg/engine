@@ -9,7 +9,6 @@ void main (void)
 {
 	float totLight = 10000.0/dot(lightVec,lightVec);
 	totLight = clamp(totLight,0.0,1.0);
-	totLight = 1.0;
 
 	//Normalize the incomming vectors
 	vec3 lVec = normalize(lightVec);

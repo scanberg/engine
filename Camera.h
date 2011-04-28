@@ -1,22 +1,26 @@
 #ifndef Camera_H
 #define Camera_H
+#include "Vector3f.h"
 
-class fpsCamera
+#include <Newton.h>
+#include <JointLibrary.h>
+
+class Camera
 {
 public:
-    fpsCamera();
-    void position(float _x, float _y, float _z);
-    void move(float _x, float _y, float _z);
-    void rotate(float _rx, float _ry, float _rz);
-    void update();
-    void setUp();
-    void setFollowMouse(bool b);
-    bool getFollowMouse(){return followMouse;};
-    float x, y, z;
+    static Camera *getActiveCamera() { return activeCamera; }
+    static void setActiveCamera(Camera &cam) { Camera::activeCamera = &cam; }
+    static void setActiveCamera(Camera *cam) { Camera::activeCamera = cam; }
+    static void setUp();
+
+    Camera();
+    void setPosition(float _x, float _y, float _z);
+    void setRotation(float _rx, float _ry, float _rz);
+
+    Vector3f pos;
+    Vector3f rot;
 private:
-    float rx, ry, rz;
-    int mousex, mousey, lastmousex, lastmousey;
-    bool followMouse;
+    static Camera* activeCamera;
 };
 
 #endif

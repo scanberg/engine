@@ -15,6 +15,7 @@ using namespace std;
 Material::Material()
 {
     //Tilldela standardvärden
+    ambient[3]=diffuse[3]=specular[3]=1.0f;
     setAmbient(1.0);
     setDiffuse(1.0);
     setSpecular(0.2);
@@ -341,6 +342,22 @@ GLuint createShader( const char *vertfilename, const char *fragfilename ) {
             glEnableVertexAttribArray(location_tang);
             glVertexAttribPointer(location_tang, 3, GL_FLOAT,GL_FALSE, 0, tangentPointer);
         }
+
+    // Deactivate the shader again
+    glUseProgram( 0 );
+}
+
+ void setUniformVariable( GLuint programObj, GLint var, char* name) {
+
+    GLint location_var = -1;
+
+    // Activate the shader to set its state
+    glUseProgram( programObj );
+
+        // Locate the uniform shader variables by name and set them:
+        location_var = glGetUniformLocation( programObj, name );
+        if(location_var != -1)
+            glUniform1i( location_var, var );
 
     // Deactivate the shader again
     glUseProgram( 0 );

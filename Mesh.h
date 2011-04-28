@@ -5,10 +5,6 @@
 #include "Vector3f.h"
 
 
-/*typedef struct {
-        float x,y,z;
-}Normal, *pNormal, Vector3f, *pVector3f;*/
-
 typedef struct {
         float u,v;
 }Vector2f, *pVector2f;
@@ -23,28 +19,6 @@ typedef struct {
         unsigned int point[3];
 }Face, *pFace;
 
-//typedef struct {
-//        unsigned int pointIndex[3];
-//        Normal normal[3];
-//        unsigned int uvIndex[3];
-//}Triangle, *pTriangle;
-
-//typedef struct {
-//        float r,g,b,a;
-//}RGBA;
-
-typedef struct {
-        unsigned int *face;
-        unsigned int numFaces;
-}SharedFaces, *pSharedFaces;
-
-//typedef struct {
-//        float u,v;
-//}UVCoord, *pUVCoord;
-
-typedef struct {
-        GLuint id;
-}Texture, *pTexture;
 
 void MeshInit();
 
@@ -60,9 +34,10 @@ public:
     void createBuffers();
     void draw();
 
+    Vector3f center;
+
     pVertex vertex;
     pFace face;
-    pSharedFaces sharedFaces;
     pVector3f tangent;
 
     GLuint vBufferID;

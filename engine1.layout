@@ -1,43 +1,67 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_layout_file>
 	<ActiveTarget name="default" />
-	<File name="AseReader.cpp" open="1" top="0" tabpos="7">
-		<Cursor position="6421" topLine="206" />
+	<File name="AseReader.cpp" open="1" top="0" tabpos="16">
+		<Cursor position="13641" topLine="430" />
 	</File>
-	<File name="AseReader.h" open="1" top="0" tabpos="6">
-		<Cursor position="363" topLine="0" />
+	<File name="AseReader.h" open="1" top="0" tabpos="17">
+		<Cursor position="430" topLine="0" />
 	</File>
 	<File name="Camera.cpp" open="1" top="0" tabpos="8">
-		<Cursor position="611" topLine="0" />
+		<Cursor position="789" topLine="12" />
 	</File>
 	<File name="Camera.h" open="1" top="0" tabpos="9">
-		<Cursor position="382" topLine="0" />
+		<Cursor position="547" topLine="0" />
 	</File>
-	<File name="Entity.cpp" open="1" top="0" tabpos="12">
-		<Cursor position="4484" topLine="109" />
+	<File name="Entity.cpp" open="1" top="0" tabpos="6">
+		<Cursor position="5791" topLine="194" />
 	</File>
-	<File name="Entity.h" open="1" top="0" tabpos="13">
-		<Cursor position="881" topLine="8" />
+	<File name="Entity.h" open="1" top="0" tabpos="7">
+		<Cursor position="2349" topLine="56" />
+	</File>
+	<File name="Light.cpp" open="1" top="0" tabpos="10">
+		<Cursor position="2841" topLine="64" />
+	</File>
+	<File name="Light.h" open="1" top="0" tabpos="11">
+		<Cursor position="850" topLine="10" />
 	</File>
 	<File name="Material.cpp" open="1" top="0" tabpos="2">
-		<Cursor position="1080" topLine="0" />
+		<Cursor position="10778" topLine="330" />
 	</File>
 	<File name="Material.h" open="1" top="0" tabpos="3">
-		<Cursor position="968" topLine="23" />
+		<Cursor position="1164" topLine="21" />
 	</File>
 	<File name="Mesh.cpp" open="1" top="0" tabpos="4">
-		<Cursor position="792" topLine="21" />
+		<Cursor position="2592" topLine="95" />
 	</File>
 	<File name="Mesh.h" open="1" top="0" tabpos="5">
-		<Cursor position="877" topLine="46" />
+		<Cursor position="428" topLine="15" />
 	</File>
-	<File name="Vector3f.cpp" open="1" top="0" tabpos="10">
-		<Cursor position="1871" topLine="68" />
+	<File name="Physics.cpp" open="1" top="0" tabpos="13">
+		<Cursor position="628" topLine="36" />
 	</File>
-	<File name="Vector3f.h" open="1" top="0" tabpos="11">
-		<Cursor position="874" topLine="11" />
+	<File name="Physics.h" open="1" top="0" tabpos="12">
+		<Cursor position="80" topLine="0" />
+	</File>
+	<File name="SceneHandler.cpp" open="1" top="0" tabpos="14">
+		<Cursor position="16397" topLine="512" />
+	</File>
+	<File name="SceneHandler.h" open="1" top="0" tabpos="15">
+		<Cursor position="615" topLine="11" />
+	</File>
+	<File name="Vector3f.cpp" open="0" top="0" tabpos="12">
+		<Cursor position="1678" topLine="27" />
+	</File>
+	<File name="Vector3f.h" open="0" top="0" tabpos="13">
+		<Cursor position="0" topLine="0" />
+	</File>
+	<File name="dMath\dMatrix.h" open="0" top="0" tabpos="17">
+		<Cursor position="1068" topLine="25" />
+	</File>
+	<File name="dMath\dVector.h" open="0" top="0" tabpos="18">
+		<Cursor position="4033" topLine="0" />
 	</File>
 	<File name="main.cpp" open="1" top="1" tabpos="1">
-		<Cursor position="5102" topLine="176" />
+		<Cursor position="3458" topLine="119" />
 	</File>
 </CodeBlocks_layout_file>
