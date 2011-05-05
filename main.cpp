@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
     StaticEntity *beast;
     StaticEntity *box;
 
-    scene = SceneHandler::CreateStaticEntity("media/testscene/testscene.ase",10.0);
+    scene = SceneHandler::CreateStaticEntity("media/testscene/testscene.ase",5.0);
     beast = SceneHandler::CreateStaticEntity("media/beast/beast.ase",0.5);
     box = SceneHandler::CreateStaticEntity("media/box/box.ase",1.0);
 

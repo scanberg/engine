@@ -9,7 +9,6 @@
 #include <JointLibrary.h>
 
 #include "SceneHandler.h"
-#include "Vector3f.h"
 #include "Error.h"
 #include "Entity.h"
 #include "AseReader.h"
@@ -264,25 +263,25 @@ void SceneHandler::Render()
     }
     //glPopMatrix();
 
-    glUseProgram(0);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(-SceneHandler::width/2,SceneHandler::width/2,-SceneHandler::height/2,SceneHandler::height/2,1,20);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glColor4f(1.0,1.0,1.0,1);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D,SceneHandler::light[0]->depthTextureId);
-    glEnable(GL_TEXTURE_2D);
-    glTranslated(0,0,-1);
-    glBegin(GL_QUADS);
-    glTexCoord2d(0,0);glVertex3f(0,0,0);
-    glTexCoord2d(1,0);glVertex3f(SceneHandler::width/2,0,0);
-    glTexCoord2d(1,1);glVertex3f(SceneHandler::width/2,SceneHandler::height/2,0);
-    glTexCoord2d(0,1);glVertex3f(0,SceneHandler::height/2,0);
-
-    glEnd();
-    glDisable(GL_TEXTURE_2D);
+//    glUseProgram(0);
+//    glMatrixMode(GL_PROJECTION);
+//    glLoadIdentity();
+//    glOrtho(-SceneHandler::width/2,SceneHandler::width/2,-SceneHandler::height/2,SceneHandler::height/2,1,20);
+//    glMatrixMode(GL_MODELVIEW);
+//    glLoadIdentity();
+//    glColor4f(1.0,1.0,1.0,1);
+//    glActiveTexture(GL_TEXTURE0);
+//    glBindTexture(GL_TEXTURE_2D,SceneHandler::light[0]->depthTextureId);
+//    glEnable(GL_TEXTURE_2D);
+//    glTranslated(0,0,-1);
+//    glBegin(GL_QUADS);
+//    glTexCoord2d(0,0);glVertex3f(0,0,0);
+//    glTexCoord2d(1,0);glVertex3f(SceneHandler::width/2,0,0);
+//    glTexCoord2d(1,1);glVertex3f(SceneHandler::width/2,SceneHandler::height/2,0);
+//    glTexCoord2d(0,1);glVertex3f(0,SceneHandler::height/2,0);
+//
+//    glEnd();
+//    glDisable(GL_TEXTURE_2D);
 
 }
 

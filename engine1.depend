@@ -130,7 +130,7 @@
 	<GL/glfw.h>
 	"Mesh.h"
 
-1304601871 source:c:\users\gespachelor\engine\main.cpp
+1304606506 source:c:\users\gespachelor\engine\main.cpp
 	<GL/glew.h>
 	<GL/glfw.h>
 	<iostream>
@@ -277,7 +277,7 @@
 	"Entity.h"
 	"Light.h"
 
-1304600184 source:c:\users\gespachelor\engine\scenehandler.cpp
+1304605605 source:c:\users\gespachelor\engine\scenehandler.cpp
 	<GL/glew.h>
 	<GL/glfw.h>
 	<iostream>
@@ -286,7 +286,6 @@
 	<Newton.h>
 	<JointLibrary.h>
 	"SceneHandler.h"
-	"Vector3f.h"
 	"Error.h"
 	"Entity.h"
 	"AseReader.h"
