@@ -1,11 +1,13 @@
 varying vec3 lightVec; 
 varying vec3 viewVec;
 varying vec2 texCoord;
+varying vec4 ShadowCoord;
 
 attribute vec3 tangent;         
 	
 void main(void)
 {
+	
 	gl_Position = ftransform();
 	texCoord = gl_MultiTexCoord0.xy;
 		
@@ -27,4 +29,6 @@ void main(void)
 	v.y = dot(vVec, b);
 	v.z = dot(vVec, n);
 	viewVec = v;
+
+	ShadowCoord= gl_TextureMatrix[3] * gl_Vertex;
 }
