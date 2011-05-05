@@ -35,10 +35,14 @@
 		<Unit filename="Light.h" />
 		<Unit filename="Material.cpp" />
 		<Unit filename="Material.h" />
+		<Unit filename="Math.cpp" />
+		<Unit filename="Math.h" />
 		<Unit filename="Mesh.cpp" />
 		<Unit filename="Mesh.h" />
 		<Unit filename="Physics.cpp" />
 		<Unit filename="Physics.h" />
+		<Unit filename="ResourceManager.cpp" />
+		<Unit filename="ResourceManager.h" />
 		<Unit filename="SceneHandler.cpp" />
 		<Unit filename="SceneHandler.h" />
 		<Unit filename="Vector3f.cpp" />

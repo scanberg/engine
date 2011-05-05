@@ -1,15 +1,9 @@
 #define GLEW_STATIC
 
 #include <GL/glew.h>
-
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <stdlib.h>
-#include <math.h>
 #include <GL/glfw.h>
+
 #include "Mesh.h"
-#include "Vector3f.h"
 
 #define SETELEMENT(arr, stride, i, u, v, nx, ny, nz, x, y, z) \
     (arr)[(i)*(stride)] = u; \
@@ -26,17 +20,17 @@ using namespace std;
 //Hjälpfunktioner
 float toFloat(string s);
 int toInt(string s);
-void normalize(Vector3f &v);
-void normalize(float &x, float &y, float &z);
+void normalize(glm::vec3 &v);
+void normalizeXYZ(float &x, float &y, float &z);
 void fillBuffers(float **varray, int **iarray, Mesh* mesh);
-void calculateTangent(Vector3f &tangent,Vector3f v1, Vector3f v2, Vector2f st1, Vector2f st2);
+void calculateTangent(glm::vec3 &tangent, glm::vec3 v1, glm::vec3 v2, glm::vec2 st1, glm::vec2 st2);
 
 void Mesh::init(unsigned int verts, unsigned int faces)
 {
     numVertices=verts;
     numFaces=faces;
     vertex = new Vertex[numVertices];
-    tangent = new Vector3f[numVertices];
+    tangent = new glm::vec3[numVertices];
     face = new Face[numFaces];
 }
 
@@ -50,46 +44,13 @@ void Mesh::scale(float s)
     }
 }
 
-void normalize(Vector3f &v)
+glm::vec3 createVec3(const Vertex &a,const Vertex &b)
 {
-    float length = sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
-    if(length>0.0f)
-    {
-        length = 1.0/length;
-        v.x *= length;
-        v.y *= length;
-        v.z *= length;
-    }
-}
-
-void normalize(float &x, float &y, float &z)
-{
-    float length = sqrt(x*x + y*y + z*z);
-    if(length>0.0f)
-    {
-        length = 1.0/length;
-        x *= length;
-        y *= length;
-        z *= length;
-    }
-}
-
-Vector3f createVector(const Vertex &a,const Vertex &b)
-{
-    Vector3f v;
+    glm::vec3 v;
     v.x=b.x-a.x;
     v.y=b.y-a.y;
     v.z=b.z-a.z;
     return v;
-}
-
-Vector3f VectorProduct(Vector3f a, Vector3f b)
-{
-    Vector3f n;
-    n.x=(a.y * b.z) - (a.z * b.y);
-    n.y=(a.z * b.x) - (a.x * b.z);
-    n.z=(a.x * b.y) - (a.y * b.x);
-    return n;
 }
 
 void Mesh::calculateNormals()
@@ -97,40 +58,41 @@ void Mesh::calculateNormals()
     unsigned int sharedFaces[this->numVertices];
     unsigned int i;
     float faces;
-    Vector3f normal,tang, a, b;
+    glm::vec3 normal,tang,a,b;
 
-    center = Vector3f::zero();
+    center = glm::vec3(0.0f);
 
     for (i=0; i<this->numVertices; i++)
     {
-        vertex[i].nx=vertex[i].ny=vertex[i].nz=0.0;
-        tangent[i].x=tangent[i].y=tangent[i].z=0.0;
+        vertex[i].nx=vertex[i].ny=vertex[i].nz=0.0f;
+        tangent[i].x=tangent[i].y=tangent[i].z=0.0f;
         sharedFaces[i]=0;
         center.x += vertex[i].x;
         center.y += vertex[i].y;
         center.z += vertex[i].z;
     }
 
-    center.x /= (float)numVertices;
-    center.y /= (float)numVertices;
-    center.z /= (float)numVertices;
+    center /= (float)numVertices;
 
     for (i=0; i<this->numFaces; i++)
     {
-        a=createVector(vertex[face[i].point[0]],vertex[face[i].point[2]]);
-        b=createVector(vertex[face[i].point[0]],vertex[face[i].point[1]]);
-        normal=cross(b,a);
+        a=createVec3(vertex[face[i].point[0]],vertex[face[i].point[2]]);
+        b=createVec3(vertex[face[i].point[0]],vertex[face[i].point[1]]);
 
-        Vector2f st1, st2;
-        st1.u = vertex[face[i].point[2]].u - vertex[face[i].point[0]].u;
-        st1.v = vertex[face[i].point[2]].v - vertex[face[i].point[0]].v;
+        normal = glm::cross(b,a);
 
-        st2.u = vertex[face[i].point[1]].u - vertex[face[i].point[0]].u;
-        st2.v = vertex[face[i].point[1]].v - vertex[face[i].point[0]].v;
+        glm::vec2 st1, st2;
+
+        st1.x = vertex[face[i].point[2]].u - vertex[face[i].point[0]].u;
+        st1.y = vertex[face[i].point[2]].v - vertex[face[i].point[0]].v;
+
+        st2.x = vertex[face[i].point[1]].u - vertex[face[i].point[0]].u;
+        st2.y = vertex[face[i].point[1]].v - vertex[face[i].point[0]].v;
 
         calculateTangent(tang, a, b, st1, st2);
-        normalize(normal);
-        normalize(tang);
+
+        normal = glm::normalize(normal);
+        tang = glm::normalize(tang);
 
         vertex[face[i].point[0]].nx += normal.x;
         vertex[face[i].point[0]].ny += normal.y;
@@ -176,8 +138,8 @@ void Mesh::calculateNormals()
             tangent[i].z /= faces;
         }
 
-        normalize(vertex[i].nx,vertex[i].ny,vertex[i].nz);
-        normalize(tangent[i]);
+        normalizeXYZ(vertex[i].nx,vertex[i].ny,vertex[i].nz);
+        tangent[i]=glm::normalize(tangent[i]);
     }
 
 }
@@ -212,15 +174,16 @@ void Mesh::draw()
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
 }
 
-void calculateTangent(Vector3f &tangent,Vector3f v1, Vector3f v2, Vector2f st1, Vector2f st2)
+void calculateTangent(glm::vec3 &tangent, glm::vec3 v1, glm::vec3 v2, glm::vec2 st1, glm::vec2 st2)
 {
-    float coef = 1.0/ (st1.u * st2.v - st2.u * st1.v);
+    float coef = 1.0/ (st1.x * st2.y - st2.x * st1.y);
 
-    tangent.x = coef * ((v1.x * st2.v)  + (v2.x * -st1.v));
-    tangent.y = coef * ((v1.y * st2.v)  + (v2.y * -st1.v));
-    tangent.z = coef * ((v1.z * st2.v)  + (v2.z * -st1.v));
+    tangent.x = coef * ((v1.x * st2.y)  + (v2.x * -st1.y));
+    tangent.y = coef * ((v1.y * st2.y)  + (v2.y * -st1.y));
+    tangent.z = coef * ((v1.z * st2.y)  + (v2.z * -st1.y));
 }
 
 // *CREDITS TO STEGU*

@@ -1,9 +1,6 @@
 #ifndef Camera_H
 #define Camera_H
-#include "Vector3f.h"
-
-#include <Newton.h>
-#include <JointLibrary.h>
+#include "Math.h"
 
 class Camera
 {
@@ -17,8 +14,8 @@ public:
     void setPosition(float _x, float _y, float _z);
     void setRotation(float _rx, float _ry, float _rz);
 
-    Vector3f pos;
-    Vector3f rot;
+    glm::vec3 pos;
+    glm::vec3 rot;
 private:
     static Camera* activeCamera;
 };

@@ -7,7 +7,6 @@
 #include <cstdio>
 #include <Newton.h>
 #include <JointLibrary.h>
-#include <windows.h>
 
 #include "SceneHandler.h"
 #include "Vector3f.h"
@@ -15,58 +14,33 @@
 #include "Entity.h"
 #include "AseReader.h"
 #include "Physics.h"
-#include "dMath\dVector.h"
-#include "dMath\dMatrix.h"
-#include "dMath\dQuaternion.h"
+#include "Material.h"
 
 #define USE_VISUAL_DEBUGGER
 
-#define DEMO_PHYSICS_FPS	        120.0f
-#define DEMO_FPS_IN_MICROSECUNDS    (int (1000000.0f/DEMO_PHYSICS_FPS))
+#define PHYSICS_FPS	        60.0f
+#define FPS_IN_MICROSECONDS    (int (1000000.0f/PHYSICS_FPS))
 #define MAX_PHYSICS_LOOPS		    1
-
-static NewtonBody* booty;
 
 using namespace std;
 
 static int g_currentTime;
-static int g_physicTime;
-static int g_timeAccumulator = DEMO_FPS_IN_MICROSECUNDS;
+static int g_timeAccumulator = FPS_IN_MICROSECONDS;
 
 //static void* g_newtonDebugger;
 
 void* AllocMemory (int sizeInBytes);
 void FreeMemory (void *ptr, int sizeInBytes);
-void AdvanceSimulation (long timeInMilisecunds);
+void AdvanceSimulation (unsigned int timeInMilisecunds);
+unsigned int GetTimeInMicroseconds (){ return (unsigned int)(glfwGetTime()*1.0e6); }
 
-unsigned GetTimeInMicrosenconds()
-{
-	unsigned ticks;
-	LARGE_INTEGER count;
-	static bool firstTime = true;
-	static bool haveTimer = false;
-	static LARGE_INTEGER frequency;
-	static LARGE_INTEGER baseCount;
-
-	if (firstTime) {
-		firstTime = false;
-		haveTimer = QueryPerformanceFrequency(&frequency) ? true : false;
-		QueryPerformanceCounter (&baseCount);
-	}
-
-	QueryPerformanceCounter (&count);
-	count.QuadPart -= baseCount.QuadPart;
-	ticks = unsigned (count.QuadPart * LONGLONG (1000000) / frequency.QuadPart);
-	return ticks;
-}
-
-#pragma warning (disable: 4100) //unreferenced formal parameter
-#pragma warning (disable: 4702) //unreachable code
+//#pragma warning (disable: 4100) //unreferenced formal parameter
+//#pragma warning (disable: 4702) //unreachable code
 
 static char titlestring[200];
 
 // Allocate statics.
-dFloat SceneHandler::interpolationParam;
+
 vector<Entity*> SceneHandler::entity;
 vector<MeshEntity*> SceneHandler::meshEntity;
 vector<Entity*> SceneHandler::renderList;
@@ -74,9 +48,10 @@ vector<Light*> SceneHandler::light;
 NewtonWorld* SceneHandler::world;
 int SceneHandler::width;
 int SceneHandler::height;
-dFloat SceneHandler::g_dt;
-
-NewtonWorld* g_world = SceneHandler::world;
+float SceneHandler::g_dt;
+float SceneHandler::interpolationParam;
+GLuint SceneHandler::shadowShader;
+//NewtonWorld* SceneHandler::world = SceneHandler::world;
 
 /*
  * Handle the resizing of the window. /Stegu
@@ -133,6 +108,17 @@ void updateDt()
     t0=t;
 }
 
+void setupMatrices()
+{
+    glMatrixMode(GL_PROJECTION); // "We want to edit the projection matrix"
+    glLoadIdentity(); // Reset the matrix to identity
+    // 65 degrees FOV, same aspect ratio as window, depth range 1 to 100
+    gluPerspective( 65.0f, (GLfloat)SceneHandler::width/(GLfloat)SceneHandler::height, 1.0f, 2000.0f );
+
+    Camera::setUp();
+}
+
+
 void SceneHandler::GenerateShadowMaps()
 {
     for(unsigned int i=0; i<SceneHandler::light.size(); i++)
@@ -153,6 +139,7 @@ void SceneHandler::GenerateShadowMaps()
         glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 
         light.at(i)->setupMatrices();
+        //setupMatrices();
 
         // Culling switching, rendering only backface, this is done to avoid self-shadowing
         glCullFace(GL_FRONT);
@@ -199,21 +186,23 @@ int SceneHandler::Init()
     glEnable(GL_CULL_FACE); // Cull away all back facing polygons
     glEnable(GL_DEPTH_TEST); // Use the Z buffer
 
+    //SceneHandler::shadowShader = createShader( "", "" );
+
 	// set the memory allocators
 	NewtonSetMemorySystem (AllocMemory, FreeMemory);
 
 	// create the Newton World
-	g_world = NewtonCreate ();
+	SceneHandler::world = NewtonCreate ();
 
 	// use the standard x87 floating point model
-	NewtonSetPlatformArchitecture (g_world, 0);
+	NewtonSetPlatformArchitecture (SceneHandler::world, 0);
 
-	NewtonSetSolverModel (g_world, 1);
+	NewtonSetSolverModel (SceneHandler::world, 1);
 
 	// set a fix world size
-	dVector minSize (-500.0f, -500.0f, -500.0f);
-	dVector maxSize ( 500.0f,  500.0f,  500.0f);
-	NewtonSetWorldSize (g_world, &minSize[0], &maxSize[0]);
+	glm::vec3 minSize (-1000.0f, -1000.0f, -1000.0f);
+	glm::vec3 maxSize ( 1000.0f,  1000.0f,  1000.0f);
+	NewtonSetWorldSize (SceneHandler::world, &minSize[0], &maxSize[0]);
 
     return 1;
 }
@@ -226,22 +215,23 @@ void SceneHandler::Update()
 
     updateDt();
 
-    AdvanceSimulation(GetTimeInMicrosenconds());
-
+    AdvanceSimulation(GetTimeInMicroseconds());
 
     for(i=0; i<SceneHandler::light.size(); i++)
     {
         SceneHandler::light.at(i)->Update();
     }
 
+    for(i=0; i<SceneHandler::entity.size(); i++)
+    {
+        SceneHandler::entity.at(i)->Update(interpolationParam, SceneHandler::world);
+    }
     for(i=0; i<SceneHandler::meshEntity.size(); i++)
     {
-        SceneHandler::meshEntity.at(i)->Update(interpolationParam, g_world);
+        SceneHandler::meshEntity.at(i)->Update(interpolationParam, SceneHandler::world);
     }
 
-    glPushMatrix();
     SceneHandler::GenerateShadowMaps();
-    glPopMatrix();
 
 	// Now rendering from the camera POV, using the FBO to generate shadows
 	glBindFramebuffer(GL_FRAMEBUFFER,0);
@@ -264,33 +254,36 @@ void SceneHandler::Update()
 void SceneHandler::Render()
 {
     unsigned int i;
-    glPushMatrix();
+    //glPushMatrix();
+
+    setupMatrices();
+
     for(i=0; i<SceneHandler::renderList.size(); i++)
     {
         SceneHandler::renderList.at(i)->Draw();
     }
-    glPopMatrix();
-/*
-     glUseProgram(0);
-	 glMatrixMode(GL_PROJECTION);
-	 glLoadIdentity();
-	 glOrtho(-SceneHandler::width/2,SceneHandler::width/2,-SceneHandler::height/2,SceneHandler::height/2,1,20);
-	 glMatrixMode(GL_MODELVIEW);
-	 glLoadIdentity();
-	 glColor4f(1,1,1,1);
-	 glActiveTexture(GL_TEXTURE0);
-	 glBindTexture(GL_TEXTURE_2D,SceneHandler::light[0]->depthTextureId);
-	 glEnable(GL_TEXTURE_2D);
-	 glTranslated(0,0,-1);
-	 glBegin(GL_QUADS);
-	 glTexCoord2d(0,0);glVertex3f(0,0,0);
-	 glTexCoord2d(1,0);glVertex3f(SceneHandler::width/2,0,0);
-	 glTexCoord2d(1,1);glVertex3f(SceneHandler::width/2,SceneHandler::height/2,0);
-	 glTexCoord2d(0,1);glVertex3f(0,SceneHandler::height/2,0);
+    //glPopMatrix();
 
-	 glEnd();
-	 glDisable(GL_TEXTURE_2D);
-*/
+    glUseProgram(0);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(-SceneHandler::width/2,SceneHandler::width/2,-SceneHandler::height/2,SceneHandler::height/2,1,20);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glColor4f(1.0,1.0,1.0,1);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D,SceneHandler::light[0]->depthTextureId);
+    glEnable(GL_TEXTURE_2D);
+    glTranslated(0,0,-1);
+    glBegin(GL_QUADS);
+    glTexCoord2d(0,0);glVertex3f(0,0,0);
+    glTexCoord2d(1,0);glVertex3f(SceneHandler::width/2,0,0);
+    glTexCoord2d(1,1);glVertex3f(SceneHandler::width/2,SceneHandler::height/2,0);
+    glTexCoord2d(0,1);glVertex3f(0,SceneHandler::height/2,0);
+
+    glEnd();
+    glDisable(GL_TEXTURE_2D);
+
 }
 
 void SceneHandler::Destroy()
@@ -318,10 +311,10 @@ void SceneHandler::Destroy()
 
 	// destroy all rigid bodies, this is no necessary because Newton Destroy world will also destroy all bodies
 	// but if you want to change level and restart you can call this function to clean the world without destroying the world.
-	NewtonDestroyAllBodies (g_world);
+	NewtonDestroyAllBodies (SceneHandler::world);
 
 	// finally destroy the newton world
-	NewtonDestroy (g_world);
+	NewtonDestroy (SceneHandler::world);
 
 }
 
@@ -337,6 +330,7 @@ PlayerEntity* SceneHandler::CreatePlayerEntity()
 {
     PlayerEntity* ent = new PlayerEntity();
     SceneHandler::entity.push_back((Entity*)ent);
+
 
     //SceneHandler::renderList.push_back(ent);
 
@@ -362,10 +356,10 @@ void SceneHandler::CreateBBoxCollision(Entity* ent, float mass)
     NewtonCollision* shape;
     NewtonBody* body;
 
-    shape = CreateNewtonBox (g_world, ent, 0);
-	body = CreateRigidBody (g_world, ent, shape, mass);
+    shape = CreateNewtonBox (SceneHandler::world, ent, 0);
+	body = CreateRigidBody (SceneHandler::world, ent, shape, mass);
 
-	NewtonReleaseCollision (g_world, shape);
+	NewtonReleaseCollision (SceneHandler::world, shape);
 }
 
 void SceneHandler::CreateConvexCollision(MeshEntity* ent, float mass)
@@ -373,10 +367,10 @@ void SceneHandler::CreateConvexCollision(MeshEntity* ent, float mass)
     NewtonCollision* shape;
     NewtonBody* body;
 
-    shape = CreateNewtonConvex (g_world, ent, 0);
-	body = CreateRigidBody (g_world, ent, shape, mass);
+    shape = CreateNewtonConvex (SceneHandler::world, ent, 0);
+	body = CreateRigidBody (SceneHandler::world, ent, shape, mass);
 
-	NewtonReleaseCollision (g_world, shape);
+	NewtonReleaseCollision (SceneHandler::world, shape);
 }
 
 void SceneHandler::CreateMeshCollision(MeshEntity* ent, float mass)
@@ -384,128 +378,58 @@ void SceneHandler::CreateMeshCollision(MeshEntity* ent, float mass)
     NewtonCollision* shape;
     NewtonBody* body;
 
-    shape = CreateNewtonMesh(g_world, ent, 0);
-	body = CreateRigidBody (g_world, ent, shape, mass);
+    shape = CreateNewtonMesh(SceneHandler::world, ent, 0);
+	body = CreateRigidBody (SceneHandler::world, ent, shape, mass);
 
-	NewtonReleaseCollision (g_world, shape);
+	NewtonReleaseCollision (SceneHandler::world, shape);
 }
 
-void SceneHandler::CreatePlayerCollision(PlayerEntity* ent, float mass)
+void SceneHandler::CreatePlayerCollision(PlayerEntity* ent)
 {
 
     NewtonBody* body;
     NewtonCollision* shape;
 
-    // get the bounding Box of the player to get the collision shape dimensions
-    dVector minBox = ent->m_minBox;
-    dVector maxBox = ent->m_maxBox;
-    //player->GetBBox (minBox, maxBox);
-
     // calculate player high and width
-    dFloat padding = 1.0f / 64.0f;  // this si the default padding, for teh palye joint, we must subtract it from the shape
-    dFloat playerHigh = (maxBox.m_z - minBox.m_z) - padding;
-    dFloat playerRadius0 = (maxBox.m_y - minBox.m_y) * 0.5f;
-    dFloat playerRadius1 = (maxBox.m_x - minBox.m_x) * 0.5f;
-    dFloat playerRadius = (playerRadius0 > playerRadius1 ? playerRadius0 : playerRadius1) - padding;
+    float padding = 1.0f / 64.0f;  // this is the default padding, for the palyer joint, we must subtract it from the shape
+    float playerHigh = (ent->maxBox.z - ent->minBox.z) - padding;
+    float playerRadius0 = (ent->maxBox.y - ent->minBox.y) * 0.5f;
+    float playerRadius1 = (ent->maxBox.x - ent->minBox.x) * 0.5f;
+    float playerRadius = (playerRadius0 > playerRadius1 ? playerRadius0 : playerRadius1) - padding;
 
     // No we make and make a upright capsule for the collision mesh
-    dMatrix orientation;
-    orientation.m_front = dVector (0.0f, 0.0f, 1.0f, 0.0f);			// this is the player front direction
-    orientation.m_up    = dVector (0.0f, 1.0f, 0.0f, 0.0f);			// this is the player up direction
-    orientation.m_right = orientation.m_front * orientation.m_up;   // this is the player sideway direction
-    orientation.m_posit = dVector (0.0f, 0.0f, 0.0f, 1.0f);
+//    dMatrix orientation;
+//    orientation.m_front = dVector (0.0f, 0.0f, 1.0f, 0.0f);			// this is the player front direction
+//    orientation.m_up    = dVector (0.0f, 1.0f, 0.0f, 0.0f);			// this is the player up direction
+//    orientation.m_right = orientation.m_front * orientation.m_up;   // this is the player sideway direction
+//    orientation.m_posit = dVector (0.0f, 0.0f, 0.0f, 1.0f);
+
+
+    glm::mat4 orientation;
+    //glm::gtc::matrix_access::column(orientation,0,glm::vec4(0.0f, 0.0f, 1.0f, 0.0f));
+    orientation[0] = glm::vec4(0.0f, 0.0f, 1.0f, 0.0f);
+    orientation[1] = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
+    orientation[2] = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
+    orientation[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
+
 
     // add a body with a box shape
     //shape = CreateNewtonCapsule (world, player, playerHigh, playerRadius, m_wood, orientation);
-    shape = CreateNewtonCylinder (g_world, ent, playerHigh, playerRadius, 0, orientation);
-    body = CreateRigidBody (g_world, ent, shape, mass);
-    NewtonReleaseCollision (g_world, shape);
-
-    // make sure the player does not go to sleep
-    NewtonBodySetAutoSleep (body, 0);
-
-    ent->playerBody = body;
-
-    // now we will attach a player controller to the body
-    //NewtonUserJoint* playerController;
-    // the player can take step up to 0.7 units;
-    dFloat maxStairStepFactor = 0.7f / playerHigh;
-    ent->playerController = CreateCustomPlayerController (&orientation[0][0], body, maxStairStepFactor, padding);
-
-    // set the Max Slope the player can climb to PLAYER_MAX_SLOPE degree
-    CustomPlayerControllerSetMaxSlope (ent->playerController, 45.0 * 3.1416f / 180.0f);
-
-    // now we will append some application data for the application to control the player
-    //PlayerController* userControl = (PlayerController*) malloc (sizeof (PlayerController));
-    //userControl->m_isThirdView = 1;
-    //userControl->m_point = dVector (0.0f, playerHigh, 0.0f,0.0f);
-
-    // set the user data for the application to control the player
-    CustomSetUserData (ent->playerController, ent);
-
-    // set the destruction call back so that the application can destroy local used data
-    //CustomSetDestructorCallback (playerController, PlayerController::Destroy);
-
-
-
-    // set a call back to control the player
-    CustomSetSubmitContraintCallback (ent->playerController, PlayerEntity::ApplyPlayerInput);
-
-    // we also need to set override the transform call back so the we can set the Camera
-    ent->m_setTransformOriginal = NewtonBodyGetTransformCallback(body);
-    NewtonBodySetTransformCallback (body, PlayerEntity::SetTransform);
-
-    // we will need some ID to fin this joint in the transform Callback
-    //CustomSetJointID (ent->playerController, PLAYER_JOINT_ID);
-}
-
-void SceneHandler::CreatePlayCollision(PlayerEntity* ent)
-{
-
-    NewtonBody* body;
-    NewtonCollision* shape;
-
-    // get the bounding Box of the player to get the collision shape dimensions
-    dVector minBox = ent->m_minBox;
-    dVector maxBox = ent->m_maxBox;
-    //player->GetBBox (minBox, maxBox);
-
-    // calculate player high and width
-    dFloat padding = 1.0f / 64.0f;  // this si the default padding, for teh palye joint, we must subtract it from the shape
-    dFloat playerHigh = (maxBox.m_z - minBox.m_z) - padding;
-    dFloat playerRadius0 = (maxBox.m_y - minBox.m_y) * 0.5f;
-    dFloat playerRadius1 = (maxBox.m_x - minBox.m_x) * 0.5f;
-    dFloat playerRadius = (playerRadius0 > playerRadius1 ? playerRadius0 : playerRadius1) - padding;
-
-    // No we make and make a upright capsule for the collision mesh
-    dMatrix orientation;
-    orientation.m_front = dVector (0.0f, 0.0f, 1.0f, 0.0f);			// this is the player front direction
-    orientation.m_up    = dVector (0.0f, 1.0f, 0.0f, 0.0f);			// this is the player up direction
-    orientation.m_right = orientation.m_front * orientation.m_up;   // this is the player sideway direction
-    orientation.m_posit = dVector (0.0f, 0.0f, 0.0f, 1.0f);
-
-    // add a body with a box shape
-    //shape = CreateNewtonCapsule (world, player, playerHigh, playerRadius, m_wood, orientation);
-    shape = CreateNewtonCylinder (g_world, ent, playerHigh, playerRadius, 0, orientation);
-    //shape = CreateNewtonBox (g_world, ent, 0);
-    body = CreateRigidBody (g_world, ent, shape, 1.0);
-    NewtonReleaseCollision (g_world, shape);
+    shape = CreateNewtonCylinder (SceneHandler::world, ent, playerHigh, playerRadius, 0, orientation);
+    //shape = CreateNewtonBox (SceneHandler::world, ent, 0);
+    body = CreateRigidBody (SceneHandler::world, ent, shape, 0);
+    NewtonReleaseCollision (SceneHandler::world, shape);
 
     NewtonBodySetAutoSleep (body, 0);
 
-    NewtonBodySetTransformCallback (body, PlayerEntity::SetTransform);
+    //NewtonBodySetTransformCallback (body, PlayerEntity::SetTransform);
 
     ent->playerBody = body;
+    //PlayerEntity::player = ent;
 }
 
-//long GetTimeInMicrosenconds ()
-//{
-//    double d = glfwGetTime();
-//    d = d*1.0e6;
-//    return (long)d;
-//}
-
-void SceneHandler::SetInterpolationParam(dFloat t)
+void SceneHandler::SetInterpolationParam(float t)
 {
     if (t > 1.0f) {
 		t = 1.0f;
@@ -530,67 +454,42 @@ void ProcessEvents(NewtonWorld* world)
 
 }
 
-void AdvanceSimulation (long timeInMilisecunds)
+void AdvanceSimulation (unsigned int timeInMicroseconds)
 {
 	// do the physics simulation here
-	long deltaTime;
-	long physicLoopsTimeAcc;
-	dFloat physicTime;
+	unsigned int deltaTime;
 
 	// get the time step
-	deltaTime = timeInMilisecunds - g_currentTime;
-	g_currentTime = timeInMilisecunds;
+	deltaTime = timeInMicroseconds - g_currentTime;
+	g_currentTime = timeInMicroseconds;
 	g_timeAccumulator += deltaTime;
 
-	physicTime = 0;
 	// advance the simulation at a fix step
 	int loops = 0;
-	physicLoopsTimeAcc = 0;
 
-
-	while ((loops < MAX_PHYSICS_LOOPS) && (g_timeAccumulator >= DEMO_FPS_IN_MICROSECUNDS))
+	while ((loops < MAX_PHYSICS_LOOPS) && (g_timeAccumulator >= FPS_IN_MICROSECONDS))
 	{
 		loops ++;
 
 		// Process incoming events.
-		ProcessEvents (g_world);
-
-		// sample time before the Update
-		g_physicTime = GetTimeInMicrosenconds ();
+		ProcessEvents (SceneHandler::world);
 
 		// run the newton update function
-		NewtonUpdate (g_world, (1.0f / DEMO_PHYSICS_FPS));
+		NewtonUpdate (SceneHandler::world, (1.0f / PHYSICS_FPS));
 
-		// calculate the time spent in the physical Simulation
-		g_physicTime = GetTimeInMicrosenconds () - g_physicTime;
-
-		//printf("dt: %i \n",g_physicTime);
-
-		// call the visual debugger to show the physics scene
-//#ifdef USE_VISUAL_DEBUGGER
-//		NewtonDebuggerServe (g_newtonDebugger, g_world);
-//#endif
+        PlayerEntity::SetTransform(NULL,NULL,0);
 
 		// subtract time from time accumulator
-		g_timeAccumulator -= DEMO_FPS_IN_MICROSECUNDS;
-		physicTime ++;
+		g_timeAccumulator -= FPS_IN_MICROSECONDS;
 
-		physicLoopsTimeAcc += g_physicTime;
 	}
 
-	if (loops > MAX_PHYSICS_LOOPS) {
-		g_physicTime = physicLoopsTimeAcc;
-		g_timeAccumulator = DEMO_FPS_IN_MICROSECUNDS;
-	}
+	if (loops > MAX_PHYSICS_LOOPS)
+		g_timeAccumulator = FPS_IN_MICROSECONDS;
 
 	// calculate the interpolation parameter for smooth rendering
-	SceneHandler::SetInterpolationParam(dFloat (g_timeAccumulator) / dFloat(DEMO_FPS_IN_MICROSECUNDS));
+	SceneHandler::SetInterpolationParam(float (g_timeAccumulator) / float(FPS_IN_MICROSECONDS));
 
-	//printf("percent: %.2f \n",dFloat (g_timeAccumulator) / dFloat(DEMO_FPS_IN_MICROSECUNDS));
-
-	// display the frame rate
-
-	//printf("physic time (milliseconds): %i \n", physicTime);
 }
 
 Light* SceneHandler::CreateLight()
@@ -606,20 +505,20 @@ Light* SceneHandler::FindNearestLight(float x, float y, float z)
     Light* l=NULL;
     float dist2=1.0e10;
     float min=dist2;
-    dVector pos(x,y,z,1.0f);
-    dVector v;
+    glm::vec4 pos(x,y,z,1.0f);
+    glm::vec4 v;
 
     for(unsigned int i=0; i<SceneHandler::light.size(); i++)
     {
-        v=dVector(pos-SceneHandler::light.at(i)->getPosition());
-        dist2 = v%v;
+        v=pos-SceneHandler::light.at(i)->getPosition();
+        dist2 = glm::dot(v,v);
         if ( dist2 < min )
         {
             min=dist2;
             l=SceneHandler::light.at(i);
         }
     }
-    return SceneHandler::light.at(0);
-    //return l;
+    //return SceneHandler::light.at(0);
+    return l;
 }
 

@@ -10,7 +10,7 @@
 #include "Material.h"
 #include "Error.h"
 
-using namespace std;
+using std::string;
 
 Material::Material()
 {
@@ -54,11 +54,10 @@ void Material::setShininess(float f)
     this->shininess[0]=f;
 }
 
-bool FileExists(string strFilename);
-GLFWimage mergeNormalAndHeight(string s);
-GLuint createShader( const char *vertfilename, const char *fragfilename );
+bool FileExists(std::string strFilename);
+GLFWimage mergeNormalAndHeight(std::string s);
 
-int LoadMaterial(const string& s, Material& mat)
+int LoadMaterial(const std::string& s, Material& mat)
 {
     //Sätt materialets typ till none, i fallet då ingen textur hittas för materialet.
     mat.type = TEX_NONE;
@@ -144,7 +143,7 @@ int LoadMaterial(const string& s, Material& mat)
     return 1;
 }
 
-Material LoadMaterial(const string& s)
+Material LoadMaterial(const std::string& s)
 {
     Material mat;
 
@@ -162,15 +161,15 @@ Material LoadMaterial(const string& s)
     TODO:
     Kontrollera så att Width och Height är lika för normal och height.
 */
-GLFWimage mergeNormalAndHeight(string s)
+GLFWimage mergeNormalAndHeight(std::string s)
 {
     GLFWimage img;
     GLFWimage normImg;
     GLFWimage heightImg;
 
-    glfwReadImage((s+"_normal.tga").c_str(), &normImg, 0); //GLFW_NO_RESCALE_BIT
+    glfwReadImage((s+"_normal.tga").c_str(), &normImg, GLFW_NO_RESCALE_BIT); //GLFW_NO_RESCALE_BIT
 
-    glfwReadImage((s+"_height.tga").c_str(), &heightImg, 0);
+    glfwReadImage((s+"_height.tga").c_str(), &heightImg, GLFW_NO_RESCALE_BIT);
 
     unsigned char *rgbaData = new unsigned char[normImg.Width * normImg.Height * 4];
 
@@ -347,7 +346,7 @@ GLuint createShader( const char *vertfilename, const char *fragfilename ) {
     glUseProgram( 0 );
 }
 
- void setUniformVariable( GLuint programObj, GLint var, char* name) {
+ void setUniformVariable( GLuint programObj, GLint var, std::string name) {
 
     GLint location_var = -1;
 
@@ -355,7 +354,7 @@ GLuint createShader( const char *vertfilename, const char *fragfilename ) {
     glUseProgram( programObj );
 
         // Locate the uniform shader variables by name and set them:
-        location_var = glGetUniformLocation( programObj, name );
+        location_var = glGetUniformLocation( programObj, name.c_str() );
         if(location_var != -1)
             glUniform1i( location_var, var );
 

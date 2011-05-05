@@ -1,13 +1,13 @@
 #ifndef MESH_H
 #define MESH_H
 
-#include <GL/glfw.h>
-#include "Vector3f.h"
 
-
-typedef struct {
-        float u,v;
-}Vector2f, *pVector2f;
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <stdlib.h>
+#include <math.h>
+#include "Math.h"
 
 typedef struct {
         float u,v;
@@ -18,7 +18,6 @@ typedef struct {
 typedef struct {
         unsigned int point[3];
 }Face, *pFace;
-
 
 void MeshInit();
 
@@ -34,14 +33,16 @@ public:
     void createBuffers();
     void draw();
 
-    Vector3f center;
+    //Vector3f center;
+    glm::vec3 center;
 
     pVertex vertex;
     pFace face;
-    pVector3f tangent;
+    //pVector3f tangent;
+    glm::vec3 *tangent;
 
-    GLuint vBufferID;
-    GLuint iBufferID;
+    unsigned int vBufferID;
+    unsigned int iBufferID;
 
     unsigned int numVertices;
     unsigned int numFaces;

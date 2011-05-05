@@ -3,8 +3,6 @@
 #include <GL/glew.h>
 #include <GL/glfw.h>
 #include <iostream>
-#include <cstdio>
-#include <math.h>
 
 #include "Entity.h"
 #include "AseReader.h"
@@ -13,7 +11,8 @@
 #include "Camera.h"
 #include "SceneHandler.h"
 
-using namespace std;
+using std::cout;
+using std::endl;
 
 void updateLighting(Camera& camera)
 {
@@ -25,9 +24,6 @@ int main(int argc, char *argv[])
 {
     int running = GL_TRUE; // Main loop exits when this is set to GL_FALSE
     int mousebtn, lastmousebtn;
-
-    float lastt=0.0;
-    float t, dt;
 
     //Did the init not succeed?
     if(!SceneHandler::Init())
@@ -41,32 +37,34 @@ int main(int argc, char *argv[])
     Light *light0 = SceneHandler::CreateLight();
 
     light0->setPosition(0.0,-100.0,200.0);
+    light0->setDirection(0.0,10.0,-10.0);
     light0->setDiffuse(1.0,0.7,0.7);
     light0->setAmbient(0.1,0.1,0.1);
     light0->setSpecular(1.0,1.0,1.0);
 
-/*
-    Light *light1 = SceneHandler::CreateLight();
 
-    light1->setPosition(0.0,200.0,200.0);
-    light1->setDiffuse(0.7,1.0,0.7);
-    light1->setAmbient(0.1,0.1,0.1);
-    light1->setSpecular(1.0,1.0,1.0);
-*/
+//    Light *light1 = SceneHandler::CreateLight();
+//
+//    light1->setPosition(0.0,200.0,200.0);
+//    light1->setDirection(0.0,-10.0,-10.0);
+//    light1->setDiffuse(0.7,1.0,0.7);
+//    light1->setAmbient(0.1,0.1,0.1);
+//    light1->setSpecular(1.0,1.0,1.0);
+
 
     mousebtn = lastmousebtn = GLFW_RELEASE;
 
     Camera camera;
-    camera.setRotation(300.0,0.0,0.0);
+    camera.setRotation(90.0,0.0,0.0);
     camera.setPosition(0.0,0.0,100.0);
 
     PlayerEntity *player;
 
     player = SceneHandler::CreatePlayerEntity();
     player->SetPosition(0.0,-100.0,50.0);
-    player->m_minBox=dVector(-20.0,-20.0,-50.0);
-    player->m_maxBox=dVector(20.0,20.0,50.0);
-    SceneHandler::CreatePlayerCollision(player,0);
+    player->minBox=glm::vec4(-12.0,-12.0,-30.0,1.0f);
+    player->maxBox=glm::vec4(12.0,12.0,30.0,1.0f);
+    player->eyeHeight=25.0;
 
     PlayerEntity::SetCamera(&camera);
 
@@ -76,24 +74,22 @@ int main(int argc, char *argv[])
 
     scene = SceneHandler::CreateStaticEntity("media/testscene/testscene.ase",10.0);
     beast = SceneHandler::CreateStaticEntity("media/beast/beast.ase",0.5);
-
     box = SceneHandler::CreateStaticEntity("media/box/box.ase",1.0);
 
     beast->SetPosition(0.0,100.0,50.0);
-    beast->SetRotation(0.0,0.0,-20.0);
+    beast->SetRotation(45.0,0.0,0.0);
 
-    //scene->SetPosition(0.0,0.0,-50.0);
-    scene->SetRotation(0.0,0.0,-20.0);
+    scene->SetPosition(0.0,0.0,0.0);
+    scene->SetRotation(180.0,0.0,0.0);
 
     box->SetPosition(0.0,100.0,150.0);
     //box->SetRotation(0.0,0.0,-20.0);
 
     SceneHandler::CreateBBoxCollision(box,10.0);
     SceneHandler::CreateBBoxCollision(beast,10.0);
-
     SceneHandler::CreateMeshCollision(scene);
 
-    SceneHandler::CreatePlayCollision(player);
+    SceneHandler::CreatePlayerCollision(player);
 
     GLint tex_units;
     glGetIntegerv(GL_MAX_TEXTURE_UNITS, &tex_units);

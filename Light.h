@@ -5,10 +5,10 @@
 
 #include <GL/glew.h>
 #include <GL/glfw.h>
-#include "dMath\dVector.h"
+#include "Math.h"
 
-#define SHADOW_MAP_WIDTH 512
-#define SHADOW_MAP_HEIGHT 512
+#define SHADOW_MAP_WIDTH 1024
+#define SHADOW_MAP_HEIGHT 1024
 
 class Light
 {
@@ -16,6 +16,8 @@ public:
 
     GLuint fboId;
     GLuint depthTextureId;
+
+    glm::mat4 textureMatrix;
 
     Light();
     void Update(){}
@@ -29,7 +31,8 @@ public:
     void setupMatrices();
     void setTextureMatrix();
 
-    dVector getPosition(){ return dVector(position[0],position[1],position[2],position[3]); }
+    glm::vec4 getPosition(){ return glm::vec4(position[0],position[1],position[2],position[3]); }
+
 private:
     GLfloat diffuse[4];
     GLfloat ambient[4];

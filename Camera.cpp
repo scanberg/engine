@@ -2,14 +2,13 @@
 #include <math.h>
 #include <iostream>
 #include "Camera.h"
-#include "Vector3f.h"
 
 Camera* Camera::activeCamera = NULL;
 
 Camera::Camera()
 {
-    pos = Vector3f::zero();
-    rot = Vector3f::zero();
+    pos = glm::vec3(0.0f);
+    rot = glm::vec3(0.0f);
 
     Camera::setActiveCamera(this);
 }
@@ -23,9 +22,9 @@ void Camera::setUp()
 
     Camera* cam = Camera::getActiveCamera();
 
-    glRotatef(cam->rot.x,1.0,0.0,0.0);
-    glRotatef(cam->rot.y,0.0,1.0,0.0);
-    glRotatef(cam->rot.z,0.0,0.0,1.0);
+    glRotatef(-cam->rot.x,1.0,0.0,0.0);
+    glRotatef(-cam->rot.y,0.0,1.0,0.0);
+    glRotatef(-cam->rot.z,0.0,0.0,1.0);
 
     glTranslatef(-cam->pos.x,-cam->pos.y,-cam->pos.z); //translate the screen
 

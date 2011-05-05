@@ -5,7 +5,7 @@ Light::Light()
 {
     setDiffuse(1.0f,1.0f,1.0f);
     setPosition(0.0f,0.0f,0.0f);
-    setDirection(0.0f,10.0f,-10.0f);
+    setDirection(0.0f,0.0f,-10.0f);
     diffuse[3]=ambient[3]=specular[3]=position[3]=direction[3]=1.0f;
     radius=1000.0f;
 
@@ -14,8 +14,8 @@ Light::Light()
 
 void Light::generateShadowFBO()
 {
-	int shadowMapWidth = 512;
-	int shadowMapHeight = 512;
+	int shadowMapWidth = SHADOW_MAP_WIDTH;
+	int shadowMapHeight = SHADOW_MAP_HEIGHT;
 
 	//GLfloat borderColor[4] = {0,0,0,0};
 
@@ -101,6 +101,8 @@ void Light::setTextureMatrix()
 	// concatating all matrice into one.
 	glMultMatrixd (projection);
 	glMultMatrixd (modelView);
+
+	glGetFloatv(GL_TEXTURE3, &textureMatrix[0][0]);
 
 	// Go back to normal matrix mode
 	glMatrixMode(GL_MODELVIEW);

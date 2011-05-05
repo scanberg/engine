@@ -1,33 +1,29 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
-
 #include <GL/glfw.h>
+
 #include <math.h>
 #include <iostream>
 #include <cstdio>
 #include <cmath>
 #include <set>
+#include <assert.h>
 #include "Entity.h"
-#include "Mesh.h"
-#include "Material.h"
 #include "SceneHandler.h"
-
-using namespace std;
 
 Camera* PlayerEntity::camera = NULL;
 bool PlayerEntity::followMouse = false;
-static dVector minPush;
-static dVector maxPush;
+static glm::vec3 minPush;
+static glm::vec3 maxPush;
+PlayerEntity* PlayerEntity::player = NULL;
 
 Entity::Entity() :
-	m_matrix (GetIdentityMatrix()),
-	m_curPosition (0.0f, 0.0f, 0.0f, 1.0f),
-	m_prevPosition (0.0f, 0.0f, 0.0f, 1.0f),
-	m_curRotation (1.0f, 0.0f, 0.0f, 0.0f),
-	m_prevRotation (1.0f, 0.0f, 0.0f, 0.0f)
+	matrix (1.0f),
+	curPosition (0.0f, 0.0f, 0.0f, 1.0f),
+	prevPosition (0.0f, 0.0f, 0.0f, 1.0f),
+	curRotation (1.0f, 0.0f, 0.0f, 0.0f),
+	prevRotation (1.0f, 0.0f, 0.0f, 0.0f)
 {
-    position.x=position.y=position.z=0.0;
-    rotation=position;
     visible=true;
     scale=1.0;
 }
@@ -41,23 +37,21 @@ void Entity::Remove()
 
 void Entity::SetPosition(float px, float py, float pz)
 {
-    position.x=px;
-    position.y=py;
-    position.z=pz;
-    m_curPosition=m_prevPosition=m_matrix.m_posit=dVector(px,py,pz);
+    curPosition=prevPosition=matrix[3]=glm::vec4(px,py,pz,1.0f);
 }
 void Entity::SetRotation(float rx, float ry, float rz)
 {
-    rotation.x=rx;
-    rotation.y=ry;
-    rotation.z=rz;
+    curRotation = glm::gtc::quaternion::rotate(curRotation,rx,glm::vec3(1.0,0.0,0.0));
+    curRotation = glm::gtc::quaternion::rotate(curRotation,ry,glm::vec3(0.0,1.0,0.0));
+    curRotation = glm::gtc::quaternion::rotate(curRotation,rz,glm::vec3(0.0,0.0,1.0));
+    prevRotation = curRotation;
 }
 
 void Entity::SetVisibility(bool b)
 {
     visible=b;
 }
-void Entity::SetName(const string& s)
+void Entity::SetName(const std::string& s)
 {
     name = s;
 }
@@ -71,26 +65,26 @@ void PlayerEntity::Draw()
 {
 }
 
-dFloat Inc(dFloat target, dFloat current, dFloat stepsize=1.0)
+float Inc(float target, float current, float stepsize=1.0)
 {
     if (current<target)
     {
         current += stepsize;
-        current = min(current,target);
+        current = std::min(current,target);
     }
     else if(current>target)
     {
         current -= stepsize;
-        current = max(current,target);
+        current = std::max(current,target);
     }
     return current;
 }
 
-int NewtonBodyCollide(NewtonWorld* world, int maxsize, NewtonBody* body0, NewtonBody* body1, dFloat* contacts, dFloat* normals, dFloat* penetration)
+int NewtonBodyCollide(NewtonWorld* world, int maxsize, NewtonBody* body0, NewtonBody* body1, float* contacts, float* normals, float* penetration)
 {
       NewtonCollision* collision[2];
-      dFloat mat0[16];
-      dFloat mat1[16];
+      float mat0[16];
+      float mat1[16];
       collision[0]=NewtonBodyGetCollision(body0);
       collision[1]=NewtonBodyGetCollision(body1);
       NewtonBodyGetMatrix(body0,mat0);
@@ -102,12 +96,12 @@ void PlayerEntity::UpdateCollision(NewtonBody* body)
 {
     const int maxSize = 64;
     int numContacts;
-    dFloat contacts[3*maxSize];
-    dFloat normals[3*maxSize];
-    dFloat depths[maxSize];
-    dVector pos = m_matrix.m_posit;
-    dVector contVec;
-    dVector normal;
+    float contacts[3*maxSize];
+    float normals[3*maxSize];
+    float depths[maxSize];
+    glm::vec3 pos(matrix[3]);
+    glm::vec3 contVec;
+    glm::vec3 normal;
 
     numContacts=NewtonBodyCollide(SceneHandler::world,maxSize,this->body,body,&contacts[0],&normals[0],&depths[0]);
 
@@ -120,28 +114,28 @@ void PlayerEntity::UpdateCollision(NewtonBody* body)
         if(depths[i] > abs(0.0f))
         {
 
-            contVec = dVector(contacts[3*i+0],contacts[3*i+1],contacts[3*i+2]) - pos;
-            normal = dVector(normals[3*i+0],normals[3*i+1],normals[3*i+2]);
+            contVec = glm::vec3(contacts[3*i+0],contacts[3*i+1],contacts[3*i+2]) - pos;
+            normal = glm::vec3(normals[3*i+0],normals[3*i+1],normals[3*i+2]);
 
             //Se till att normalen pekar mot body
-            if(contVec%normal>0.0f)
-                normal=normal.Scale(-1.0);
+            if(glm::dot(contVec,normal)>0.0f)
+                normal *= -1.0f;
 
-            //normalize normal?
-            //normal=normal.Scale(sqrt(normal%normal));
-            //normal
+            //KANSKE BEHÖVS NORMALISERAS?
+//            if(glm::dot(normal,normal)>0.0f)
+//                normal=glm::normalize(normal);
 
-            if(normal%dVector(0.0,0.0,1.0)>0.5)
+            if(glm::dot(normal,glm::vec3(0.0,0.0,1.0))>0.5)
                 airborne=false;
 
-            normal=normal.Scale(depths[i]);
+            normal *= depths[i];
 
-            minPush.m_x = min(minPush.m_x,normal.m_x);
-            minPush.m_y = min(minPush.m_y,normal.m_y);
-            minPush.m_z = min(minPush.m_z,normal.m_z);
-            maxPush.m_x = max(maxPush.m_x,normal.m_x);
-            maxPush.m_y = max(maxPush.m_y,normal.m_y);
-            maxPush.m_z = max(maxPush.m_z,normal.m_z);
+            minPush.x = std::min(minPush.x,normal.x);
+            minPush.y = std::min(minPush.y,normal.y);
+            minPush.z = std::min(minPush.z,normal.z);
+            maxPush.x = std::max(maxPush.x,normal.x);
+            maxPush.y = std::max(maxPush.y,normal.y);
+            maxPush.z = std::max(maxPush.z,normal.z);
         }
 
         //cout<<endl;
@@ -160,12 +154,17 @@ void BodyIterator (const NewtonBody* body, void* userData)
     }
 }
 
-void PlayerEntity::Update(dFloat interpolationParam, NewtonWorld* world)
+void PlayerEntity::Update(float interpolationParam, NewtonWorld* world)
 {
+
+    glm::vec4 position(prevPosition + (curPosition - prevPosition)*interpolationParam );
+
+	Camera* cam=PlayerEntity::camera;
+
+    cam->setPosition(position.x,position.y,position.z+eyeHeight);
+
     static int mousex, mousey, lastmousex, lastmousey;
     bool followMouse=PlayerEntity::followMouse;
-
-    Camera* cam=PlayerEntity::camera;
 
     lastmousex = mousex;
     lastmousey = mousey;
@@ -174,172 +173,116 @@ void PlayerEntity::Update(dFloat interpolationParam, NewtonWorld* world)
 
     if(followMouse)
     {
-        cam->rot.z -= (lastmousex - mousex) * 0.2f;
-        cam->rot.x -= (lastmousey - mousey) * 0.2f;
-        if ( cam->rot.x < 179.5f ) cam->rot.x = 179.5f;
-        if ( cam->rot.x > 359.0f ) cam->rot.x = 359.0f;
+        cam->rot.z += (lastmousex - mousex) * 0.2f;
+        cam->rot.x += (lastmousey - mousey) * 0.2f;
+        if ( cam->rot.x > 180.0f ) cam->rot.x = 180.0f;
+        if ( cam->rot.x < 0.0f ) cam->rot.x = 0.0f;
+
         if ( cam->rot.z > 360.0f ) cam->rot.z -= 360.0f;
         if ( cam->rot.z < -360.0f ) cam->rot.z += 360.0f;
     }
+}
 
-    // Calculate visual Transform by Interpolating between prev and curr State
-	//dVector posit(m_prevPosition + (m_curPosition - m_prevPosition).Scale (interpolationParam));
-//
-	//m_prevPosition = m_curPosition;
+void PlayerEntity::UpdatePhysics(NewtonWorld* world)
+{
 
-	//m_matrix.m_posit = posit;
+    Camera* cam=PlayerEntity::camera;
+    const float moveSpeed = 1.5;
+    const float maxAcceleration = 0.1;
 
-    dFloat move = (float)(glfwGetKey('W')-glfwGetKey('S'));
-    dFloat strafe = (float)(glfwGetKey('D')-glfwGetKey('A'));
+    static bool jumpOk;
 
-    dVector desiredVelocity(strafe,move,0.0);
+    float move = (float)( glfwGetKey('W') - glfwGetKey('S') );
+    float strafe = (float)( glfwGetKey('D') - glfwGetKey('A') );
 
-    if(desiredVelocity%desiredVelocity > 1.0f)
+    glm::vec3 desiredVelocity(strafe,move,0.0f);
+    glm::vec3 finalVelocity(velocity);
+
+    if(glm::dot(desiredVelocity,desiredVelocity) > 1.0f)
+        desiredVelocity *= 0.70710678f;
+
+    glm::mat4 mat = glm::gtc::matrix_transform::rotate(glm::mat4(1.0f),cam->rot.z,glm::vec3(0.0f,0.0f,1.0f));
+    glm::vec4 temp(desiredVelocity,1.0f);
+    desiredVelocity = glm::vec3(mat * temp);
+
+    desiredVelocity *= moveSpeed;
+
+    finalVelocity.x=Inc(desiredVelocity.x,finalVelocity.x,maxAcceleration);
+    finalVelocity.y=Inc(desiredVelocity.y,finalVelocity.y,maxAcceleration);
+
+    velocity.x = finalVelocity.x;
+    velocity.y = finalVelocity.y;
+
+
+    if(!glfwGetKey(GLFW_KEY_SPACE))
+        jumpOk=true;
+
+    if(!airborne && jumpOk && glfwGetKey(GLFW_KEY_SPACE))
     {
-        //skala med 1/sqrt(2);
-        desiredVelocity=desiredVelocity.Scale(0.70710678f);
+        velocity.z=1.3;
+        jumpOk=false;
     }
 
-    //velocity.m_x=Inc(desiredVelocity.m_x,velocity.m_x,0.05f);
-    //velocity.m_y=Inc(desiredVelocity.m_y,velocity.m_y,0.05f);
 
-    dMatrix mat(0.0,0.0,-cam->rot.z*(3.1415926534f/180.0f),dVector(0.0,0.0,0.0));
-    desiredVelocity=mat.RotateVector(desiredVelocity);
-
-    velocity.m_x = desiredVelocity.m_x;
-    velocity.m_y = desiredVelocity.m_y;
-
-    if(!airborne&&glfwGetKey(GLFW_KEY_SPACE))
-    {
-        velocity.m_z=1.3;
-    }
-
-    velocity.m_z -= 0.022;
+    velocity.z -= 0.05;
     airborne=true;
 
-    if(velocity.m_z<=0.0)
+    if(velocity.z<=0.0)
     {
         //AlignToGroundConvex();
     }
 
-    dVector prevPosition=m_matrix.m_posit;
+    //m_matrix.m_posit += velocity;
+    matrix[3].x += velocity.x;
+    matrix[3].y += velocity.y;
+    matrix[3].z += velocity.z;
 
-    m_matrix.m_posit += velocity;
+    NewtonBodySetMatrix(body,&matrix[0][0]);
 
-    NewtonBodySetMatrix(body,&m_matrix[0][0]);
-
-    for(int i=0; i<3; i++)
+    for(int i=0; i<5; i++)
     {
-        dVector min = m_matrix.m_posit+m_minBox;
-        dVector max = m_matrix.m_posit+m_maxBox;
+        glm::vec3 g_minBox(matrix[3]+this->minBox);
+        glm::vec3 g_maxBox(matrix[3]+this->maxBox);
 
-        minPush.m_x=0.0f;
-        minPush.m_y=0.0f;
-        minPush.m_z=0.0f;
-        maxPush.m_x=0.0f;
-        maxPush.m_y=0.0f;
-        maxPush.m_z=0.0f;
+        minPush = maxPush = glm::vec3(0.0f);
 
-        NewtonWorldForEachBodyInAABBDo(world,&min[0],&max[0],BodyIterator,this);
+        NewtonWorldForEachBodyInAABBDo(world,&g_minBox[0],&g_maxBox[0],BodyIterator,this);
 
-        m_matrix.m_posit += (minPush+maxPush);
+        matrix[3].x += (minPush.x+maxPush.x);
+        matrix[3].y += (minPush.y+maxPush.y);
+        matrix[3].z += (minPush.z+maxPush.z);
 
-        NewtonBodySetMatrix(body,&m_matrix[0][0]);
+        NewtonBodySetMatrix(body,&matrix[0][0]);
+
+        glm::vec3 normal;
+        normal = minPush + maxPush;
+
+        if(glm::dot(normal,normal)>0.0f)
+            normal = glm::normalize(normal);
+
+        velocity = velocity - normal*glm::dot(normal,velocity);
     }
 
-    velocity = m_matrix.m_posit - prevPosition;
     if(!airborne)
-        velocity.m_z = min(velocity.m_z,0);
-
-    cam->setPosition(m_matrix.m_posit.m_x,m_matrix.m_posit.m_y,m_matrix.m_posit.m_z);
-}
-//
-void PlayerEntity::ApplyPlayerInput (const NewtonUserJoint* me, dFloat timestep, int threadIndex)
-{
-    dFloat velocity;
-    dFloat strafeVeloc;
-    dFloat headinAngle;
-
-    static int mousex, mousey, lastmousex, lastmousey;
-    bool followMouse=PlayerEntity::followMouse;
-
-    Camera* cam=PlayerEntity::camera;
-
-    lastmousex = mousex;
-    lastmousey = mousey;
-
-    glfwGetMousePos( &mousex, &mousey );
-
-    if(followMouse)
-    {
-        cam->rot.z -= (lastmousex - mousex) * 0.2f;
-        cam->rot.x -= (lastmousey - mousey) * 0.2f;
-        if ( cam->rot.x < 179.5f ) cam->rot.x = 179.5f;
-        if ( cam->rot.x > 359.0f ) cam->rot.x = 359.0f;
-        if ( cam->rot.z > 360.0f ) cam->rot.z -= 360.0f;
-        if ( cam->rot.z < -360.0f ) cam->rot.z += 360.0f;
-    }
-
-    const float PLAYER_SPEED = 100.0;
-
-    velocity = 0.0f;
-    if (glfwGetKey('W')) {
-        velocity = PLAYER_SPEED;
-    } else if (glfwGetKey  ('S')) {
-        velocity = -PLAYER_SPEED;
-    }
-
-    strafeVeloc = 0.0f;
-    if (glfwGetKey  ('D')) {
-        strafeVeloc = PLAYER_SPEED;
-    } else if (glfwGetKey  ('A')) {
-        strafeVeloc = -PLAYER_SPEED;
-    }
-
-    // now set the desired player velocity and heading
-    headinAngle = -(PlayerEntity::camera->rot.z) / 180.0 * 3.141592654f;//GetCameraYawAngle ();
-
-    // prevent player fro running faster when strafing and moving forward as the same time
-    dFloat mag2 = velocity * velocity + strafeVeloc * strafeVeloc;
-    if (mag2 > PLAYER_SPEED * PLAYER_SPEED) {
-        mag2 = PLAYER_SPEED * dSqrt (1.0f / mag2);
-        velocity *= mag2;
-        strafeVeloc *= mag2;
-    }
-
-    CustomPlayerControllerSetVelocity (me, velocity, strafeVeloc, headinAngle);
+        velocity.z = std::min(velocity.z,0.0f);
 }
 
-void PlayerEntity::SetTransform (const NewtonBody* body, const dFloat* matrix, int threadId)
+void PlayerEntity::SetTransform (const NewtonBody* body, const float* matrix, int threadId)
 {
-    /*
-    //m_setTransformOriginal(body,matrix,threadId);
-
-    PlayerEntity* ent;
-
-	// Get the position from the matrix
-	dVector posit (matrix[12], matrix[13], matrix[14], 1.0f);
-
 	// get the entity associated with this rigid body
-	ent = (PlayerEntity*) NewtonBodyGetUserData(body);
+	PlayerEntity* ent = PlayerEntity::player;//(PlayerEntity*) NewtonBodyGetUserData(body);
 
-	ent->m_prevPosition = ent->m_curPosition;
+	NewtonWorld* world = SceneHandler::world;//NewtonBodyGetWorld(body);
 
-	// set the new position and orientation for this entity
-	ent->m_curPosition = posit;
+	ent->UpdatePhysics(world);
 
-    dFloat dt = SceneHandler::GetInterpolationParam();
+    ent->prevPosition = ent->curPosition;
+    ent->curPosition = ent->matrix[3];
+}
 
-    // Calculate visual Transform by Interpolating between prev and curr State
-	posit = dVector(ent->m_prevPosition + (ent->m_curPosition - ent->m_prevPosition).Scale (dt));
-
-	PlayerEntity::camera->setPosition(posit.m_x,posit.m_y,posit.m_z);
-	*/
-
-	// get the entity associated with this rigid body
-	PlayerEntity* ent = (PlayerEntity*) NewtonBodyGetUserData(body);
-
-	ent->Update(0.0,NewtonBodyGetWorld(body));
+PlayerEntity::PlayerEntity()
+{
+    PlayerEntity::player = this;
 }
 
 MeshEntity::MeshEntity()
@@ -358,8 +301,8 @@ MeshEntity::~MeshEntity()
 
     // material innehåller inte unika pekare, därför skapas en set
     // där varje element är unikt och tas bort därefter.
-    set<Material*> mat(material.begin(),material.end());
-    set<Material*>::const_iterator sit;
+    std::set<Material*> mat(material.begin(),material.end());
+    std::set<Material*>::const_iterator sit;
     sit=mat.begin();
 
     while(sit != mat.end())
@@ -378,13 +321,27 @@ void MeshEntity::Scale(float s)
     }
 }
 
-void StaticEntity::Update(dFloat interpolationParam, NewtonWorld* world)
+glm::vec4 Vectorize(const glm::quat &v)
+{
+    return glm::vec4(v.x,v.y,v.z,v.w);
+}
+
+glm::mat3 fixMatrix(const glm::mat3 &m)
+{
+    glm::vec3 v0(-m[2].z,m[1].z,-m[0].z);
+    glm::vec3 v1(m[2].y,-m[1].y,m[0].y);
+    glm::vec3 v2(m[2].x,-m[1].x,m[0].x);
+    return glm::mat3(v0,v1,v2);
+}
+
+void StaticEntity::Update(float interpolationParam, NewtonWorld* world)
 {
 	// Calculate visual Transform by Interpolating between prev and curr State
-	dVector posit (m_prevPosition + (m_curPosition - m_prevPosition).Scale (interpolationParam));
-	dQuaternion rotation (m_prevRotation.Slerp(m_curRotation, interpolationParam));
+	glm::vec4 position (prevPosition + (curPosition - prevPosition) * interpolationParam);
+	glm::quat rotation = glm::gtc::quaternion::mix(prevRotation,curRotation,interpolationParam);
 
-	m_matrix = dMatrix (rotation, posit);
+    matrix = createMat4(rotation,position);
+
 }
 
 void StaticEntity::DrawGeometry()
@@ -394,12 +351,9 @@ void StaticEntity::DrawGeometry()
 
         glPushMatrix();
 
-        glMultMatrixf(&m_matrix[0][0]);
-
-//        glMatrixMode(GL_TEXTURE);
 //        glActiveTexture(GL_TEXTURE3);
-//        glPushMatrix();
-//        glMultMatrixf(&m_matrix[0][0]);
+
+        glMultMatrixf(&matrix[0][0]);
 
         for(unsigned int i=0; i<mesh.size(); i++)
         {
@@ -409,10 +363,9 @@ void StaticEntity::DrawGeometry()
             }
         }
 
-
-        //glPopMatrix();
-
         glPopMatrix();
+
+//        glPopMatrix();
     }
 }
 
@@ -420,20 +373,24 @@ void StaticEntity::Draw()
 {
     if(visible)
     {
-        Light *nearestLight=SceneHandler::FindNearestLight(m_matrix.m_posit.m_x,
-                                                           m_matrix.m_posit.m_y,
-                                                           m_matrix.m_posit.m_z);
+        Light *nearestLight=SceneHandler::FindNearestLight(matrix[3].x,
+                                                           matrix[3].y,
+                                                           matrix[3].z);
         if(nearestLight!=NULL)
         {
             //cout<<"inte null iaf"<<endl;
             nearestLight->assignTo(0);
         }
 
+
         glPushMatrix();
-        glMultMatrixf(&m_matrix[0][0]);
 
 //        glMatrixMode(GL_TEXTURE);
 //        glActiveTexture(GL_TEXTURE3);
+
+        glMultMatrixf(&matrix[0][0]);
+
+
 //        glPushMatrix();
 //        glMultMatrixf(&m_matrix[0][0]);
 
@@ -480,16 +437,18 @@ void StaticEntity::Draw()
 
         glPopMatrix();
 
+//        glPopMatrix();
+
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 }
 
 void StaticEntity::CalculateBounds()
 {
-	dVector minBox = dVector ( 1.0e10f,  1.0e10f,  1.0e10f, 1.0f);
-	dVector maxBox = dVector (-1.0e10f, -1.0e10f, -1.0e10f, 1.0f);
+	glm::vec4 l_minBox( 1.0e10f,  1.0e10f,  1.0e10f, 1.0f);
+	glm::vec4 l_maxBox(-1.0e10f, -1.0e10f, -1.0e10f, 1.0f);
 
-	dFloat val;
+	float val;
     unsigned int i, u;
 
     for(i=0; i<mesh.size(); i++)
@@ -498,21 +457,20 @@ void StaticEntity::CalculateBounds()
         {
 
             val = mesh[i]->vertex[u].x;
-            printf("val: %.1f \n",val);
-            minBox.m_x = (val < minBox.m_x) ? val : minBox.m_x;
-            maxBox.m_x = (val > maxBox.m_x) ? val : maxBox.m_x;
+            l_minBox.x = (val < l_minBox.x) ? val : l_minBox.x;
+            l_maxBox.x = (val > l_maxBox.x) ? val : l_maxBox.x;
 
             val = mesh[i]->vertex[u].y;
-            minBox.m_y = (val < minBox.m_y) ? val : minBox.m_y;
-            maxBox.m_y = (val > maxBox.m_y) ? val : maxBox.m_y;
+            l_minBox.y = (val < l_minBox.y) ? val : l_minBox.y;
+            l_maxBox.y = (val > l_maxBox.y) ? val : l_maxBox.y;
 
             val = mesh[i]->vertex[u].z;
-            minBox.m_z = (val < minBox.m_z) ? val : minBox.m_z;
-            maxBox.m_z = (val > maxBox.m_z) ? val : maxBox.m_z;
+            l_minBox.z = (val < l_minBox.z) ? val : l_minBox.z;
+            l_maxBox.z = (val > l_maxBox.z) ? val : l_maxBox.z;
         }
     }
 
 
-    this->m_minBox = minBox;
-    this->m_maxBox = maxBox;
+    this->minBox = l_minBox;
+    this->maxBox = l_maxBox;
 }

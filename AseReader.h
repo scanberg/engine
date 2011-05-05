@@ -1,10 +1,9 @@
 #ifndef ASEREADER_H
 #define ASEREADER_H
 #include <string>
-#include "Mesh.h"
 #include "Entity.h"
-
-using std::string;
+#include "Mesh.h"
+#include "Material.h"
 
 typedef struct {
         float x,y,z;
@@ -19,7 +18,7 @@ typedef struct {
         unsigned int sg;
 }TFace;
 
-int LoadAse(const string &filename, StaticEntity &entity, float scale=1.0);
-StaticEntity *LoadAse(const string &filename);
+int LoadAse(const std::string &filename, StaticEntity &entity, float scale=1.0);
+StaticEntity *LoadAse(const std::string &filename);
 
 #endif

@@ -1,16 +1,20 @@
 //arse.cpp
+#include "AseReader.h"
+
 #include <iostream>
 #include <fstream>
-#include <string>
 #include <cstring>
 #include <cstdlib>
 #include <vector>
 #include <utility>
-#include "Material.h"
-#include "Entity.h"
-#include "AseReader.h"
 
-using namespace std;
+using std::string;
+using std::istream;
+using std::cout;
+using std::endl;
+using std::filebuf;
+using std::ios;
+using std::vector;
 
 string extract_string (istream &is, string s)
 {
@@ -143,7 +147,7 @@ void extract_material (istream &is, Material& mat)
     }
 }
 
-void extract_vertex_list(istream &is, vector<TVertex> &vectex)
+void extract_vertex_list(istream &is, std::vector<TVertex> &vectex)
 {
     string s;
     bool loop = true;
