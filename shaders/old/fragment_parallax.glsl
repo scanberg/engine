@@ -11,7 +11,7 @@ void main (void)
 	vec3 vVec = normalize(viewVec);
 		
 	// Calculate offset, scale & biais
-	float height = texture2D(heightMap, texCoord).x;
+	float height = texture2D(heightMap, texCoord).w;
 	vec2 newTexCoord = texCoord + ((height * 0.04 - 0.02) * (vVec.xy));
 		
 	vec4 base = texture2D(diffuseMap, newTexCoord);

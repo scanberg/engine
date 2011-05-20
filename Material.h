@@ -49,6 +49,7 @@ void setUniformVariables( GLuint programObj,
 			   int diff, int norm, int height, const GLvoid* tangentPointer);
 
 void setUniformVariable( GLuint programObj, GLint var, std::string name);
+void setAttributeTangent(GLuint programObj, const GLvoid* tangentPointer, std::string name);
 
 GLuint createShader( const char *vertfilename, const char *fragfilename );
 

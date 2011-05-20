@@ -30,6 +30,7 @@ public:
     void scale(float s);
     void scale(float sx, float sy, float sz);
     void calculateNormals();
+    void calculateTangents();
     void createBuffers();
     void draw();
 

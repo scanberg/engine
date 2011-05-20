@@ -8,6 +8,7 @@
 #include <Newton.h>
 #include <JointLibrary.h>
 
+#include "MD5Model.h"
 #include "SceneHandler.h"
 #include "Error.h"
 #include "Entity.h"
@@ -17,8 +18,8 @@
 
 #define USE_VISUAL_DEBUGGER
 
-#define PHYSICS_FPS	        60.0f
-#define FPS_IN_MICROSECONDS    (int (1000000.0f/PHYSICS_FPS))
+#define PHYSICS_FPS	                60.0f
+#define FPS_IN_MICROSECONDS         (int (1000000.0f/PHYSICS_FPS))
 #define MAX_PHYSICS_LOOPS		    1
 
 using namespace std;
@@ -30,8 +31,8 @@ static int g_timeAccumulator = FPS_IN_MICROSECONDS;
 
 void* AllocMemory (int sizeInBytes);
 void FreeMemory (void *ptr, int sizeInBytes);
-void AdvanceSimulation (unsigned int timeInMilisecunds);
-unsigned int GetTimeInMicroseconds (){ return (unsigned int)(glfwGetTime()*1.0e6); }
+void AdvanceSimulation (int timeInMilisecunds);
+int GetTimeInMicroseconds (){ return (int)(glfwGetTime()*1.0e6); }
 
 //#pragma warning (disable: 4100) //unreferenced formal parameter
 //#pragma warning (disable: 4702) //unreachable code
@@ -41,7 +42,7 @@ static char titlestring[200];
 // Allocate statics.
 
 vector<Entity*> SceneHandler::entity;
-vector<MeshEntity*> SceneHandler::meshEntity;
+vector<NewtonEntity*> SceneHandler::newtonEntity;
 vector<Entity*> SceneHandler::renderList;
 vector<Light*> SceneHandler::light;
 NewtonWorld* SceneHandler::world;
@@ -49,8 +50,11 @@ int SceneHandler::width;
 int SceneHandler::height;
 float SceneHandler::g_dt;
 float SceneHandler::interpolationParam;
+GLuint SceneHandler::lightMap;
+GLuint SceneHandler::lightMapFBO;
+GLuint SceneHandler::lightMapDepth;
 GLuint SceneHandler::shadowShader;
-//NewtonWorld* SceneHandler::world = SceneHandler::world;
+ResourceManager SceneHandler::resources;
 
 /*
  * Handle the resizing of the window. /Stegu
@@ -60,18 +64,20 @@ void handleResize()
 
     // Get window size. It may start out different from the requested
     // size, and will change if the user resizes the window.
-    glfwGetWindowSize( &SceneHandler::width, &SceneHandler::height );
-    if(SceneHandler::height<=0) SceneHandler::height=1; // Safeguard against iconified/closed window
+    int width, height;
+    glfwGetWindowSize( &width, &height );
+
+    if(height<=0) height=1; // Safeguard against iconified/closed window
+
+    if(SceneHandler::width!=width || SceneHandler::height!=height)
+    {
+        SceneHandler::width=width;
+        SceneHandler::height=height;
+        SceneHandler::InitLightMap();
+    }
 
     // Set viewport. This is the pixel rectangle we want to draw into.
     glViewport( 0, 0, SceneHandler::width, SceneHandler::height ); // The entire window
-
-    // Select and setup the projection matrix.
-    glMatrixMode(GL_PROJECTION); // "We want to edit the projection matrix"
-    glLoadIdentity(); // Reset the matrix to identity
-    // 65 degrees FOV, same aspect ratio as window, depth range 1 to 100
-    gluPerspective( 65.0f, (GLfloat)SceneHandler::width/(GLfloat)SceneHandler::height, 1.0f, 1000.0f );
-
 }
 
 /*
@@ -158,6 +164,9 @@ int SceneHandler::Init()
     // Initialise GLFW
     glfwInit();
 
+    width=640;
+    height=480;
+
     // Open the OpenGL window
     if( !glfwOpenWindow(640, 480, 8,8,8,8, 32,0, GLFW_WINDOW) )
     {
@@ -185,8 +194,6 @@ int SceneHandler::Init()
     glEnable(GL_CULL_FACE); // Cull away all back facing polygons
     glEnable(GL_DEPTH_TEST); // Use the Z buffer
 
-    //SceneHandler::shadowShader = createShader( "", "" );
-
 	// set the memory allocators
 	NewtonSetMemorySystem (AllocMemory, FreeMemory);
 
@@ -203,7 +210,39 @@ int SceneHandler::Init()
 	glm::vec3 maxSize ( 1000.0f,  1000.0f,  1000.0f);
 	NewtonSetWorldSize (SceneHandler::world, &minSize[0], &maxSize[0]);
 
+	InitLightMap();
+
+	shadowShader=createShader("shaders/vertex_shadow.glsl", "shaders/fragment_shadow.glsl");
+
     return 1;
+}
+
+void SceneHandler::InitLightMap()
+{
+    glDeleteFramebuffers(1,&lightMapFBO);
+    glDeleteTextures(1,&lightMap);
+    glDeleteRenderbuffers(1,&lightMapDepth);
+
+    // generate namespace for the frame buffer, colorbuffer and depthbuffer
+    glGenFramebuffers(1, &lightMapFBO);
+    glGenTextures(1, &lightMap);
+    glGenRenderbuffers(1, &lightMapDepth);
+    //switch to our fbo so we can bind stuff to it
+    glBindFramebuffer(GL_FRAMEBUFFER, lightMapFBO);
+
+    //create the colorbuffer texture and attach it to the frame buffer
+    glBindTexture(GL_TEXTURE_2D, lightMap);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0,GL_RGBA, GL_INT, NULL);
+    glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D, lightMap, 0);
+
+    // create a render buffer as our depthbuffer and attach it
+    glBindRenderbuffer(GL_RENDERBUFFER, lightMapDepth);
+    glRenderbufferStorage(GL_RENDERBUFFER,GL_DEPTH_COMPONENT,width, height);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER,GL_DEPTH_ATTACHMENT,GL_RENDERBUFFER, lightMapDepth);
+
+    // Go back to regular frame buffer rendering
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void SceneHandler::Update()
@@ -223,12 +262,37 @@ void SceneHandler::Update()
 
     for(i=0; i<SceneHandler::entity.size(); i++)
     {
-        SceneHandler::entity.at(i)->Update(interpolationParam, SceneHandler::world);
+        SceneHandler::entity.at(i)->Update();
     }
-    for(i=0; i<SceneHandler::meshEntity.size(); i++)
+
+    for(i=0; i<SceneHandler::newtonEntity.size(); i++)
     {
-        SceneHandler::meshEntity.at(i)->Update(interpolationParam, SceneHandler::world);
+        SceneHandler::newtonEntity.at(i)->Update(interpolationParam, SceneHandler::world);
     }
+}
+
+void SceneHandler::DrawLightMap()
+{
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, lightMapFBO);
+    glPushAttrib(GL_VIEWPORT_BIT | GL_ENABLE_BIT);
+    glViewport(0,0,width, height);
+
+    glClearColor (1.0f, 1.0f, 1.0f, 1.0f); // Set the clear colour
+    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear the depth and colour buffers
+
+    for(unsigned int i=0; i<SceneHandler::renderList.size(); i++)
+    {
+        SceneHandler::renderList.at(i)->DrawShadow();
+    }
+
+    glPopAttrib();
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void SceneHandler::Render()
+{
+    unsigned int i;
 
     SceneHandler::GenerateShadowMaps();
 
@@ -248,21 +312,19 @@ void SceneHandler::Update()
     glCullFace(GL_BACK);
 
     handleResize();
-}
-
-void SceneHandler::Render()
-{
-    unsigned int i;
-    //glPushMatrix();
 
     setupMatrices();
+
+    SceneHandler::DrawLightMap();
 
     for(i=0; i<SceneHandler::renderList.size(); i++)
     {
         SceneHandler::renderList.at(i)->Draw();
     }
-    //glPopMatrix();
 
+//    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//    //glBindTexture(GL_TEXTURE_2D, color_tex);
+//
 //    glUseProgram(0);
 //    glMatrixMode(GL_PROJECTION);
 //    glLoadIdentity();
@@ -271,7 +333,7 @@ void SceneHandler::Render()
 //    glLoadIdentity();
 //    glColor4f(1.0,1.0,1.0,1);
 //    glActiveTexture(GL_TEXTURE0);
-//    glBindTexture(GL_TEXTURE_2D,SceneHandler::light[0]->depthTextureId);
+//    glBindTexture(GL_TEXTURE_2D,lightMap);
 //    glEnable(GL_TEXTURE_2D);
 //    glTranslated(0,0,-1);
 //    glBegin(GL_QUADS);
@@ -293,9 +355,9 @@ void SceneHandler::Destroy()
     {
         delete SceneHandler::entity.at(i);
     }
-    for(i=0; i< SceneHandler::meshEntity.size(); i++)
+    for(i=0; i< SceneHandler::newtonEntity.size(); i++)
     {
-        delete SceneHandler::meshEntity.at(i);
+        delete SceneHandler::newtonEntity.at(i);
     }
 
     for(i=0; i< SceneHandler::light.size(); i++)
@@ -328,7 +390,7 @@ Entity* SceneHandler::CreateEntity()
 PlayerEntity* SceneHandler::CreatePlayerEntity()
 {
     PlayerEntity* ent = new PlayerEntity();
-    SceneHandler::entity.push_back((Entity*)ent);
+    SceneHandler::newtonEntity.push_back((NewtonEntity*)ent);
 
 
     //SceneHandler::renderList.push_back(ent);
@@ -340,17 +402,20 @@ PlayerEntity* SceneHandler::CreatePlayerEntity()
 StaticEntity* SceneHandler::CreateStaticEntity(string s, float scale)
 {
     StaticEntity* ent = new StaticEntity();
-    LoadAse(s,*ent,scale);
+    ent->scale=scale;
+    ent->meshObj = new MeshObject();
+    LoadAse(s,*ent->meshObj);
+    ent->CalculateBounds();
     cout<<"SCALE: "<<scale<<endl;
-    SceneHandler::meshEntity.push_back(ent);
+    SceneHandler::newtonEntity.push_back(ent);
 
-    //renderList should be filled before each frame with enteties whos boundingboxes are inside the view-volume.
+    //renderList should be filled before each frame with entities whos boundingboxes are inside the view-volume.
     SceneHandler::renderList.push_back(ent);
 
     return ent;
 }
 
-void SceneHandler::CreateBBoxCollision(Entity* ent, float mass)
+void SceneHandler::CreateBBoxCollision(NewtonEntity* ent, float mass)
 {
     NewtonCollision* shape;
     NewtonBody* body;
@@ -361,7 +426,7 @@ void SceneHandler::CreateBBoxCollision(Entity* ent, float mass)
 	NewtonReleaseCollision (SceneHandler::world, shape);
 }
 
-void SceneHandler::CreateConvexCollision(MeshEntity* ent, float mass)
+void SceneHandler::CreateConvexCollision(StaticEntity* ent, float mass)
 {
     NewtonCollision* shape;
     NewtonBody* body;
@@ -372,7 +437,7 @@ void SceneHandler::CreateConvexCollision(MeshEntity* ent, float mass)
 	NewtonReleaseCollision (SceneHandler::world, shape);
 }
 
-void SceneHandler::CreateMeshCollision(MeshEntity* ent, float mass)
+void SceneHandler::CreateMeshCollision(StaticEntity* ent, float mass)
 {
     NewtonCollision* shape;
     NewtonBody* body;
@@ -396,13 +461,6 @@ void SceneHandler::CreatePlayerCollision(PlayerEntity* ent)
     float playerRadius1 = (ent->maxBox.x - ent->minBox.x) * 0.5f;
     float playerRadius = (playerRadius0 > playerRadius1 ? playerRadius0 : playerRadius1) - padding;
 
-    // No we make and make a upright capsule for the collision mesh
-//    dMatrix orientation;
-//    orientation.m_front = dVector (0.0f, 0.0f, 1.0f, 0.0f);			// this is the player front direction
-//    orientation.m_up    = dVector (0.0f, 1.0f, 0.0f, 0.0f);			// this is the player up direction
-//    orientation.m_right = orientation.m_front * orientation.m_up;   // this is the player sideway direction
-//    orientation.m_posit = dVector (0.0f, 0.0f, 0.0f, 1.0f);
-
 
     glm::mat4 orientation;
     //glm::gtc::matrix_access::column(orientation,0,glm::vec4(0.0f, 0.0f, 1.0f, 0.0f));
@@ -414,7 +472,7 @@ void SceneHandler::CreatePlayerCollision(PlayerEntity* ent)
 
 
     // add a body with a box shape
-    //shape = CreateNewtonCapsule (world, player, playerHigh, playerRadius, m_wood, orientation);
+    //shape = CreateNewtonCapsule (SceneHandler::world, ent, playerHigh, playerRadius, 0, orientation);
     shape = CreateNewtonCylinder (SceneHandler::world, ent, playerHigh, playerRadius, 0, orientation);
     //shape = CreateNewtonBox (SceneHandler::world, ent, 0);
     body = CreateRigidBody (SceneHandler::world, ent, shape, 0);
@@ -422,10 +480,7 @@ void SceneHandler::CreatePlayerCollision(PlayerEntity* ent)
 
     NewtonBodySetAutoSleep (body, 0);
 
-    //NewtonBodySetTransformCallback (body, PlayerEntity::SetTransform);
-
     ent->playerBody = body;
-    //PlayerEntity::player = ent;
 }
 
 void SceneHandler::SetInterpolationParam(float t)
@@ -450,13 +505,11 @@ void FreeMemory (void *ptr, int sizeInBytes)
 
 void ProcessEvents(NewtonWorld* world)
 {
-
 }
 
-void AdvanceSimulation (unsigned int timeInMicroseconds)
+void AdvanceSimulation (int timeInMicroseconds)
 {
-	// do the physics simulation here
-	unsigned int deltaTime;
+	int deltaTime;
 
 	// get the time step
 	deltaTime = timeInMicroseconds - g_currentTime;
@@ -474,9 +527,9 @@ void AdvanceSimulation (unsigned int timeInMicroseconds)
 		ProcessEvents (SceneHandler::world);
 
 		// run the newton update function
-		NewtonUpdate (SceneHandler::world, (1.0f / PHYSICS_FPS));
+		NewtonUpdate (SceneHandler::world, std::max(SceneHandler::g_dt,(1.0f / PHYSICS_FPS)));
 
-        PlayerEntity::SetTransform(NULL,NULL,0);
+        PlayerEntity::NewtonUpdate(std::max(SceneHandler::g_dt,(1.0f / PHYSICS_FPS)));
 
 		// subtract time from time accumulator
 		g_timeAccumulator -= FPS_IN_MICROSECONDS;

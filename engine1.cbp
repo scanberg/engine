@@ -31,8 +31,15 @@
 		<Unit filename="Entity.h" />
 		<Unit filename="Error.cpp" />
 		<Unit filename="Error.h" />
+		<Unit filename="Helpers.cpp" />
+		<Unit filename="Helpers.h" />
 		<Unit filename="Light.cpp" />
 		<Unit filename="Light.h" />
+		<Unit filename="MD5Animation.cpp" />
+		<Unit filename="MD5Animation.h" />
+		<Unit filename="MD5Model.cpp" />
+		<Unit filename="MD5Model.h" />
+		<Unit filename="MD5ModelLoaderPCH.h" />
 		<Unit filename="Material.cpp" />
 		<Unit filename="Material.h" />
 		<Unit filename="Math.cpp" />

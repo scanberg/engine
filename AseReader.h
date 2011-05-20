@@ -18,7 +18,6 @@ typedef struct {
         unsigned int sg;
 }TFace;
 
-int LoadAse(const std::string &filename, StaticEntity &entity, float scale=1.0);
-StaticEntity *LoadAse(const std::string &filename);
+int LoadAse(const std::string &filename, MeshObject &meshObj);
 
 #endif

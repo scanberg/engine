@@ -10,19 +10,14 @@
 #include "Error.h"
 #include "Camera.h"
 #include "SceneHandler.h"
+#include "MD5Model.h"
 
 using std::cout;
 using std::endl;
 
-void updateLighting(Camera& camera)
-{
-    float vector4f[4]= {camera.pos.x, camera.pos.y, camera.pos.z, 1.0f}; // Origin, in hom. coords
-    glLightfv(GL_LIGHT0, GL_POSITION, vector4f); // Set light position
-}
-
 int main(int argc, char *argv[])
 {
-    int running = GL_TRUE; // Main loop exits when this is set to GL_FALSE
+    int running = GL_TRUE;
     int mousebtn, lastmousebtn;
 
     //Did the init not succeed?
@@ -32,16 +27,14 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    //glEnable(GL_LIGHT0);
-
     Light *light0 = SceneHandler::CreateLight();
 
-    light0->setPosition(0.0,-100.0,200.0);
+    light0->setPosition(0.0,-200.0,200.0);
     light0->setDirection(0.0,10.0,-10.0);
-    light0->setDiffuse(1.0,0.7,0.7);
-    light0->setAmbient(0.1,0.1,0.1);
+    light0->setDiffuse(1.0,1.0,1.0);
+    light0->setAmbient(0.5,0.5,0.5);
     light0->setSpecular(1.0,1.0,1.0);
-
+    light0->setCutoff(30.0);
 
 //    Light *light1 = SceneHandler::CreateLight();
 //
@@ -72,17 +65,21 @@ int main(int argc, char *argv[])
     StaticEntity *beast;
     StaticEntity *box;
 
-    scene = SceneHandler::CreateStaticEntity("media/testscene/testscene.ase",5.0);
-    beast = SceneHandler::CreateStaticEntity("media/beast/beast.ase",0.5);
+    scene = SceneHandler::CreateStaticEntity("media/testscene/testscene.ase",7.0);
+    beast = SceneHandler::CreateStaticEntity("media/beast/beast1.ase",0.5);
     box = SceneHandler::CreateStaticEntity("media/box/box.ase",1.0);
 
+    MD5Model bob;
+    bob.LoadModel("md5/monsters/hellknight/hellknight.md5mesh");
+    bob.LoadAnim("md5/monsters/hellknight/idle2.md5anim");
+
     beast->SetPosition(0.0,100.0,50.0);
-    beast->SetRotation(45.0,0.0,0.0);
+    beast->SetRotation(90.0,0.0,0.0);
 
     scene->SetPosition(0.0,0.0,0.0);
-    scene->SetRotation(180.0,0.0,0.0);
+    scene->SetRotation(0.0,0.0,45.0);
 
-    box->SetPosition(0.0,100.0,150.0);
+    box->SetPosition(100.0,100.0,150.0);
     //box->SetRotation(0.0,0.0,-20.0);
 
     SceneHandler::CreateBBoxCollision(box,10.0);
@@ -122,16 +119,15 @@ int main(int argc, char *argv[])
             PlayerEntity::followMouse=true;
         }
 
-
         // Update the scene.
         SceneHandler::Update();
-
-        //updateLighting(camera);
+        bob.Update(SceneHandler::g_dt);
 
         camera.setUp();
 
         // Finally, draw the scene.
         SceneHandler::Render();
+        bob.Render();
 
         // Swap buffers, i.e. display the image and prepare for next frame.
         glfwSwapBuffers();

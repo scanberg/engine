@@ -9,6 +9,7 @@
 #include <stdlib.h>  // for malloc() and free()
 #include "Material.h"
 #include "Error.h"
+#include "SceneHandler.h"
 
 using std::string;
 
@@ -64,9 +65,8 @@ int LoadMaterial(const std::string& s, Material& mat)
 
     if(FileExists(s+"_diffuse.tga"))
     {
-        glGenTextures(1, &mat.diffuseMap); // Generate 1 unique texture IDs to use
-        glBindTexture(GL_TEXTURE_2D, mat.diffuseMap); // Activate texture
-        glfwLoadTexture2D((s+"_diffuse.tga").c_str(), GLFW_BUILD_MIPMAPS_BIT); // Load image
+        mat.diffuseMap=SceneHandler::resources.loadTexture(s+"_diffuse.tga",GLFW_BUILD_MIPMAPS_BIT);
+        glBindTexture(GL_TEXTURE_2D, mat.diffuseMap);
 
         // Specify trilinear interpolation
         glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR ); // GL_LINEAR_MIPMAP_NEAREST, bilinear
@@ -74,26 +74,22 @@ int LoadMaterial(const std::string& s, Material& mat)
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 
-
         mat.type+=TEX_DIFFUSE;
     }
 
     if(FileExists(s+"_specular.tga"))
     {
 
-        glGenTextures(1, &mat.specularMap); // Generate 1 unique texture IDs to use
-        glBindTexture(GL_TEXTURE_2D, mat.specularMap); // Activate first texture
-
-        //SKALL MIPMAPS ANVÄNDAS??
-        glfwLoadTexture2D((s+"_specular.tga").c_str(),GLFW_BUILD_MIPMAPS_BIT); // Load image
+        mat.specularMap=SceneHandler::resources.loadTexture(s+"_specular.tga",GLFW_BUILD_MIPMAPS_BIT);
+        glBindTexture(GL_TEXTURE_2D, mat.specularMap);
         mat.type+=TEX_SPECULAR;
     }
 
     if(FileExists(s+"_normal.tga"))
     {
 
-        glGenTextures(1, &mat.normalMap); // Generate 1 unique texture IDs to use
-        glBindTexture(GL_TEXTURE_2D, mat.normalMap); // Activate texture
+        mat.normalMap=SceneHandler::resources.loadTexture(s+"_normal.tga",GLFW_BUILD_MIPMAPS_BIT);
+        glBindTexture(GL_TEXTURE_2D, mat.normalMap);
 
         //Finns en heightmap så släng in den i alpha-kanalen, RGBA
         if(FileExists(s+"_height.tga"))
@@ -103,10 +99,6 @@ int LoadMaterial(const std::string& s, Material& mat)
             glfwLoadTextureImage2D(&merged, GLFW_BUILD_MIPMAPS_BIT);
             glfwFreeImage(&merged);
             mat.type+=TEX_HEIGHT;
-        }
-        else
-        {
-            glfwLoadTexture2D((s+"_normal.tga").c_str(), GLFW_BUILD_MIPMAPS_BIT); // Load image
         }
 
         // Specify trilinear interpolation
@@ -311,7 +303,7 @@ GLuint createShader( const char *vertfilename, const char *fragfilename ) {
   return programObj;
 }
 
- void setUniformVariables( GLuint programObj,
+void setUniformVariables( GLuint programObj,
 			   int diff, int norm, int spec, const GLvoid* tangentPointer) {
 
     GLint location_diff = -1;
@@ -346,8 +338,19 @@ GLuint createShader( const char *vertfilename, const char *fragfilename ) {
     glUseProgram( 0 );
 }
 
- void setUniformVariable( GLuint programObj, GLint var, std::string name) {
+void setAttributeTangent(GLuint programObj, const GLvoid* tangentPointer, std::string name)
+{
+    GLint location_var = -1;
+    location_var = glGetAttribLocation(programObj, name.c_str());
+    if(location_var != -1)
+    {
+        glEnableVertexAttribArray(location_var);
+        glVertexAttribPointer(location_var, 3, GL_FLOAT, GL_FALSE, 0, tangentPointer);
+    }
+}
 
+void setUniformVariable( GLuint programObj, GLint var, std::string name)
+{
     GLint location_var = -1;
 
     // Activate the shader to set its state

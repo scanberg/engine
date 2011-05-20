@@ -18,11 +18,7 @@ static glm::vec3 maxPush;
 PlayerEntity* PlayerEntity::player = NULL;
 
 Entity::Entity() :
-	matrix (1.0f),
-	curPosition (0.0f, 0.0f, 0.0f, 1.0f),
-	prevPosition (0.0f, 0.0f, 0.0f, 1.0f),
-	curRotation (1.0f, 0.0f, 0.0f, 0.0f),
-	prevRotation (1.0f, 0.0f, 0.0f, 0.0f)
+	matrix (1.0f)
 {
     visible=true;
     scale=1.0;
@@ -37,14 +33,13 @@ void Entity::Remove()
 
 void Entity::SetPosition(float px, float py, float pz)
 {
-    curPosition=prevPosition=matrix[3]=glm::vec4(px,py,pz,1.0f);
+    matrix[3]=glm::vec4(px,py,pz,1.0f);
 }
 void Entity::SetRotation(float rx, float ry, float rz)
 {
-    curRotation = glm::gtc::quaternion::rotate(curRotation,rx,glm::vec3(1.0,0.0,0.0));
-    curRotation = glm::gtc::quaternion::rotate(curRotation,ry,glm::vec3(0.0,1.0,0.0));
-    curRotation = glm::gtc::quaternion::rotate(curRotation,rz,glm::vec3(0.0,0.0,1.0));
-    prevRotation = curRotation;
+    glm::mat4 mat=glm::gtx::euler_angles::yawPitchRoll(rx,ry,rz);
+    mat[3] = matrix[3];
+    matrix = mat;
 }
 
 void Entity::SetVisibility(bool b)
@@ -61,8 +56,38 @@ void Entity::CalculateBounds()
 
 }
 
-void PlayerEntity::Draw()
+NewtonEntity::NewtonEntity() :
+	curPosition (0.0f, 0.0f, 0.0f, 1.0f),
+	prevPosition (0.0f, 0.0f, 0.0f, 1.0f),
+	curRotation (1.0f, 0.0f, 0.0f, 0.0f),
+	prevRotation (1.0f, 0.0f, 0.0f, 0.0f)
 {
+    body=NULL;
+}
+
+void NewtonEntity::SetPosition(float px, float py, float pz)
+{
+    curPosition=prevPosition=matrix[3]=glm::vec4(px,py,pz,1.0f);
+}
+
+void NewtonEntity::SetRotation(float rx, float ry, float rz)
+{
+    glm::mat4 mat = glm::gtx::euler_angles::yawPitchRoll(ry,rz,rx);
+    curRotation = glm::gtc::quaternion::quat_cast(mat);
+    prevRotation = curRotation;
+    matrix = createMat4(curRotation,curPosition);
+    if(body)
+        NewtonBodySetMatrix( body, &matrix[0][0]);
+}
+
+void NewtonEntity::Update(float interpolationParam, NewtonWorld* world)
+{
+	// Calculate visual Transform by Interpolating between prev and curr State
+	glm::vec4 position (prevPosition + (curPosition - prevPosition) * interpolationParam);
+	glm::quat rotation = glm::gtc::quaternion::mix(prevRotation,curRotation,interpolationParam);
+
+    matrix = createMat4(rotation,position);
+
 }
 
 float Inc(float target, float current, float stepsize=1.0)
@@ -140,8 +165,6 @@ void PlayerEntity::UpdateCollision(NewtonBody* body)
 
         //cout<<endl;
     }
-    //bla bla
-
 }
 
 void BodyIterator (const NewtonBody* body, void* userData)
@@ -183,48 +206,59 @@ void PlayerEntity::Update(float interpolationParam, NewtonWorld* world)
     }
 }
 
-void PlayerEntity::UpdatePhysics(NewtonWorld* world)
+void PlayerEntity::UpdatePhysics(NewtonWorld* world, float dt)
 {
 
     Camera* cam=PlayerEntity::camera;
-    const float moveSpeed = 1.5;
-    const float maxAcceleration = 0.1;
+    const float moveSpeed = 100.0*dt;
+    const float maxAcceleration = 10.0*dt;
+    const float fallAcceleration = 4.0*dt;
+    const float jumpStrength = 100.0*dt;
 
     static bool jumpOk;
 
     float move = (float)( glfwGetKey('W') - glfwGetKey('S') );
     float strafe = (float)( glfwGetKey('D') - glfwGetKey('A') );
 
+    //Desired velocity representerar den önskvärda hastigheten från input
     glm::vec3 desiredVelocity(strafe,move,0.0f);
-    glm::vec3 finalVelocity(velocity);
 
+    //Normalisera desired om man önskar att gå snett
     if(glm::dot(desiredVelocity,desiredVelocity) > 1.0f)
-        desiredVelocity *= 0.70710678f;
+        desiredVelocity *= 0.70710678f; // 1/sqrt(2)
 
-    glm::mat4 mat = glm::gtc::matrix_transform::rotate(glm::mat4(1.0f),cam->rot.z,glm::vec3(0.0f,0.0f,1.0f));
-    glm::vec4 temp(desiredVelocity,1.0f);
-    desiredVelocity = glm::vec3(mat * temp);
-
+    //Skala enligt movespeed
     desiredVelocity *= moveSpeed;
 
-    finalVelocity.x=Inc(desiredVelocity.x,finalVelocity.x,maxAcceleration);
-    finalVelocity.y=Inc(desiredVelocity.y,finalVelocity.y,maxAcceleration);
+    //Skapa en matris för att transformera velocity till samma koordinatsystem som desiredVel är angivet i
+    glm::mat4 mat = glm::gtc::matrix_transform::rotate(glm::mat4(1.0f),-cam->rot.z,glm::vec3(0.0f,0.0f,1.0f));
 
-    velocity.x = finalVelocity.x;
-    velocity.y = finalVelocity.y;
+    //Skapa en kopia på velocity och transformera denna.
+    glm::vec4 temp(velocity,1.0f);
+    temp = mat * temp;
 
+    //Öka på temp enligt desired
+    temp.x=Inc(desiredVelocity.x,temp.x,maxAcceleration);
+    temp.y=Inc(desiredVelocity.y,temp.y,maxAcceleration);
+
+    //Transformera tillbaks
+    mat = glm::gtc::matrix_transform::rotate(glm::mat4(1.0f),cam->rot.z,glm::vec3(0.0f,0.0f,1.0f));
+    temp = mat * temp;
+
+    velocity.x=temp.x;
+    velocity.y=temp.y;
 
     if(!glfwGetKey(GLFW_KEY_SPACE))
         jumpOk=true;
 
     if(!airborne && jumpOk && glfwGetKey(GLFW_KEY_SPACE))
     {
-        velocity.z=1.3;
+        velocity.z=jumpStrength;
         jumpOk=false;
     }
 
 
-    velocity.z -= 0.05;
+    velocity.z -= fallAcceleration;
     airborne=true;
 
     if(velocity.z<=0.0)
@@ -232,7 +266,6 @@ void PlayerEntity::UpdatePhysics(NewtonWorld* world)
         //AlignToGroundConvex();
     }
 
-    //m_matrix.m_posit += velocity;
     matrix[3].x += velocity.x;
     matrix[3].y += velocity.y;
     matrix[3].z += velocity.z;
@@ -267,14 +300,12 @@ void PlayerEntity::UpdatePhysics(NewtonWorld* world)
         velocity.z = std::min(velocity.z,0.0f);
 }
 
-void PlayerEntity::SetTransform (const NewtonBody* body, const float* matrix, int threadId)
+void PlayerEntity::NewtonUpdate (float dt)
 {
 	// get the entity associated with this rigid body
-	PlayerEntity* ent = PlayerEntity::player;//(PlayerEntity*) NewtonBodyGetUserData(body);
+	PlayerEntity* ent = PlayerEntity::player;
 
-	NewtonWorld* world = SceneHandler::world;//NewtonBodyGetWorld(body);
-
-	ent->UpdatePhysics(world);
+	ent->UpdatePhysics(SceneHandler::world,dt);
 
     ent->prevPosition = ent->curPosition;
     ent->curPosition = ent->matrix[3];
@@ -285,12 +316,12 @@ PlayerEntity::PlayerEntity()
     PlayerEntity::player = this;
 }
 
-MeshEntity::MeshEntity()
+MeshObject::MeshObject()
 {
     totalVertices=0;
 }
 
-MeshEntity::~MeshEntity()
+MeshObject::~MeshObject()
 {
     unsigned int i;
 
@@ -312,60 +343,75 @@ MeshEntity::~MeshEntity()
     }
 }
 
-void MeshEntity::Scale(float s)
-{
-    unsigned int i;
-    for(i=0; i<mesh.size(); i++)
-    {
-        mesh[i]->scale(s);
-    }
-}
-
-glm::vec4 Vectorize(const glm::quat &v)
-{
-    return glm::vec4(v.x,v.y,v.z,v.w);
-}
-
-glm::mat3 fixMatrix(const glm::mat3 &m)
-{
-    glm::vec3 v0(-m[2].z,m[1].z,-m[0].z);
-    glm::vec3 v1(m[2].y,-m[1].y,m[0].y);
-    glm::vec3 v2(m[2].x,-m[1].x,m[0].x);
-    return glm::mat3(v0,v1,v2);
-}
-
-void StaticEntity::Update(float interpolationParam, NewtonWorld* world)
-{
-	// Calculate visual Transform by Interpolating between prev and curr State
-	glm::vec4 position (prevPosition + (curPosition - prevPosition) * interpolationParam);
-	glm::quat rotation = glm::gtc::quaternion::mix(prevRotation,curRotation,interpolationParam);
-
-    matrix = createMat4(rotation,position);
-
-}
-
 void StaticEntity::DrawGeometry()
 {
     if(visible)
     {
-
         glPushMatrix();
 
-//        glActiveTexture(GL_TEXTURE3);
-
         glMultMatrixf(&matrix[0][0]);
+        glScalef(scale,scale,scale);
 
-        for(unsigned int i=0; i<mesh.size(); i++)
+        for(unsigned int i=0; i<meshObj->mesh.size(); i++)
         {
-            if(mesh.at(i) != NULL)
+            if(meshObj->mesh.at(i) != NULL)
             {
-                mesh.at(i)->draw();
+                meshObj->mesh.at(i)->draw();
+            }
+        }
+        glPopMatrix();
+    }
+}
+
+void StaticEntity::DrawShadow()
+{
+    if(visible)
+    {
+        Light *nearestLight=SceneHandler::FindNearestLight(matrix[3].x,
+                                                           matrix[3].y,
+                                                           matrix[3].z);
+        if(nearestLight)
+            nearestLight->assignTo(0);
+
+        glPushMatrix();
+        glMultMatrixf(&matrix[0][0]);
+        glScalef(scale,scale,scale);
+        glMatrixMode(GL_TEXTURE);
+        glActiveTexture(GL_TEXTURE3);
+
+        glPushMatrix();
+        glMultMatrixf(&matrix[0][0]);
+        glScalef(scale,scale,scale);
+
+        for(unsigned int i=0; i<meshObj->mesh.size(); i++)
+        {
+            if(meshObj->material.at(i) != NULL)
+            {
+                glMaterialfv(GL_FRONT, GL_DIFFUSE, meshObj->material.at(i)->diffuse);
+                glMaterialfv(GL_FRONT, GL_AMBIENT, meshObj->material.at(i)->ambient);
+                glMaterialfv(GL_FRONT, GL_SPECULAR, meshObj->material.at(i)->specular);
+                glMaterialfv(GL_FRONT, GL_SHININESS, meshObj->material.at(i)->shininess);
+
+                glActiveTexture( GL_TEXTURE3 );
+                glBindTexture(GL_TEXTURE_2D, nearestLight->depthTextureId);
+                setUniformVariable(SceneHandler::shadowShader,3,"ShadowMap");
+
+                glUseProgram( SceneHandler::shadowShader );
+
+            }
+            if(meshObj->mesh.at(i))
+            {
+                meshObj->mesh.at(i)->draw();
             }
         }
 
+        glUseProgram( 0 );
+
+        glPopMatrix();
+        glMatrixMode(GL_MODELVIEW);
         glPopMatrix();
 
-//        glPopMatrix();
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 }
 
@@ -376,68 +422,61 @@ void StaticEntity::Draw()
         Light *nearestLight=SceneHandler::FindNearestLight(matrix[3].x,
                                                            matrix[3].y,
                                                            matrix[3].z);
-        if(nearestLight!=NULL)
-        {
-            //cout<<"inte null iaf"<<endl;
+        if(nearestLight)
             nearestLight->assignTo(0);
-        }
-
 
         glPushMatrix();
-
-//        glMatrixMode(GL_TEXTURE);
-//        glActiveTexture(GL_TEXTURE3);
-
         glMultMatrixf(&matrix[0][0]);
+        glScalef(scale,scale,scale);
+        glMatrixMode(GL_TEXTURE);
+        glActiveTexture(GL_TEXTURE3);
 
-
-//        glPushMatrix();
-//        glMultMatrixf(&m_matrix[0][0]);
+        glPushMatrix();
+        glMultMatrixf(&matrix[0][0]);
+        glScalef(scale,scale,scale);
 
         //printf("pos: %f %f %f \n",m_matrix.m_posit.m_x, m_matrix.m_posit.m_y, m_matrix.m_posit.m_z);
 
-
-        for(unsigned int i=0; i<mesh.size(); i++)
+        for(unsigned int i=0; i<meshObj->mesh.size(); i++)
         {
-            if(material.at(i) != NULL)
+            if(meshObj->material.at(i) != NULL)
             {
                 glActiveTexture( GL_TEXTURE0 );
-                glBindTexture(GL_TEXTURE_2D, material.at(i)->diffuseMap);
+                glBindTexture(GL_TEXTURE_2D, meshObj->material.at(i)->diffuseMap);
+                setUniformVariable(meshObj->material.at(i)->shader,0,"diffuseMap");
 
                 glActiveTexture( GL_TEXTURE1 );
-                glBindTexture(GL_TEXTURE_2D, material.at(i)->normalMap);
-
-                glActiveTexture( GL_TEXTURE2 );
-                glBindTexture(GL_TEXTURE_2D, material.at(i)->heightMap);
-
-                glMaterialfv(GL_FRONT, GL_DIFFUSE, material.at(i)->diffuse);
-                glMaterialfv(GL_FRONT, GL_AMBIENT, material.at(i)->ambient);
-                glMaterialfv(GL_FRONT, GL_SPECULAR, material.at(i)->specular);
-                glMaterialfv(GL_FRONT, GL_SHININESS, material.at(i)->shininess);
-
-                setUniformVariables(material.at(i)->shader,0,1,2,mesh.at(i)->tangent);
+                glBindTexture(GL_TEXTURE_2D, meshObj->material.at(i)->normalMap);
+                setUniformVariable(meshObj->material.at(i)->shader,1,"normalMap");
 
                 glActiveTexture( GL_TEXTURE3 );
-                glBindTexture(GL_TEXTURE_2D, nearestLight->depthTextureId);
+                glBindTexture(GL_TEXTURE_2D, SceneHandler::lightMap);
+                setUniformVariable(meshObj->material.at(i)->shader,3,"lightMap");
 
-                setUniformVariable(material.at(i)->shader,3,"ShadowMap");
+                setAttributeTangent(meshObj->material.at(i)->shader, meshObj->mesh.at(i)->tangent, "tangent");
 
-                glUseProgram( material.at(i)->shader );
+                glMaterialfv(GL_FRONT, GL_DIFFUSE, meshObj->material.at(i)->diffuse);
+                glMaterialfv(GL_FRONT, GL_AMBIENT, meshObj->material.at(i)->ambient);
+                glMaterialfv(GL_FRONT, GL_SPECULAR, meshObj->material.at(i)->specular);
+                glMaterialfv(GL_FRONT, GL_SHININESS, meshObj->material.at(i)->shininess);
+
+                setUniformVariable(meshObj->material.at(i)->shader,SceneHandler::width,"screenWidth");
+                setUniformVariable(meshObj->material.at(i)->shader,SceneHandler::height,"screenHeight");
+
+                glUseProgram( meshObj->material.at(i)->shader );
 
             }
-            if(mesh.at(i) != NULL)
+            if(meshObj->mesh.at(i))
             {
-                mesh.at(i)->draw();
+                meshObj->mesh.at(i)->draw();
             }
         }
 
         glUseProgram( 0 );
 
-        //glPopMatrix();
-
         glPopMatrix();
-
-//        glPopMatrix();
+        glMatrixMode(GL_MODELVIEW);
+        glPopMatrix();
 
         glBindTexture(GL_TEXTURE_2D, 0);
     }
@@ -451,20 +490,20 @@ void StaticEntity::CalculateBounds()
 	float val;
     unsigned int i, u;
 
-    for(i=0; i<mesh.size(); i++)
+    for(i=0; i<meshObj->mesh.size(); i++)
     {
-        for(u=0; u<mesh.at(i)->numVertices; u++)
+        for(u=0; u<meshObj->mesh.at(i)->numVertices; u++)
         {
 
-            val = mesh[i]->vertex[u].x;
+            val = meshObj->mesh[i]->vertex[u].x*scale;
             l_minBox.x = (val < l_minBox.x) ? val : l_minBox.x;
             l_maxBox.x = (val > l_maxBox.x) ? val : l_maxBox.x;
 
-            val = mesh[i]->vertex[u].y;
+            val = meshObj->mesh[i]->vertex[u].y*scale;
             l_minBox.y = (val < l_minBox.y) ? val : l_minBox.y;
             l_maxBox.y = (val > l_maxBox.y) ? val : l_maxBox.y;
 
-            val = mesh[i]->vertex[u].z;
+            val = meshObj->mesh[i]->vertex[u].z*scale;
             l_minBox.z = (val < l_minBox.z) ? val : l_minBox.z;
             l_maxBox.z = (val > l_maxBox.z) ? val : l_maxBox.z;
         }

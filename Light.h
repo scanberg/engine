@@ -17,8 +17,6 @@ public:
     GLuint fboId;
     GLuint depthTextureId;
 
-    glm::mat4 textureMatrix;
-
     Light();
     void Update(){}
 
@@ -27,6 +25,7 @@ public:
     void setSpecular(GLfloat r, GLfloat g, GLfloat b) { specular[0]=r; specular[1]=g; specular[2]=b; }
     void setPosition(GLfloat x, GLfloat y, GLfloat z) { position[0]=x; position[1]=y; position[2]=z; }
     void setDirection(GLfloat x, GLfloat y, GLfloat z) { direction[0]=x; direction[1]=y; direction[2]=z; }
+    void setCutoff(GLfloat c) {cutoff=c;}
     void assignTo(unsigned int i);
     void setupMatrices();
     void setTextureMatrix();
@@ -40,6 +39,7 @@ private:
     GLfloat position[4];
     GLfloat direction[4];
     GLfloat radius;
+    GLfloat cutoff;
 
     void generateShadowFBO();
 };

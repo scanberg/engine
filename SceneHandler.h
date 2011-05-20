@@ -9,6 +9,7 @@
 #include <vector>
 #include "Entity.h"
 #include "Light.h"
+#include "ResourceManager.h"
 
 class SceneHandler
 {
@@ -28,15 +29,24 @@ public:
     static void SetInterpolationParam(float t);
     static float GetInterpolationParam(){ return interpolationParam; }
 
-    static void CreateBBoxCollision(Entity* ent, float mass=0.0f);
-    static void CreateConvexCollision(MeshEntity* ent, float mass=0.0f);
-    static void CreateMeshCollision(MeshEntity* ent, float mass=0.0f);
+    static void CreateBBoxCollision(NewtonEntity* ent, float mass=0.0f);
+    static void CreateConvexCollision(StaticEntity* ent, float mass=0.0f);
+    static void CreateMeshCollision(StaticEntity* ent, float mass=0.0f);
     static void CreatePlayerCollision(PlayerEntity* ent);
 
     static Light* FindNearestLight(float x, float y, float z);
 
     static void Render();
     static void Update();
+
+    static ResourceManager resources;
+
+    static GLuint lightMap;
+    static GLuint lightMapFBO;
+    static GLuint lightMapDepth;
+    static GLuint shadowShader;
+
+    static void InitLightMap();
 
     static float g_dt;
 private:
@@ -46,14 +56,14 @@ private:
 
     static void GenerateShadowMaps();
 
-    static float interpolationParam;
+    static void DrawLightMap();
 
-    static GLuint shadowShader;
+    static float interpolationParam;
 
     static std::vector<Entity*> renderList;
 
     static std::vector<Entity*> entity;
-    static std::vector<MeshEntity*> meshEntity;
+    static std::vector<NewtonEntity*> newtonEntity;
 
     static std::vector<Light*> light;
 };

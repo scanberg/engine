@@ -106,17 +106,9 @@ void Mesh::calculateNormals()
         vertex[face[i].point[2]].ny += normal.y;
         vertex[face[i].point[2]].nz += normal.z;
 
-        tangent[face[i].point[0]].x += tang.x;
-        tangent[face[i].point[0]].y += tang.y;
-        tangent[face[i].point[0]].z += tang.z;
-
-        tangent[face[i].point[1]].x += tang.x;
-        tangent[face[i].point[1]].y += tang.y;
-        tangent[face[i].point[1]].z += tang.z;
-
-        tangent[face[i].point[2]].x += tang.x;
-        tangent[face[i].point[2]].y += tang.y;
-        tangent[face[i].point[2]].z += tang.z;
+        tangent[face[i].point[0]] += tang;
+        tangent[face[i].point[1]] += tang;
+        tangent[face[i].point[2]] += tang;
 
         sharedFaces[face[i].point[0]]++;
         sharedFaces[face[i].point[1]]++;
@@ -133,16 +125,66 @@ void Mesh::calculateNormals()
             vertex[i].ny /= faces;
             vertex[i].nz /= faces;
 
-            tangent[i].x /= faces;
-            tangent[i].y /= faces;
-            tangent[i].z /= faces;
+            //tangent[i].x /= faces;
+            //tangent[i].y /= faces;
+            //tangent[i].z /= faces;
         }
 
         normalizeXYZ(vertex[i].nx,vertex[i].ny,vertex[i].nz);
-        tangent[i]=glm::normalize(tangent[i]);
+        //tangent[i]=glm::normalize(tangent[i]);
     }
-
 }
+
+//void Mesh::calculateTangents()
+//{
+//    glm::vec3 tang,a,b;
+//    glm::vec2 st1, st2;
+//    unsigned int sharedFaces[this->numVertices];
+//    unsigned int i;
+//
+//    for (unsigned int i=0; i<this->numFaces; i++)
+//    {
+//        a=createVec3(vertex[face[i].point[0]],vertex[face[i].point[2]]);
+//        b=createVec3(vertex[face[i].point[0]],vertex[face[i].point[1]]);
+//
+//        st1.x = vertex[face[i].point[2]].u - vertex[face[i].point[0]].u;
+//        st1.y = vertex[face[i].point[2]].v - vertex[face[i].point[0]].v;
+//
+//        st2.x = vertex[face[i].point[1]].u - vertex[face[i].point[0]].u;
+//        st2.y = vertex[face[i].point[1]].v - vertex[face[i].point[0]].v;
+//
+//        calculateTangent(tang, a, b, st1, st2);
+//
+//        tang = glm::normalize(tang);
+//
+//        tangent[face[i].point[0]] += tang;
+//        tangent[face[i].point[1]] += tang;
+//        tangent[face[i].point[2]] += tang;
+//
+//        sharedFaces[face[i].point[0]]++;
+//        sharedFaces[face[i].point[1]]++;
+//        sharedFaces[face[i].point[2]]++;
+//    }
+//
+//    for (i=0; i<this->numVertices; i++)
+//    {
+//        if(sharedFaces[i]>0)
+//        {
+//            faces = (float)sharedFaces[i];
+//
+//            vertex[i].nx /= faces;
+//            vertex[i].ny /= faces;
+//            vertex[i].nz /= faces;
+//
+//            //tangent[i].x /= faces;
+//            //tangent[i].y /= faces;
+//            //tangent[i].z /= faces;
+//        }
+//
+//        normalizeXYZ(vertex[i].nx,vertex[i].ny,vertex[i].nz);
+//        tangent[i]=glm::normalize(tangent[i]);
+//    }
+//}
 
 // *CREDITS TO STEGU*
 void Mesh::createBuffers()

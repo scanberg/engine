@@ -8,7 +8,7 @@ Light::Light()
     setDirection(0.0f,0.0f,-10.0f);
     diffuse[3]=ambient[3]=specular[3]=position[3]=direction[3]=1.0f;
     radius=1000.0f;
-
+    cutoff=45.0f;
     generateShadowFBO();
 }
 
@@ -17,7 +17,7 @@ void Light::generateShadowFBO()
 	int shadowMapWidth = SHADOW_MAP_WIDTH;
 	int shadowMapHeight = SHADOW_MAP_HEIGHT;
 
-	//GLfloat borderColor[4] = {0,0,0,0};
+	GLfloat borderColor[4] = {0,0,0,0};
 
 	GLenum FBOstatus;
 
@@ -33,7 +33,7 @@ void Light::generateShadowFBO()
 	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
 	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
 
-	//glTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor );
+	glTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor );
 
 	// No need to force GL_DEPTH_COMPONENT24, drivers usually give you the max precision if available
 	glTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadowMapWidth, shadowMapHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, 0);
@@ -65,7 +65,7 @@ void Light::setupMatrices()
 {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(90,SHADOW_MAP_WIDTH/SHADOW_MAP_HEIGHT,10,1000);
+	gluPerspective(2*cutoff,SHADOW_MAP_WIDTH/SHADOW_MAP_HEIGHT,10,1000);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -102,8 +102,6 @@ void Light::setTextureMatrix()
 	glMultMatrixd (projection);
 	glMultMatrixd (modelView);
 
-	glGetFloatv(GL_TEXTURE3, &textureMatrix[0][0]);
-
 	// Go back to normal matrix mode
 	glMatrixMode(GL_MODELVIEW);
 }
@@ -115,4 +113,5 @@ void Light::assignTo(unsigned int i)
     glLightfv(GL_LIGHT0+i, GL_AMBIENT, ambient);
     glLightfv(GL_LIGHT0+i, GL_SPECULAR, specular);
     glLightfv(GL_LIGHT0+i, GL_SPOT_DIRECTION, direction);
+    glLightf(GL_LIGHT0+i, GL_SPOT_CUTOFF, cutoff);
 }

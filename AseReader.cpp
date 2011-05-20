@@ -374,7 +374,7 @@ void extract_tface_list(istream& is, vector<TVertex>& vectex, vector<Face>& face
     }
 }
 
-void extract_mesh(istream& is, Mesh& mesh, float scale)
+void extract_mesh(istream& is, Mesh& mesh)
 {
 	vector<float>	MESH_VERTEX_LIST_X, MESH_VERTEX_LIST_Y, MESH_VERTEX_LIST_Z,
 								MESH_TVERTLIST_U, MESH_TVERTLIST_V;
@@ -469,12 +469,11 @@ void extract_mesh(istream& is, Mesh& mesh, float scale)
         //printf("face[%i] p0:%i p1:%i p2:%i \n",i,mesh.face[i].point[0],mesh.face[i].point[1],mesh.face[i].point[2]);
     }
 
-    mesh.scale(scale);
     mesh.calculateNormals();
     mesh.createBuffers();
 }
 
-int LoadAse(const string &filename, StaticEntity &entity, float scale)
+int LoadAse(const string &filename, MeshObject &meshObj)
 {
 	//constants
 	string SCENE_FILENAME;
@@ -554,7 +553,7 @@ int LoadAse(const string &filename, StaticEntity &entity, float scale)
 			    {
 			        cout<<endl<<"NEW MESH "<<endl;
 			        meshptr = new Mesh();
-                    extract_mesh(is,*meshptr,scale);
+                    extract_mesh(is,*meshptr);
                     MESH_LIST.push_back(meshptr);
                     loop=false;
 			    }
@@ -566,22 +565,15 @@ int LoadAse(const string &filename, StaticEntity &entity, float scale)
 		}
     }
 
-    entity.totalVertices = 0;
+    meshObj.totalVertices = 0;
+
 
     for(unsigned int i=0; i<MESH_LIST.size(); i++)
     {
-        entity.mesh.push_back(MESH_LIST.at(i));
-        entity.material.push_back(MATERIAL_LIST.at(MATERIAL_INDEX.at(i)));
-        entity.totalVertices += MESH_LIST.at(i)->numVertices;
+        meshObj.mesh.push_back(MESH_LIST.at(i));
+        meshObj.material.push_back(MATERIAL_LIST.at(MATERIAL_INDEX.at(i)));
+        meshObj.totalVertices += MESH_LIST.at(i)->numVertices;
     }
-    entity.CalculateBounds();
 
 	return 1; //success!
-}
-
-StaticEntity *LoadAse(const string &filename)
-{
-    StaticEntity *entity = new StaticEntity();
-    LoadAse(filename, *entity);
-    return entity;
 }

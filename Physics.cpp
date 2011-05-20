@@ -2,7 +2,7 @@
 #include <GL/glfw.h>
 
 
-NewtonCollision* CreateNewtonBox (NewtonWorld* world, Entity *ent, int shapeId)
+NewtonCollision* CreateNewtonBox (NewtonWorld* world, NewtonEntity *ent, int shapeId)
 {
 	NewtonCollision* collision;
 
@@ -25,29 +25,24 @@ NewtonCollision* CreateNewtonBox (NewtonWorld* world, Entity *ent, int shapeId)
 	return collision;
 }
 
-NewtonCollision* CreateNewtonConvex (NewtonWorld* world, MeshEntity *ent, int shapeId)
+NewtonCollision* CreateNewtonConvex (NewtonWorld* world, StaticEntity *ent, int shapeId)
 {
 	NewtonCollision* collision;
-	glm::vec3* tmpArray = new glm::vec3 [ent->totalVertices];
-
-	// Get the Bounding Box for this entity
-	//ent->GetBBox (minBox, maxBox);
+	glm::vec3* tmpArray = new glm::vec3 [ent->meshObj->totalVertices];
 
 	glm::vec3 size (ent->maxBox - ent->minBox);
 	glm::vec3 origin ((ent->maxBox + ent->minBox)*0.5f);
 
-	//Vector3f v_origin = Vector3f( (float)origin.x , (float)origin.y, (float)origin.z);
-
 	unsigned int i,u,counter;
 	counter=0;
 
-    // Translate al the points to the origin point
-    for(i=0; i<ent->mesh.size(); i++)
+    // Translate all the points to the origin point
+    for(i=0; i<ent->meshObj->mesh.size(); i++)
     {
-        for(u=0; u<ent->mesh.at(i)->numVertices; u++)
+        for(u=0; u<ent->meshObj->mesh.at(i)->numVertices; u++)
         {
 
-            glm::vec3 tmp(ent->mesh[i]->vertex[u].x, ent->mesh[i]->vertex[u].y, ent->mesh[i]->vertex[u].z);
+            glm::vec3 tmp(ent->meshObj->mesh[i]->vertex[u].x, ent->meshObj->mesh[i]->vertex[u].y, ent->meshObj->mesh[i]->vertex[u].z);
             tmpArray[counter] = tmp - origin;
             counter++;
         }
@@ -57,14 +52,14 @@ NewtonCollision* CreateNewtonConvex (NewtonWorld* world, MeshEntity *ent, int sh
 	glm::mat4 offset = glm::gtc::matrix_transform::translate(glm::mat4(1.0f),origin);
 
 	// now create a convex hull shape from the vertex geometry
-	collision = NewtonCreateConvexHull(world, ent->totalVertices, &tmpArray[0][0], sizeof (glm::vec3), 0.1f, shapeId, &offset[0][0]);
+	collision = NewtonCreateConvexHull(world, ent->meshObj->totalVertices, &tmpArray[0][0], sizeof (glm::vec3), 0.1f, shapeId, &offset[0][0]);
 
 	delete tmpArray;
 
 	return collision;
 }
 
-NewtonCollision* CreateNewtonMesh (NewtonWorld* world, MeshEntity* ent, int* shapeIdArray)
+NewtonCollision* CreateNewtonMesh (NewtonWorld* world, StaticEntity* ent, int* shapeIdArray)
 {
 	NewtonCollision* collision;
 
@@ -79,19 +74,19 @@ NewtonCollision* CreateNewtonMesh (NewtonWorld* world, MeshEntity* ent, int* sha
 	unsigned int counter = 0;
 
 	// step over the collision geometry and add all faces to the collision tree
-	for (i = 0; i <  ent->mesh.size(); i ++) {
+	for (i = 0; i <  ent->meshObj->mesh.size(); i ++) {
 		// add each sub mesh as a face id, will will use this later for a multi material sound effect in and advanced tutorial
-		for (j = 0; j < ent->mesh[i]->numFaces; j++) {
+		for (j = 0; j < ent->meshObj->mesh[i]->numFaces; j++) {
 			glm::vec3 face[3];
 
-			vert=ent->mesh[i]->vertex[ent->mesh[i]->face[j].point[0]];
-            face[0] = glm::vec3 (vert.x, vert.y, vert.z);
+			vert=ent->meshObj->mesh[i]->vertex[ent->meshObj->mesh[i]->face[j].point[0]];
+            face[0] = glm::vec3(vert.x, vert.y, vert.z)*ent->scale;
 
-            vert=ent->mesh[i]->vertex[ent->mesh[i]->face[j].point[1]];
-            face[1] = glm::vec3 (vert.x, vert.y, vert.z);
+            vert=ent->meshObj->mesh[i]->vertex[ent->meshObj->mesh[i]->face[j].point[1]];
+            face[1] = glm::vec3 (vert.x, vert.y, vert.z)*ent->scale;
 
-            vert=ent->mesh[i]->vertex[ent->mesh[i]->face[j].point[2]];
-            face[2] = glm::vec3 (vert.x, vert.y, vert.z);
+            vert=ent->meshObj->mesh[i]->vertex[ent->meshObj->mesh[i]->face[j].point[2]];
+            face[2] = glm::vec3 (vert.x, vert.y, vert.z)*ent->scale;
 
             counter++;
 
@@ -111,7 +106,7 @@ NewtonCollision* CreateNewtonMesh (NewtonWorld* world, MeshEntity* ent, int* sha
 	return collision;
 }
 
-NewtonCollision* CreateNewtonCylinder (NewtonWorld* world, Entity *ent, float height, float radius, int shapeId, const glm::mat4& orientation)
+NewtonCollision* CreateNewtonCylinder (NewtonWorld* world, NewtonEntity *ent, float height, float radius, int shapeId, const glm::mat4& orientation)
 {
 	// Place the shape origin at the geometrical center of the entity
 	glm::vec3 origin( (ent->maxBox + ent->minBox)*0.5f );
@@ -122,7 +117,7 @@ NewtonCollision* CreateNewtonCylinder (NewtonWorld* world, Entity *ent, float he
 	return NewtonCreateCylinder(world, radius, height, shapeId, &offset[0][0]);
 }
 
-NewtonCollision* CreateNewtonCapsule (NewtonWorld* world, Entity *ent, float height, float radius, int shapeId, const glm::mat4& orientation)
+NewtonCollision* CreateNewtonCapsule (NewtonWorld* world, NewtonEntity *ent, float height, float radius, int shapeId, const glm::mat4& orientation)
 {
 	// Place the shape origin at the geometrical center of the entity
 	glm::vec3 origin( (ent->maxBox + ent->minBox)*0.5f );
@@ -133,26 +128,13 @@ NewtonCollision* CreateNewtonCapsule (NewtonWorld* world, Entity *ent, float hei
 	return NewtonCreateCapsule(world, radius, height, shapeId, &offset[0][0]);
 }
 
-NewtonBody* CreateRigidBody (NewtonWorld* world, Entity* ent, NewtonCollision* collision, dFloat mass)
+NewtonBody* CreateRigidBody (NewtonWorld* world, NewtonEntity* ent, NewtonCollision* collision, dFloat mass)
 {
 	glm::vec3 minBox;
 	glm::vec3 maxBox;
 	glm::vec3 origin;
 	glm::vec3 inertia;
 	NewtonBody* body;
-
-	// we need to set physics properties to this body
-//	glm::vec3 position(ent->curPosition);
-//	glm::quat rotation = ent->curRotation;
-//
-//    glm::mat4 rot = glm::gtc::quaternion::mat4_cast(rotation);
-//    glm::mat4 pos = glm::gtc::matrix_transform::translate(glm::mat4(1.0f),position);
-//    glm::mat4 matrix = rot*pos;
-//
-//    dVector posit(position.x,position.y,position.z);
-//    dQuaternion roto(rotation.x,rotation.y,rotation.z,rotation.w);
-//
-//    dMatrix mat(roto,posit);
 
     glm::mat4 matrix = createMat4(ent->curRotation,ent->curPosition);
 
@@ -198,7 +180,7 @@ void DestroyBodyCallback (const NewtonBody* body)
 // Transform callback to set the matrix of a the visual entity
 void SetTransformCallback (const NewtonBody* body, const float* matrix, int threadIndex)
 {
-	Entity* ent;
+	NewtonEntity* ent;
 
 	// Get the position from the matrix
 	glm::vec4 position (matrix[12], matrix[13], matrix[14], 1.0f);
@@ -208,7 +190,7 @@ void SetTransformCallback (const NewtonBody* body, const float* matrix, int thre
 	NewtonBodyGetRotation(body, &rotation[0]);
 
 	// get the entity associated with this rigid body
-	ent = (Entity*) NewtonBodyGetUserData(body);
+	ent = (NewtonEntity*) NewtonBodyGetUserData(body);
 
 	// since this tutorial run the physics and a different fps than the Graphics
 	// we need to save the entity current transformation state before updating the new state.
@@ -216,11 +198,7 @@ void SetTransformCallback (const NewtonBody* body, const float* matrix, int thre
 	ent->prevRotation = ent->curRotation;
 
 	if (glm::dot(ent->curRotation,rotation) < 0.0f) {
-		//ent->prevRotation *= -1.0f;
-		ent->prevRotation.x *= -1.0f;
-		ent->prevRotation.y *= -1.0f;
-		ent->prevRotation.z *= -1.0f;
-		ent->prevRotation.w *= -1.0f;
+		ent->prevRotation *= -1.0f;
 	}
 
 	// set the new position and orientation for this entity
