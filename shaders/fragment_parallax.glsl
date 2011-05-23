@@ -9,11 +9,13 @@ uniform sampler2D normalMap;
 uniform sampler2D lightMap;
 uniform int screenWidth;
 uniform int screenHeight;
+uniform float lightRadius;
 	
 void main (void)
 {
-	float totLight = 100000.0/dot(lightVec,lightVec);
-	totLight = clamp(totLight,0.0,1.0);
+	float distSqr = dot(lightVec, lightVec);
+	float invRadius = 1.0/(lightRadius*lightRadius);
+	float att = clamp(1.0 - invRadius * distSqr, 0.0, 1.0);
 
 	vec2 lightCoord = gl_FragCoord.xy;
 	lightCoord.x /= float(screenWidth);
@@ -41,7 +43,7 @@ void main (void)
 		vec4 vAmbient = gl_LightSource[0].ambient * gl_FrontMaterial.ambient;
 		vec4 vDiffuse = gl_LightSource[0].diffuse * gl_FrontMaterial.diffuse * diffuse;	
 		vec4 vSpecular = gl_LightSource[0].specular * gl_FrontMaterial.specular *specular;	
-		gl_FragColor = vAmbient*base + totLight*shadow*(vDiffuse*base + vSpecular);	
+		gl_FragColor = vAmbient*base + att*shadow*(vDiffuse*base + vSpecular);	
 	}
 	else
 	{

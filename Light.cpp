@@ -7,7 +7,7 @@ Light::Light()
     setPosition(0.0f,0.0f,0.0f);
     setDirection(0.0f,0.0f,-10.0f);
     diffuse[3]=ambient[3]=specular[3]=position[3]=direction[3]=1.0f;
-    radius=1000.0f;
+    radius=500.0f;
     cutoff=45.0f;
     generateShadowFBO();
 }
@@ -65,7 +65,7 @@ void Light::setupMatrices()
 {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(2*cutoff,SHADOW_MAP_WIDTH/SHADOW_MAP_HEIGHT,10,1000);
+	gluPerspective(2*cutoff,SHADOW_MAP_WIDTH/SHADOW_MAP_HEIGHT,1,radius);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();

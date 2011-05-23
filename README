@@ -1,1 +1,27 @@
-COOL KIDS ON THE BLOCK
+-[ASCIIART]- Linux -[ASCIIART]-
+
+You need glfw, glew and the newton dynamics library.
+Install glfw and glew in whatever way suits you.
+
+Installing newton dynamics:
+$-user, #-root
+1. download the latest package: 
+		$ wget http://newton-dynamics.googlecode.com/files/newton-dynamics-2.33.rar 
+2.	$ unrar x newton-dynamics-2.33.rar
+3. change to the directory of your architecture
+		$ cd newton-dynamics-2.33/coreLibrary_200/projects/linux64/
+4. fix a typo in the file dgTypes.cpp
+		$ sed -i 's/_ASSERT /_ASSERTE /g' ../../source/core/dgTypes.cpp
+5.	$ make
+6. copy files to a directory where g++ can reach them
+		$ cp libNewton.so {path_to_engine}/libNewton.so
+		# cp libNewton.a /usr/local/lib/libNewton.a
+		# cp ../../source/newton/Newton.h /usr/local/include/Newton.h
+7. cd to the next library we use dCustomJoints
+		$ cd ../../../packages/projects/linux64/dCustomJoints/
+8.	$ make
+9.	# cp libTemp.a /usr/local/lib/libJointLibrary.a
+		# cp ../../../dCustomJoints/JointLibrary.h /usr/local/include/JointLibrary.h
+10. make engine
+		$ cd {path_to_engine}
+		$ make

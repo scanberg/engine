@@ -34,6 +34,8 @@ public:
     glm::vec4 getDirection(){ return glm::vec4(direction[0],direction[1],direction[2],direction[3]); }
     glm::vec4 getDiffuse(){ return glm::vec4(diffuse[0],diffuse[1],diffuse[2],diffuse[3]); }
 
+    GLfloat getRadius(){ return radius; };
+
 private:
     GLfloat diffuse[4];
     GLfloat ambient[4];

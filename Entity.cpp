@@ -395,6 +395,7 @@ void StaticEntity::DrawShadow()
                 glActiveTexture( GL_TEXTURE3 );
                 glBindTexture(GL_TEXTURE_2D, nearestLight->depthTextureId);
                 setUniform1i(SceneHandler::shadowShader,3,"ShadowMap");
+                setUniform1f(SceneHandler::shadowShader, nearestLight->getRadius(),"lightRadius");
 
                 glUseProgram( SceneHandler::shadowShader );
 
@@ -463,6 +464,8 @@ void StaticEntity::Draw()
                 glMaterialfv(GL_FRONT, GL_AMBIENT, meshObj->material.at(i)->ambient);
                 glMaterialfv(GL_FRONT, GL_SPECULAR, meshObj->material.at(i)->specular);
                 glMaterialfv(GL_FRONT, GL_SHININESS, meshObj->material.at(i)->shininess);
+
+                setUniform1f(meshObj->material.at(i)->shader,nearestLight->getRadius(),"lightRadius");
 
                 setUniform1i(meshObj->material.at(i)->shader,SceneHandler::width,"screenWidth");
                 setUniform1i(meshObj->material.at(i)->shader,SceneHandler::height,"screenHeight");

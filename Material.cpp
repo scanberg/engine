@@ -59,85 +59,6 @@ void Material::setShininess(float f)
 bool FileExists(std::string strFilename);
 GLFWimage mergeNormalAndHeight(std::string s);
 
-int LoadMaterial(const std::string& s, Material& mat)
-{
-    //Sätt materialets typ till none, i fallet då ingen textur hittas för materialet.
-    mat.type = TEX_NONE;
-
-    if(FileExists(s+"_diffuse.tga"))
-    {
-        mat.diffuseMap=SceneHandler::resources.loadTexture(s+"_diffuse.tga",GLFW_BUILD_MIPMAPS_BIT);
-        glBindTexture(GL_TEXTURE_2D, mat.diffuseMap);
-
-        // Specify trilinear interpolation
-        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
-        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-
-        glBindTexture(GL_TEXTURE_2D, 0);
-
-        mat.type+=TEX_DIFFUSE;
-    }
-
-    if(FileExists(s+"_specular.tga"))
-    {
-
-        mat.specularMap=SceneHandler::resources.loadTexture(s+"_specular.tga",GLFW_BUILD_MIPMAPS_BIT);
-        glBindTexture(GL_TEXTURE_2D, mat.specularMap);
-        mat.type+=TEX_SPECULAR;
-    }
-
-    if(FileExists(s+"_normal.tga"))
-    {
-
-        mat.normalMap=SceneHandler::resources.loadTexture(s+"_normal.tga",GLFW_BUILD_MIPMAPS_BIT);
-        glBindTexture(GL_TEXTURE_2D, mat.normalMap);
-
-        //Finns en heightmap så släng in den i alpha-kanalen, RGBA
-        if(FileExists(s+"_height.tga"))
-        {
-            GLFWimage merged;
-            merged = mergeRGB_A(&(s+"_normal.tga"),&(s+"_height.tga"));
-            glfwLoadTextureImage2D(&merged, GLFW_BUILD_MIPMAPS_BIT);
-            glfwFreeImage(&merged);
-            mat.type+=TEX_HEIGHT;
-        }
-
-        // Specify trilinear interpolation
-        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
-        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-
-        mat.type+=TEX_NORMAL;
-    }
-
-    //Ladda rätt shader beroende på vilka texturer som hittades.
-    switch(mat.type)
-    {
-        case TEX_DIFFUSE:
-            mat.shader = createShader( "shaders/vertex_diffuse.glsl", "shaders/fragment_diffuse.glsl" );
-            break;
-
-        case TEX_DIFFUSE+TEX_NORMAL:
-            mat.shader = createShader( "shaders/vertex_bump.glsl", "shaders/fragment_bump.glsl" );
-            break;
-
-        case TEX_DIFFUSE+TEX_NORMAL+TEX_HEIGHT:
-            mat.shader = createShader( "shaders/vertex_parallax.glsl", "shaders/fragment_parallax.glsl" );
-            break;
-
-        case TEX_DIFFUSE+TEX_NORMAL+TEX_HEIGHT+TEX_SPECULAR:
-            mat.shader = createShader( "shaders/vertex_parallax_spec.glsl", "shaders/fragment_parallax_spec.glsl" );
-            break;
-
-        default:
-            mat.shader = createShader( "shaders/vertex_diffuse.glsl", "shaders/fragment_diffuse.glsl" );
-    }
-    return 1;
-}
-
 void Material::loadShader()
 {
     //Ladda rätt shader beroende på vilka texturer som hittades.
@@ -167,15 +88,6 @@ void Material::loadShader()
         default:
             shader = createShader( "shaders/vertex_diffuse.glsl", "shaders/fragment_diffuse.glsl" );
     }
-}
-
-Material LoadMaterial(const std::string& s)
-{
-    Material mat;
-
-    LoadMaterial(s,mat);
-
-    return mat;
 }
 
 /*
@@ -421,6 +333,22 @@ void setAttributeTangent(GLuint programObj, const GLvoid* tangentPointer, std::s
         glEnableVertexAttribArray(location_var);
         glVertexAttribPointer(location_var, 3, GL_FLOAT, GL_FALSE, 0, tangentPointer);
     }
+}
+
+void setUniform1f( GLuint programObj, GLfloat var, std::string name)
+{
+    GLint location_var = -1;
+
+    // Activate the shader to set its state
+    glUseProgram( programObj );
+
+        // Locate the uniform shader variables by name and set them:
+        location_var = glGetUniformLocation( programObj, name.c_str() );
+        if(location_var != -1)
+            glUniform1f( location_var, var);
+
+    // Deactivate the shader again
+    glUseProgram( 0 );
 }
 
 void setUniform2f( GLuint programObj, GLfloat *var, std::string name)

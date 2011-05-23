@@ -2,7 +2,7 @@
 <CodeBlocks_layout_file>
 	<ActiveTarget name="default" />
 	<File name="AseReader.cpp" open="1" top="0" tabpos="10">
-		<Cursor position="6229" topLine="189" />
+		<Cursor position="5930" topLine="176" />
 	</File>
 	<File name="AseReader.h" open="1" top="0" tabpos="11">
 		<Cursor position="406" topLine="0" />
@@ -13,8 +13,8 @@
 	<File name="Camera.h" open="0" top="0" tabpos="9">
 		<Cursor position="53" topLine="0" />
 	</File>
-	<File name="Entity.cpp" open="1" top="0" tabpos="6">
-		<Cursor position="12642" topLine="440" />
+	<File name="Entity.cpp" open="1" top="1" tabpos="6">
+		<Cursor position="11156" topLine="383" />
 	</File>
 	<File name="Entity.h" open="1" top="0" tabpos="7">
 		<Cursor position="624" topLine="13" />
@@ -26,10 +26,10 @@
 		<Cursor position="607" topLine="0" />
 	</File>
 	<File name="Light.cpp" open="1" top="0" tabpos="14">
-		<Cursor position="1575" topLine="0" />
+		<Cursor position="188" topLine="0" />
 	</File>
 	<File name="Light.h" open="1" top="0" tabpos="15">
-		<Cursor position="1119" topLine="13" />
+		<Cursor position="1401" topLine="17" />
 	</File>
 	<File name="MD5Animation.cpp" open="0" top="0" tabpos="14">
 		<Cursor position="259" topLine="0" />
@@ -46,11 +46,11 @@
 	<File name="MD5ModelLoaderPCH.h" open="0" top="0" tabpos="13">
 		<Cursor position="310" topLine="0" />
 	</File>
-	<File name="Material.cpp" open="1" top="1" tabpos="2">
-		<Cursor position="4629" topLine="135" />
+	<File name="Material.cpp" open="1" top="0" tabpos="2">
+		<Cursor position="10131" topLine="327" />
 	</File>
 	<File name="Material.h" open="1" top="0" tabpos="3">
-		<Cursor position="948" topLine="27" />
+		<Cursor position="1048" topLine="25" />
 	</File>
 	<File name="Math.cpp" open="0" top="0" tabpos="11">
 		<Cursor position="546" topLine="0" />
@@ -77,7 +77,7 @@
 		<Cursor position="326" topLine="0" />
 	</File>
 	<File name="SceneHandler.cpp" open="1" top="0" tabpos="8">
-		<Cursor position="6423" topLine="215" />
+		<Cursor position="9641" topLine="329" />
 	</File>
 	<File name="SceneHandler.h" open="1" top="0" tabpos="9">
 		<Cursor position="1053" topLine="38" />

@@ -1,15 +1,14 @@
 # Project: engine1
 
-# MAC
 CPP  = g++
 CC   = gcc
-OBJ  = main.o Entity.o Mesh.o AseReader.o Material.o Error.o 
-LINKOBJ  = main.o Entity.o Mesh.o AseReader.o Material.o Error.o $(RES)
-LIBS =  -lglfw -lGL -lGLU  -lGLEW
+OBJ  = main.o Entity.o Mesh.o AseReader.o Material.o Error.o Camera.o Light.o SceneHandler.o Math.o Physics.o ResourceManager.o MD5Animation.o MD5Model.o Helpers.o
+LINKOBJ  = $(OBJ) $(RES)
+LIBS =  -lglfw -lGL -lGLU  -lGLEW -lNewton -lJointLibrary
 OPTS = -Wall -O3 -ffast-math
 RM = rm -f
 
-all: engine1 main.o Entity.o Mesh.o AseReader.o Material.o Error.o
+all: engine1 $(OBJ)
 
 
 clean: 
@@ -36,3 +35,29 @@ Material.o: Material.cpp
 Error.o: Error.cpp
 	$(CPP) -c Error.cpp -o Error.o $(OPTS)
 
+Camera.o: Camera.cpp
+	$(CPP) -c Camera.cpp -o Camera.o $(OPTS)
+
+Light.o: Light.cpp
+	$(CPP) -c Light.cpp -o Light.o $(OPTS)
+
+SceneHandler.o: SceneHandler.cpp
+	$(CPP) -c SceneHandler.cpp -o SceneHandler.o $(OPTS) $(LIBS)
+
+Math.o: Math.cpp
+	$(CPP) -c Math.cpp -o Math.o $(OPTS)
+
+Physics.o: Physics.cpp
+	$(CPP) -c Physics.cpp -o Physics.o $(OPTS) $(LIBS)
+
+ResourceManager.o: ResourceManager.cpp
+	$(CPP) -c ResourceManager.cpp -o ResourceManager.o $(OPTS) $(LIBS)
+
+MD5Animation.o: MD5Animation.cpp
+	$(CPP) -c MD5Animation.cpp -o MD5Animation.o $(OPTS) $(LIBS)
+
+MD5Model.o: MD5Model.cpp
+	$(CPP) -c MD5Model.cpp -o MD5Model.o $(OPTS) $(LIBS)
+
+Helpers.o: Helpers.cpp
+	$(CPP) -c Helpers.cpp -o Helpers.o $(OPTS) $(LIBS)
