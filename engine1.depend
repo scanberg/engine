@@ -72,7 +72,7 @@
 	"Material.h"
 	"Error.h"
 
-1305838281 source:c:\users\gespachelor\engine\entity.cpp
+1305893642 source:c:\users\gespachelor\engine\entity.cpp
 	<GL/glew.h>
 	<GL/glfw.h>
 	<math.h>
@@ -131,7 +131,7 @@
 	<GL/glfw.h>
 	"Mesh.h"
 
-1305806096 source:c:\users\gespachelor\engine\main.cpp
+1305839105 source:c:\users\gespachelor\engine\main.cpp
 	<GL/glew.h>
 	<GL/glfw.h>
 	<iostream>
@@ -254,12 +254,12 @@
 1298624770 source:c:\users\gespachelor\engine\dmath\dvector.cpp
 	"dStdAfxMath.h"
 
-1305806019 c:\users\gespachelor\engine\light.h
+1305893779 c:\users\gespachelor\engine\light.h
 	<GL/glew.h>
 	<GL/glfw.h>
 	"Math.h"
 
-1305806107 source:c:\users\gespachelor\engine\light.cpp
+1305892912 source:c:\users\gespachelor\engine\light.cpp
 	"Light.h"
 	<cstdio>
 
@@ -280,7 +280,7 @@
 	"Light.h"
 	"ResourceManager.h"
 
-1305830966 source:c:\users\gespachelor\engine\scenehandler.cpp
+1305893613 source:c:\users\gespachelor\engine\scenehandler.cpp
 	<GL/glew.h>
 	<GL/glfw.h>
 	<iostream>
@@ -1385,4 +1385,1050 @@
 	<string>
 	<map>
 	"Entity.h"
+
+1306058248 source:c:\users\göran\desktop\engine\asereader.cpp
+	"AseReader.h"
+	"SceneHandler.h"
+	<iostream>
+	<fstream>
+	<cstring>
+	<cstdlib>
+	<vector>
+	<utility>
+
+1305738554 c:\users\göran\desktop\engine\asereader.h
+	<string>
+	"Entity.h"
+	"Mesh.h"
+	"Material.h"
+
+1305817468 c:\users\göran\desktop\engine\entity.h
+	<GL/glew.h>
+	<GL/glfw.h>
+	<vector>
+	<Newton.h>
+	<JointLibrary.h>
+	"Mesh.h"
+	"Camera.h"
+	"Material.h"
+	"Math.h"
+	"Material.h"
+
+1305613646 c:\users\göran\desktop\engine\mesh.h
+	<iostream>
+	<fstream>
+	<string>
+	<stdlib.h>
+	<math.h>
+	"Math.h"
+
+1305615610 c:\users\göran\desktop\engine\math.h
+	"glm/glm.hpp"
+	"glm/gtc/matrix_transform.hpp"
+	"glm/gtc/quaternion.hpp"
+	"glm/gtx/euler_angles.hpp"
+
+1304567380 c:\users\göran\desktop\engine\glm\glm.hpp
+	"core/_fixes.hpp"
+	<cmath>
+	<climits>
+	<cfloat>
+	<limits>
+	"core/setup.hpp"
+	"./core/_detail.hpp"
+	"./core/type.hpp"
+	"./core/func_trigonometric.hpp"
+	"./core/func_exponential.hpp"
+	"./core/func_common.hpp"
+	"./core/func_packing.hpp"
+	"./core/func_geometric.hpp"
+	"./core/func_matrix.hpp"
+	"./core/func_vector_relational.hpp"
+	"./core/func_integer.hpp"
+	"./core/func_noise.hpp"
+	"./core/_swizzle.hpp"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\_fixes.hpp
+
+1304567380 c:\users\göran\desktop\engine\glm\core\setup.hpp
+	<immintrin.h>
+	<pmmintrin.h>
+	<emmintrin.h>
+
+1304567380 c:\users\göran\desktop\engine\glm\core\_detail.hpp
+	"setup.hpp"
+	<cassert>
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type.hpp
+	"type_half.hpp"
+	"type_float.hpp"
+	"type_int.hpp"
+	"type_gentype.hpp"
+	"type_vec1.hpp"
+	"type_vec2.hpp"
+	"type_vec3.hpp"
+	"type_vec4.hpp"
+	"type_mat2x2.hpp"
+	"type_mat2x3.hpp"
+	"type_mat2x4.hpp"
+	"type_mat3x2.hpp"
+	"type_mat3x3.hpp"
+	"type_mat3x4.hpp"
+	"type_mat4x2.hpp"
+	"type_mat4x3.hpp"
+	"type_mat4x4.hpp"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_half.hpp
+	<cstdlib>
+	"type_half.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_half.inl
+	"_detail.hpp"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_float.hpp
+	"type_half.hpp"
+	"setup.hpp"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_int.hpp
+	"setup.hpp"
+	"_detail.hpp"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_gentype.hpp
+	"type_size.hpp"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_size.hpp
+	<cstdlib>
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_vec1.hpp
+	"type_vec.hpp"
+	"type_float.hpp"
+	"type_int.hpp"
+	"type_size.hpp"
+	"_swizzle.hpp"
+	"type_vec1.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_vec.hpp
+	"type_gentype.hpp"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\_swizzle.hpp
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_vec1.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_vec2.hpp
+	"type_vec.hpp"
+	"type_float.hpp"
+	"type_int.hpp"
+	"type_size.hpp"
+	"_swizzle.hpp"
+	"type_vec2.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_vec2.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_vec3.hpp
+	"type_vec.hpp"
+	"type_float.hpp"
+	"type_int.hpp"
+	"type_size.hpp"
+	"_swizzle.hpp"
+	"type_vec3.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_vec3.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_vec4.hpp
+	"type_vec.hpp"
+	"type_float.hpp"
+	"type_int.hpp"
+	"type_size.hpp"
+	"_swizzle.hpp"
+	"type_vec4.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_vec4.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_mat2x2.hpp
+	"type_mat.hpp"
+	"type_mat2x2.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_mat.hpp
+	"type_gentype.hpp"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_mat2x2.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_mat2x3.hpp
+	"type_mat.hpp"
+	"type_mat2x3.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_mat2x3.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_mat2x4.hpp
+	"type_mat.hpp"
+	"type_mat2x4.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_mat2x4.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_mat3x2.hpp
+	"type_mat.hpp"
+	"type_mat3x2.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_mat3x2.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_mat3x3.hpp
+	"type_mat.hpp"
+	"type_mat3x3.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_mat3x3.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_mat3x4.hpp
+	"type_mat.hpp"
+	"type_mat3x4.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_mat3x4.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_mat4x2.hpp
+	"type_mat.hpp"
+	"type_mat4x2.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_mat4x2.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_mat4x3.hpp
+	"type_mat.hpp"
+	"type_mat4x3.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_mat4x3.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_mat4x4.hpp
+	"type_mat.hpp"
+	"type_mat4x4.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\type_mat4x4.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\core\func_trigonometric.hpp
+	"func_trigonometric.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\func_trigonometric.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\core\func_exponential.hpp
+	"func_exponential.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\func_exponential.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\core\func_common.hpp
+	"_fixes.hpp"
+	"func_common.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\func_common.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\core\func_packing.hpp
+	"func_packing.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\func_packing.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\core\func_geometric.hpp
+	"func_geometric.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\func_geometric.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\core\func_matrix.hpp
+	"func_matrix.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\func_matrix.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\core\func_vector_relational.hpp
+	"_detail.hpp"
+	"func_vector_relational.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\func_vector_relational.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\core\func_integer.hpp
+	"func_integer.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\func_integer.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\core\func_noise.hpp
+	"func_noise.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\core\func_noise.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\gtc\matrix_transform.hpp
+	"../glm.hpp"
+	"matrix_transform.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\gtc\matrix_transform.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\gtc\quaternion.hpp
+	"../glm.hpp"
+	"../gtc/half_float.hpp"
+	"quaternion.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\gtc\half_float.hpp
+	"../glm.hpp"
+	"half_float.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\gtc\half_float.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\gtc\quaternion.inl
+	<limits>
+
+1304567380 c:\users\göran\desktop\engine\glm\gtx\euler_angles.hpp
+	"../glm.hpp"
+	"../gtc/half_float.hpp"
+	"euler_angles.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\gtx\euler_angles.inl
+
+1304567380 c:\users\göran\desktop\engine\camera.h
+	"Math.h"
+
+1306055394 c:\users\göran\desktop\engine\material.h
+	<GL/glfw.h>
+	<string>
+
+1304567380 source:c:\users\göran\desktop\engine\camera.cpp
+	<GL/glfw.h>
+	<math.h>
+	<iostream>
+	"Camera.h"
+
+1305970981 source:c:\users\göran\desktop\engine\entity.cpp
+	<GL/glew.h>
+	<GL/glfw.h>
+	<math.h>
+	<iostream>
+	<cstdio>
+	<cmath>
+	<set>
+	<assert.h>
+	"Entity.h"
+	"SceneHandler.h"
+
+1305822744 c:\users\göran\desktop\engine\scenehandler.h
+	<GL/glew.h>
+	<GL/glfw.h>
+	<vector>
+	"Entity.h"
+	"Light.h"
+	"ResourceManager.h"
+
+1305886578 c:\users\göran\desktop\engine\light.h
+	<GL/glew.h>
+	<GL/glfw.h>
+	"Math.h"
+
+1306053448 c:\users\göran\desktop\engine\resourcemanager.h
+	<GL/glew.h>
+	<GL/glfw.h>
+	<string>
+	<map>
+	"Entity.h"
+
+1304567380 source:c:\users\göran\desktop\engine\error.cpp
+	<stdio.h>
+	"Error.h"
+
+1304567380 c:\users\göran\desktop\engine\error.h
+
+1304428910 source:c:\users\göran\desktop\engine\helpers.cpp
+	"Helpers.h"
+
+1304615132 c:\users\göran\desktop\engine\helpers.h
+	"MD5ModelLoaderPCH.h"
+
+1304429296 c:\users\göran\desktop\engine\md5modelloaderpch.h
+	<GL/glew.h>
+	<GL/glfw.h>
+	<vector>
+	<string>
+	<fstream>
+	<ctime>
+	<assert.h>
+	<cstdio>
+	"glm/glm.hpp"
+	"glm/gtc/type_ptr.hpp"
+	"glm/gtc/swizzle.hpp"
+	"glm/gtc/quaternion.hpp"
+	"glm/gtx/rotate_vector.hpp"
+	"glm/gtx/vector_angle.hpp"
+	"glm/gtx/compatibility.hpp"
+	"glm/gtx/matrix_operation.hpp"
+	"glm/gtx/transform.hpp"
+	"glm/gtx/quaternion.hpp"
+	"glm/gtx/euler_angles.hpp"
+
+1304567380 c:\users\göran\desktop\engine\glm\gtc\type_ptr.hpp
+	"../glm.hpp"
+	"type_ptr.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\gtc\type_ptr.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\gtc\swizzle.hpp
+	"../glm.hpp"
+	"../gtc/type_precision.hpp"
+	"swizzle.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\gtc\type_precision.hpp
+	"../glm.hpp"
+	"../gtc/half_float.hpp"
+	"../gtc/quaternion.hpp"
+	"type_precision.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\gtc\type_precision.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\gtc\swizzle.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\gtx\rotate_vector.hpp
+	"../glm.hpp"
+	"../gtx/transform.hpp"
+	"rotate_vector.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\gtx\transform.hpp
+	"../glm.hpp"
+	"../gtc/matrix_transform.hpp"
+	"transform.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\gtx\transform.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\gtx\rotate_vector.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\gtx\vector_angle.hpp
+	"../glm.hpp"
+	"../gtx/quaternion.hpp"
+	"../gtx/epsilon.hpp"
+	"vector_angle.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\gtx\quaternion.hpp
+	"../glm.hpp"
+	"../gtc/quaternion.hpp"
+	"quaternion.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\gtx\quaternion.inl
+	<limits>
+
+1304567380 c:\users\göran\desktop\engine\glm\gtx\epsilon.hpp
+	"../glm.hpp"
+	"../gtc/half_float.hpp"
+	"epsilon.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\gtx\epsilon.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\gtx\vector_angle.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\gtx\compatibility.hpp
+	"../glm.hpp"
+	"../gtc/half_float.hpp"
+	<cfloat>
+	<cmath>
+	"compatibility.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\gtx\compatibility.inl
+
+1304567380 c:\users\göran\desktop\engine\glm\gtx\matrix_operation.hpp
+	"../glm.hpp"
+	"matrix_operation.inl"
+
+1304567380 c:\users\göran\desktop\engine\glm\gtx\matrix_operation.inl
+
+1305885712 source:c:\users\göran\desktop\engine\light.cpp
+	"Light.h"
+	<cstdio>
+
+1304620500 source:c:\users\göran\desktop\engine\md5animation.cpp
+	"MD5Animation.h"
+	<iostream>
+
+1304615262 c:\users\göran\desktop\engine\md5animation.h
+	"MD5ModelLoaderPCH.h"
+	"Helpers.h"
+
+1305795552 source:c:\users\göran\desktop\engine\md5model.cpp
+	"MD5Model.h"
+	<iostream>
+
+1305795502 c:\users\göran\desktop\engine\md5model.h
+	"MD5ModelLoaderPCH.h"
+	"Helpers.h"
+	"MD5Animation.h"
+	"Entity.h"
+
+1304567380 source:c:\users\göran\desktop\engine\math.cpp
+	"Math.h"
+
+1305723284 source:c:\users\göran\desktop\engine\mesh.cpp
+	<GL/glew.h>
+	<GL/glfw.h>
+	"Mesh.h"
+
+1305742468 source:c:\users\göran\desktop\engine\physics.cpp
+	"Physics.h"
+	<GL/glfw.h>
+
+1305738168 c:\users\göran\desktop\engine\physics.h
+	<Newton.h>
+	"Entity.h"
+	"Math.h"
+
+1306055149 source:c:\users\göran\desktop\engine\resourcemanager.cpp
+	"ResourceManager.h"
+	"AseReader.h"
+
+1305907171 source:c:\users\göran\desktop\engine\scenehandler.cpp
+	<GL/glew.h>
+	<GL/glfw.h>
+	<iostream>
+	<stdlib.h>
+	<cstdio>
+	<Newton.h>
+	<JointLibrary.h>
+	"MD5Model.h"
+	"SceneHandler.h"
+	"Error.h"
+	"Entity.h"
+	"AseReader.h"
+	"Physics.h"
+	"Material.h"
+
+1306056107 source:c:\users\göran\desktop\engine\main.cpp
+	<GL/glew.h>
+	<GL/glfw.h>
+	<iostream>
+	"Entity.h"
+	"AseReader.h"
+	"Material.h"
+	"Error.h"
+	"Camera.h"
+	"SceneHandler.h"
+	"MD5Model.h"
+
+1306057215 source:c:\users\göran\desktop\engine\material.cpp
+	<GL/glew.h>
+	<string>
+	<cstring>
+	<fstream>
+	<iostream>
+	<stdio.h>
+	<stdlib.h>
+	"Material.h"
+	"Error.h"
+	"SceneHandler.h"
+
+1306073016 source:c:\users\gespachelor\documents\my dropbox\engine\asereader.cpp
+	"AseReader.h"
+	"SceneHandler.h"
+	<iostream>
+	<fstream>
+	<cstring>
+	<cstdlib>
+	<vector>
+	<utility>
+
+1305738554 c:\users\gespachelor\documents\my dropbox\engine\asereader.h
+	<string>
+	"Entity.h"
+	"Mesh.h"
+	"Material.h"
+
+1305817468 c:\users\gespachelor\documents\my dropbox\engine\entity.h
+	<GL/glew.h>
+	<GL/glfw.h>
+	<vector>
+	<Newton.h>
+	<JointLibrary.h>
+	"Mesh.h"
+	"Camera.h"
+	"Material.h"
+	"Math.h"
+	"Material.h"
+
+1305613646 c:\users\gespachelor\documents\my dropbox\engine\mesh.h
+	<iostream>
+	<fstream>
+	<string>
+	<stdlib.h>
+	<math.h>
+	"Math.h"
+
+1305615610 c:\users\gespachelor\documents\my dropbox\engine\math.h
+	"glm/glm.hpp"
+	"glm/gtc/matrix_transform.hpp"
+	"glm/gtc/quaternion.hpp"
+	"glm/gtx/euler_angles.hpp"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\glm.hpp
+	"core/_fixes.hpp"
+	<cmath>
+	<climits>
+	<cfloat>
+	<limits>
+	"core/setup.hpp"
+	"./core/_detail.hpp"
+	"./core/type.hpp"
+	"./core/func_trigonometric.hpp"
+	"./core/func_exponential.hpp"
+	"./core/func_common.hpp"
+	"./core/func_packing.hpp"
+	"./core/func_geometric.hpp"
+	"./core/func_matrix.hpp"
+	"./core/func_vector_relational.hpp"
+	"./core/func_integer.hpp"
+	"./core/func_noise.hpp"
+	"./core/_swizzle.hpp"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\_fixes.hpp
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\setup.hpp
+	<immintrin.h>
+	<pmmintrin.h>
+	<emmintrin.h>
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\_detail.hpp
+	"setup.hpp"
+	<cassert>
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type.hpp
+	"type_half.hpp"
+	"type_float.hpp"
+	"type_int.hpp"
+	"type_gentype.hpp"
+	"type_vec1.hpp"
+	"type_vec2.hpp"
+	"type_vec3.hpp"
+	"type_vec4.hpp"
+	"type_mat2x2.hpp"
+	"type_mat2x3.hpp"
+	"type_mat2x4.hpp"
+	"type_mat3x2.hpp"
+	"type_mat3x3.hpp"
+	"type_mat3x4.hpp"
+	"type_mat4x2.hpp"
+	"type_mat4x3.hpp"
+	"type_mat4x4.hpp"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_half.hpp
+	<cstdlib>
+	"type_half.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_half.inl
+	"_detail.hpp"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_float.hpp
+	"type_half.hpp"
+	"setup.hpp"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_int.hpp
+	"setup.hpp"
+	"_detail.hpp"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_gentype.hpp
+	"type_size.hpp"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_size.hpp
+	<cstdlib>
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_vec1.hpp
+	"type_vec.hpp"
+	"type_float.hpp"
+	"type_int.hpp"
+	"type_size.hpp"
+	"_swizzle.hpp"
+	"type_vec1.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_vec.hpp
+	"type_gentype.hpp"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\_swizzle.hpp
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_vec1.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_vec2.hpp
+	"type_vec.hpp"
+	"type_float.hpp"
+	"type_int.hpp"
+	"type_size.hpp"
+	"_swizzle.hpp"
+	"type_vec2.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_vec2.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_vec3.hpp
+	"type_vec.hpp"
+	"type_float.hpp"
+	"type_int.hpp"
+	"type_size.hpp"
+	"_swizzle.hpp"
+	"type_vec3.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_vec3.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_vec4.hpp
+	"type_vec.hpp"
+	"type_float.hpp"
+	"type_int.hpp"
+	"type_size.hpp"
+	"_swizzle.hpp"
+	"type_vec4.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_vec4.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_mat2x2.hpp
+	"type_mat.hpp"
+	"type_mat2x2.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_mat.hpp
+	"type_gentype.hpp"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_mat2x2.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_mat2x3.hpp
+	"type_mat.hpp"
+	"type_mat2x3.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_mat2x3.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_mat2x4.hpp
+	"type_mat.hpp"
+	"type_mat2x4.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_mat2x4.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_mat3x2.hpp
+	"type_mat.hpp"
+	"type_mat3x2.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_mat3x2.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_mat3x3.hpp
+	"type_mat.hpp"
+	"type_mat3x3.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_mat3x3.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_mat3x4.hpp
+	"type_mat.hpp"
+	"type_mat3x4.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_mat3x4.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_mat4x2.hpp
+	"type_mat.hpp"
+	"type_mat4x2.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_mat4x2.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_mat4x3.hpp
+	"type_mat.hpp"
+	"type_mat4x3.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_mat4x3.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_mat4x4.hpp
+	"type_mat.hpp"
+	"type_mat4x4.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\type_mat4x4.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\func_trigonometric.hpp
+	"func_trigonometric.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\func_trigonometric.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\func_exponential.hpp
+	"func_exponential.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\func_exponential.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\func_common.hpp
+	"_fixes.hpp"
+	"func_common.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\func_common.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\func_packing.hpp
+	"func_packing.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\func_packing.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\func_geometric.hpp
+	"func_geometric.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\func_geometric.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\func_matrix.hpp
+	"func_matrix.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\func_matrix.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\func_vector_relational.hpp
+	"_detail.hpp"
+	"func_vector_relational.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\func_vector_relational.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\func_integer.hpp
+	"func_integer.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\func_integer.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\func_noise.hpp
+	"func_noise.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\core\func_noise.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\gtc\matrix_transform.hpp
+	"../glm.hpp"
+	"matrix_transform.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\gtc\matrix_transform.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\gtc\quaternion.hpp
+	"../glm.hpp"
+	"../gtc/half_float.hpp"
+	"quaternion.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\gtc\half_float.hpp
+	"../glm.hpp"
+	"half_float.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\gtc\half_float.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\gtc\quaternion.inl
+	<limits>
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\gtx\euler_angles.hpp
+	"../glm.hpp"
+	"../gtc/half_float.hpp"
+	"euler_angles.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\gtx\euler_angles.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\camera.h
+	"Math.h"
+
+1306073100 c:\users\gespachelor\documents\my dropbox\engine\material.h
+	<GL/glfw.h>
+	<string>
+
+1306073716 c:\users\gespachelor\documents\my dropbox\engine\scenehandler.h
+	<GL/glew.h>
+	<GL/glfw.h>
+	<vector>
+	"Entity.h"
+	"Light.h"
+	"ResourceManager.h"
+
+1306074214 c:\users\gespachelor\documents\my dropbox\engine\light.h
+	<GL/glew.h>
+	<GL/glfw.h>
+	"Math.h"
+
+1306069641 c:\users\gespachelor\documents\my dropbox\engine\resourcemanager.h
+	<GL/glew.h>
+	<GL/glfw.h>
+	<string>
+	<map>
+	"Entity.h"
+
+1304567380 source:c:\users\gespachelor\documents\my dropbox\engine\camera.cpp
+	<GL/glfw.h>
+	<math.h>
+	<iostream>
+	"Camera.h"
+
+1306094657 source:c:\users\gespachelor\documents\my dropbox\engine\entity.cpp
+	<GL/glew.h>
+	<GL/glfw.h>
+	<math.h>
+	<iostream>
+	<cstdio>
+	<cmath>
+	<set>
+	<assert.h>
+	"Entity.h"
+	"SceneHandler.h"
+
+1304567380 source:c:\users\gespachelor\documents\my dropbox\engine\error.cpp
+	<stdio.h>
+	"Error.h"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\error.h
+
+1304428910 source:c:\users\gespachelor\documents\my dropbox\engine\helpers.cpp
+	"Helpers.h"
+
+1304615132 c:\users\gespachelor\documents\my dropbox\engine\helpers.h
+	"MD5ModelLoaderPCH.h"
+
+1304429296 c:\users\gespachelor\documents\my dropbox\engine\md5modelloaderpch.h
+	<GL/glew.h>
+	<GL/glfw.h>
+	<vector>
+	<string>
+	<fstream>
+	<ctime>
+	<assert.h>
+	<cstdio>
+	"glm/glm.hpp"
+	"glm/gtc/type_ptr.hpp"
+	"glm/gtc/swizzle.hpp"
+	"glm/gtc/quaternion.hpp"
+	"glm/gtx/rotate_vector.hpp"
+	"glm/gtx/vector_angle.hpp"
+	"glm/gtx/compatibility.hpp"
+	"glm/gtx/matrix_operation.hpp"
+	"glm/gtx/transform.hpp"
+	"glm/gtx/quaternion.hpp"
+	"glm/gtx/euler_angles.hpp"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\gtc\type_ptr.hpp
+	"../glm.hpp"
+	"type_ptr.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\gtc\type_ptr.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\gtc\swizzle.hpp
+	"../glm.hpp"
+	"../gtc/type_precision.hpp"
+	"swizzle.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\gtc\type_precision.hpp
+	"../glm.hpp"
+	"../gtc/half_float.hpp"
+	"../gtc/quaternion.hpp"
+	"type_precision.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\gtc\type_precision.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\gtc\swizzle.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\gtx\rotate_vector.hpp
+	"../glm.hpp"
+	"../gtx/transform.hpp"
+	"rotate_vector.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\gtx\transform.hpp
+	"../glm.hpp"
+	"../gtc/matrix_transform.hpp"
+	"transform.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\gtx\transform.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\gtx\rotate_vector.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\gtx\vector_angle.hpp
+	"../glm.hpp"
+	"../gtx/quaternion.hpp"
+	"../gtx/epsilon.hpp"
+	"vector_angle.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\gtx\quaternion.hpp
+	"../glm.hpp"
+	"../gtc/quaternion.hpp"
+	"quaternion.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\gtx\quaternion.inl
+	<limits>
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\gtx\epsilon.hpp
+	"../glm.hpp"
+	"../gtc/half_float.hpp"
+	"epsilon.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\gtx\epsilon.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\gtx\vector_angle.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\gtx\compatibility.hpp
+	"../glm.hpp"
+	"../gtc/half_float.hpp"
+	<cfloat>
+	<cmath>
+	"compatibility.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\gtx\compatibility.inl
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\gtx\matrix_operation.hpp
+	"../glm.hpp"
+	"matrix_operation.inl"
+
+1304567380 c:\users\gespachelor\documents\my dropbox\engine\glm\gtx\matrix_operation.inl
+
+1305885712 source:c:\users\gespachelor\documents\my dropbox\engine\light.cpp
+	"Light.h"
+	<cstdio>
+
+1304620500 source:c:\users\gespachelor\documents\my dropbox\engine\md5animation.cpp
+	"MD5Animation.h"
+	<iostream>
+
+1304615262 c:\users\gespachelor\documents\my dropbox\engine\md5animation.h
+	"MD5ModelLoaderPCH.h"
+	"Helpers.h"
+
+1305795552 source:c:\users\gespachelor\documents\my dropbox\engine\md5model.cpp
+	"MD5Model.h"
+	<iostream>
+
+1305795502 c:\users\gespachelor\documents\my dropbox\engine\md5model.h
+	"MD5ModelLoaderPCH.h"
+	"Helpers.h"
+	"MD5Animation.h"
+	"Entity.h"
+
+1306095660 source:c:\users\gespachelor\documents\my dropbox\engine\material.cpp
+	<GL/glew.h>
+	<string>
+	<cstring>
+	<fstream>
+	<iostream>
+	<stdio.h>
+	<stdlib.h>
+	"Material.h"
+	"Error.h"
+	"SceneHandler.h"
+
+1304567380 source:c:\users\gespachelor\documents\my dropbox\engine\math.cpp
+	"Math.h"
+
+1305723284 source:c:\users\gespachelor\documents\my dropbox\engine\mesh.cpp
+	<GL/glew.h>
+	<GL/glfw.h>
+	"Mesh.h"
+
+1305742468 source:c:\users\gespachelor\documents\my dropbox\engine\physics.cpp
+	"Physics.h"
+	<GL/glfw.h>
+
+1305738168 c:\users\gespachelor\documents\my dropbox\engine\physics.h
+	<Newton.h>
+	"Entity.h"
+	"Math.h"
+
+1306069650 source:c:\users\gespachelor\documents\my dropbox\engine\resourcemanager.cpp
+	"ResourceManager.h"
+	"AseReader.h"
+
+1306076535 source:c:\users\gespachelor\documents\my dropbox\engine\scenehandler.cpp
+	<GL/glew.h>
+	<GL/glfw.h>
+	<iostream>
+	<stdlib.h>
+	<cstdio>
+	<Newton.h>
+	<JointLibrary.h>
+	"MD5Model.h"
+	"SceneHandler.h"
+	"Error.h"
+	"Entity.h"
+	"AseReader.h"
+	"Physics.h"
+	"Material.h"
+
+1306074964 source:c:\users\gespachelor\documents\my dropbox\engine\main.cpp
+	<GL/glew.h>
+	<GL/glfw.h>
+	<iostream>
+	"Entity.h"
+	"AseReader.h"
+	"Material.h"
+	"Error.h"
+	"Camera.h"
+	"SceneHandler.h"
+	"MD5Model.h"
 

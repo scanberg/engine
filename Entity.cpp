@@ -394,7 +394,7 @@ void StaticEntity::DrawShadow()
 
                 glActiveTexture( GL_TEXTURE3 );
                 glBindTexture(GL_TEXTURE_2D, nearestLight->depthTextureId);
-                setUniformVariable(SceneHandler::shadowShader,3,"ShadowMap");
+                setUniform1i(SceneHandler::shadowShader,3,"ShadowMap");
 
                 glUseProgram( SceneHandler::shadowShader );
 
@@ -443,15 +443,19 @@ void StaticEntity::Draw()
             {
                 glActiveTexture( GL_TEXTURE0 );
                 glBindTexture(GL_TEXTURE_2D, meshObj->material.at(i)->diffuseMap);
-                setUniformVariable(meshObj->material.at(i)->shader,0,"diffuseMap");
+                setUniform1i(meshObj->material.at(i)->shader,0,"diffuseMap");
 
                 glActiveTexture( GL_TEXTURE1 );
                 glBindTexture(GL_TEXTURE_2D, meshObj->material.at(i)->normalMap);
-                setUniformVariable(meshObj->material.at(i)->shader,1,"normalMap");
+                setUniform1i(meshObj->material.at(i)->shader,1,"normalMap");
+
+                glActiveTexture( GL_TEXTURE2 );
+                glBindTexture(GL_TEXTURE_2D, meshObj->material.at(i)->specularMap);
+                setUniform1i(meshObj->material.at(i)->shader,2,"specularMap");
 
                 glActiveTexture( GL_TEXTURE3 );
                 glBindTexture(GL_TEXTURE_2D, SceneHandler::lightMap);
-                setUniformVariable(meshObj->material.at(i)->shader,3,"lightMap");
+                setUniform1i(meshObj->material.at(i)->shader,3,"lightMap");
 
                 setAttributeTangent(meshObj->material.at(i)->shader, meshObj->mesh.at(i)->tangent, "tangent");
 
@@ -460,8 +464,8 @@ void StaticEntity::Draw()
                 glMaterialfv(GL_FRONT, GL_SPECULAR, meshObj->material.at(i)->specular);
                 glMaterialfv(GL_FRONT, GL_SHININESS, meshObj->material.at(i)->shininess);
 
-                setUniformVariable(meshObj->material.at(i)->shader,SceneHandler::width,"screenWidth");
-                setUniformVariable(meshObj->material.at(i)->shader,SceneHandler::height,"screenHeight");
+                setUniform1i(meshObj->material.at(i)->shader,SceneHandler::width,"screenWidth");
+                setUniform1i(meshObj->material.at(i)->shader,SceneHandler::height,"screenHeight");
 
                 glUseProgram( meshObj->material.at(i)->shader );
 

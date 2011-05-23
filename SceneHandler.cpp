@@ -232,8 +232,10 @@ void SceneHandler::InitLightMap()
 
     //create the colorbuffer texture and attach it to the frame buffer
     glBindTexture(GL_TEXTURE_2D, lightMap);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0,GL_RGBA, GL_INT, NULL);
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, width, height, 0,GL_LUMINANCE, GL_INT, NULL);
     glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D, lightMap, 0);
 
     // create a render buffer as our depthbuffer and attach it
@@ -271,6 +273,37 @@ void SceneHandler::Update()
     }
 }
 
+void SceneHandler::DrawLights()
+{
+    glPointSize( 10.0f );
+
+    glPushAttrib( GL_ENABLE_BIT );
+
+    glDisable(GL_LIGHTING );
+    glDisable( GL_DEPTH_TEST );
+
+    // Draw the joint positions
+    glBegin( GL_POINTS );
+        for ( unsigned int i = 0; i<light.size(); i++)
+        {
+            glColor3fv( glm::value_ptr(light.at(i)->getDiffuse()) );
+            glVertex3fv( glm::value_ptr(light.at(i)->getPosition()) );
+        }
+    glEnd();
+
+    // Draw the bones
+    glColor3f( 0.0f, 1.0f, 0.0f );
+    glBegin( GL_LINES );
+        for ( unsigned int i = 0; i < light.size(); i++ )
+        {
+            glVertex3fv( glm::value_ptr(light.at(i)->getPosition()) );
+            glVertex3fv( glm::value_ptr(light.at(i)->getPosition()+light.at(i)->getDirection()) );
+        }
+    glEnd();
+
+    glPopAttrib();
+}
+
 void SceneHandler::DrawLightMap()
 {
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -296,7 +329,7 @@ void SceneHandler::Render()
 
     SceneHandler::GenerateShadowMaps();
 
-	// Now rendering from the camera POV, using the FBO to generate shadows
+	//Återställ framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER,0);
 
 	glViewport(0,0,SceneHandler::width,SceneHandler::height);
@@ -563,6 +596,7 @@ Light* SceneHandler::FindNearestLight(float x, float y, float z)
     for(unsigned int i=0; i<SceneHandler::light.size(); i++)
     {
         v=pos-SceneHandler::light.at(i)->getPosition();
+        v.w=0.0;
         dist2 = glm::dot(v,v);
         if ( dist2 < min )
         {

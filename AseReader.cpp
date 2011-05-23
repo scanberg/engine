@@ -1,5 +1,6 @@
 //arse.cpp
 #include "AseReader.h"
+#include "SceneHandler.h"
 
 #include <iostream>
 #include <fstream>
@@ -63,8 +64,9 @@ int extract_normalint(string s, int pos)
 	return (b);
 }
 
-void extract_map_diffuse(istream &is, string s, Material &mat)
+string extract_map(istream &is)
 {
+    string s, map;
     int firstpos, lastpos;
     bool loop=true;
     while(loop)
@@ -74,21 +76,23 @@ void extract_map_diffuse(istream &is, string s, Material &mat)
         {
             firstpos=s.find("\"")+1;
             lastpos=s.find("\"",firstpos);
-            LoadMaterial(s.substr(firstpos,lastpos-firstpos),mat);
-            cout<<endl<<"Laddar: \""<<s.substr(firstpos,lastpos-firstpos)<<"\""<<endl;
+            map=s.substr(firstpos,lastpos-firstpos);
+            cout<<endl<<"Laddar: \""<<map<<"\""<<endl;
         }
         else if(s.find("}") != string::npos)
         {
             loop=false;
         }
     }
+    return map;
 }
 
 void extract_material (istream &is, Material& mat)
 {
     int pos;
-    string s;
+    string s, normalFilepath;
     bool loop=true;
+    bool bumpLoaded=false;
     while(loop)
     {
         getline(is,s);
@@ -138,13 +142,85 @@ void extract_material (istream &is, Material& mat)
         }
         else if(s.find("*MAP_DIFFUSE {") != string::npos)
         {
-            extract_map_diffuse(is,s,mat);
+            s=extract_map(is);
+            mat.diffuseMap=SceneHandler::resources.loadTexture(s,GLFW_BUILD_MIPMAPS_BIT);
+
+            glBindTexture(GL_TEXTURE_2D, mat.diffuseMap);
+
+            // Specify trilinear interpolation
+            glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
+            glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+            glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+            glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+
+            glBindTexture(GL_TEXTURE_2D, 0);
+
+            mat.type+=TEX_DIFFUSE;
+        }
+        else if(s.find("*MAP_SPECULAR {") != string::npos)
+        {
+            s=extract_map(is);
+            mat.specularMap=SceneHandler::resources.loadTexture(s,GLFW_BUILD_MIPMAPS_BIT);
+
+            glBindTexture(GL_TEXTURE_2D, mat.specularMap);
+
+            // Specify trilinear interpolation
+            glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
+            glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+            glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+            glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+
+            glBindTexture(GL_TEXTURE_2D, 0);
+
+            mat.type+=TEX_SPECULAR;
+        }
+        else if(s.find("*MAP_BUMP {") != string::npos)
+        {
+            if(!bumpLoaded)
+            {
+                s=extract_map(is);
+                normalFilepath=s;
+                bumpLoaded=true;
+
+                mat.normalMap=SceneHandler::resources.loadTexture(s,GLFW_BUILD_MIPMAPS_BIT);
+
+                mat.type+=TEX_NORMAL;
+            }
+            else
+            {
+
+                s=extract_map(is);
+
+                mat.heightMap=SceneHandler::resources.loadTexture(s,0);
+
+                glBindTexture(GL_TEXTURE_2D, mat.heightMap);
+
+                glBindTexture(GL_TEXTURE_2D, 0);
+
+                GLFWimage merged;
+                merged = mergeRGB_A(&normalFilepath,&s);
+                mat.normalMap = SceneHandler::resources.createTextureFromImage(normalFilepath+s, &merged, GLFW_BUILD_MIPMAPS_BIT);
+                glfwFreeImage(&merged);
+
+                mat.type+=TEX_HEIGHT;
+            }
+
+            glBindTexture(GL_TEXTURE_2D, mat.normalMap);
+
+            // Specify trilinear interpolation
+            glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
+            glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+            glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+            glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+
+            glBindTexture(GL_TEXTURE_2D, 0);
         }
         else if(s.find("}") != string::npos)
         {
             loop=false;
         }
     }
+    mat.loadShader();
 }
 
 void extract_vertex_list(istream &is, std::vector<TVertex> &vectex)

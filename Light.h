@@ -31,6 +31,8 @@ public:
     void setTextureMatrix();
 
     glm::vec4 getPosition(){ return glm::vec4(position[0],position[1],position[2],position[3]); }
+    glm::vec4 getDirection(){ return glm::vec4(direction[0],direction[1],direction[2],direction[3]); }
+    glm::vec4 getDiffuse(){ return glm::vec4(diffuse[0],diffuse[1],diffuse[2],diffuse[3]); }
 
 private:
     GLfloat diffuse[4];

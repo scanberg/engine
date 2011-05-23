@@ -17,7 +17,7 @@ void Light::generateShadowFBO()
 	int shadowMapWidth = SHADOW_MAP_WIDTH;
 	int shadowMapHeight = SHADOW_MAP_HEIGHT;
 
-	GLfloat borderColor[4] = {0,0,0,0};
+	//GLfloat borderColor[4] = {0,0,0,0};
 
 	GLenum FBOstatus;
 
@@ -33,7 +33,7 @@ void Light::generateShadowFBO()
 	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
 	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
 
-	glTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor );
+	//glTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor );
 
 	// No need to force GL_DEPTH_COMPONENT24, drivers usually give you the max precision if available
 	glTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadowMapWidth, shadowMapHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, 0);

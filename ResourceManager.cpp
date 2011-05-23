@@ -31,6 +31,27 @@ GLuint ResourceManager::loadTexture(std::string filepath, int flags)
         return mit->second;
     }
 }
+
+GLuint ResourceManager::createTextureFromImage(std::string key, GLFWimage *img, int flags)
+{
+    std::map<std::string, GLuint>::iterator mit;
+    mit=textureMap.find(key);
+    if(mit==textureMap.end())
+    {
+        GLuint textureID;
+        glGenTextures(1, &textureID); // Generate 1 unique texture IDs to use
+        glBindTexture(GL_TEXTURE_2D, textureID); // Activate texture
+        glfwLoadTextureImage2D(img,flags); // Load image
+
+        textureMap[key]=textureID;
+        return textureID;
+    }
+    else
+    {
+        return mit->second;
+    }
+}
+
 MeshObject* ResourceManager::loadMeshObject(std::string filepath)
 {
     std::map<std::string, MeshObject*>::iterator mit;

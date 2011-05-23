@@ -21,6 +21,7 @@ Material::Material()
     setDiffuse(1.0);
     setSpecular(0.2);
     setShininess(50.0);
+    type=TEX_NONE;
 }
 
 void Material::setAmbient(float f) { setAmbient(f,f,f); }
@@ -69,10 +70,12 @@ int LoadMaterial(const std::string& s, Material& mat)
         glBindTexture(GL_TEXTURE_2D, mat.diffuseMap);
 
         // Specify trilinear interpolation
-        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR ); // GL_LINEAR_MIPMAP_NEAREST, bilinear
+        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
         glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+
+        glBindTexture(GL_TEXTURE_2D, 0);
 
         mat.type+=TEX_DIFFUSE;
     }
@@ -95,7 +98,7 @@ int LoadMaterial(const std::string& s, Material& mat)
         if(FileExists(s+"_height.tga"))
         {
             GLFWimage merged;
-            merged = mergeNormalAndHeight(s);
+            merged = mergeRGB_A(&(s+"_normal.tga"),&(s+"_height.tga"));
             glfwLoadTextureImage2D(&merged, GLFW_BUILD_MIPMAPS_BIT);
             glfwFreeImage(&merged);
             mat.type+=TEX_HEIGHT;
@@ -135,6 +138,37 @@ int LoadMaterial(const std::string& s, Material& mat)
     return 1;
 }
 
+void Material::loadShader()
+{
+    //Ladda rätt shader beroende på vilka texturer som hittades.
+    std::cout<<"Type "<<type;
+    switch(type)
+    {
+        case TEX_DIFFUSE:
+            shader = createShader( "shaders/vertex_diffuse.glsl", "shaders/fragment_diffuse.glsl" );
+            break;
+
+        case TEX_DIFFUSE+TEX_NORMAL:
+            shader = createShader( "shaders/vertex_bump.glsl", "shaders/fragment_bump.glsl" );
+            break;
+
+        case TEX_DIFFUSE+TEX_NORMAL+TEX_SPECULAR:
+            shader = createShader( "shaders/vertex_bump_spec.glsl", "shaders/fragment_bump_spec.glsl" );
+            break;
+
+        case TEX_DIFFUSE+TEX_NORMAL+TEX_HEIGHT:
+            shader = createShader( "shaders/vertex_parallax.glsl", "shaders/fragment_parallax.glsl" );
+            break;
+
+        case TEX_DIFFUSE+TEX_NORMAL+TEX_HEIGHT+TEX_SPECULAR:
+            shader = createShader( "shaders/vertex_parallax_spec.glsl", "shaders/fragment_parallax_spec.glsl" );
+            break;
+
+        default:
+            shader = createShader( "shaders/vertex_diffuse.glsl", "shaders/fragment_diffuse.glsl" );
+    }
+}
+
 Material LoadMaterial(const std::string& s)
 {
     Material mat;
@@ -153,15 +187,15 @@ Material LoadMaterial(const std::string& s)
     TODO:
     Kontrollera så att Width och Height är lika för normal och height.
 */
-GLFWimage mergeNormalAndHeight(std::string s)
+GLFWimage mergeRGB_A(std::string *rgbFile, std::string *aFile)
 {
     GLFWimage img;
     GLFWimage normImg;
     GLFWimage heightImg;
 
-    glfwReadImage((s+"_normal.tga").c_str(), &normImg, GLFW_NO_RESCALE_BIT); //GLFW_NO_RESCALE_BIT
+    glfwReadImage(rgbFile->c_str(), &normImg, GLFW_NO_RESCALE_BIT); //GLFW_NO_RESCALE_BIT
 
-    glfwReadImage((s+"_height.tga").c_str(), &heightImg, GLFW_NO_RESCALE_BIT);
+    glfwReadImage(aFile->c_str(), &heightImg, GLFW_NO_RESCALE_BIT);
 
     unsigned char *rgbaData = new unsigned char[normImg.Width * normImg.Height * 4];
 
@@ -181,6 +215,43 @@ GLFWimage mergeNormalAndHeight(std::string s)
 
     glfwFreeImage(&heightImg);
     glfwFreeImage(&normImg);
+
+    return img;
+}
+
+GLFWimage mergeRGB_A(GLuint *rgb_tex, GLuint *a_tex)
+{
+    GLFWimage img;
+    int width, height;
+
+    glBindTexture(GL_TEXTURE_2D, *rgb_tex);
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
+
+    GLubyte *rgbData = new GLubyte[width*height*3];
+    glGetTexImage(	GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, rgbData);
+
+    glBindTexture(GL_TEXTURE_2D, *a_tex);
+    GLubyte *aData = new GLubyte[width*height];
+    glGetTexImage(	GL_TEXTURE_2D, 0, GL_R, GL_UNSIGNED_BYTE, aData);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    unsigned char *rgbaData = new unsigned char[ width*height*4 ];
+
+    for(int i=0; i<(width*height); i++)
+    {
+        rgbaData[4*i]   = rgbData[3*i];     //R
+        rgbaData[4*i+1] = rgbData[3*i+1];   //G
+        rgbaData[4*i+2] = rgbData[3*i+2];   //B
+        rgbaData[4*i+3] = aData[i];         //A
+    }
+
+    img.Format = GL_RGBA;
+    img.BytesPerPixel = 4;
+    img.Width = width;
+    img.Height = height;
+    img.Data = rgbaData;
 
     return img;
 }
@@ -254,6 +325,7 @@ GLuint createShader( const char *vertfilename, const char *fragfilename ) {
   GLint shadersLinked;
   char str[4096]; // For error messages from the GLSL compiler and linker
 
+  std::cout<<"Creating shader "<<vertfilename<<std::endl;
   // Create the vertex and fragment shaders
   vertexShader = glCreateShader( GL_VERTEX_SHADER );
 
@@ -269,6 +341,8 @@ GLuint createShader( const char *vertfilename, const char *fragfilename ) {
       glGetShaderInfoLog( vertexShader, sizeof(str), NULL, str );
       printError( "Vertex shader compile error", str );
     }
+
+  std::cout<<"Creating shader "<<fragfilename<<std::endl;
 
   fragmentShader = glCreateShader( GL_FRAGMENT_SHADER );
 
@@ -349,7 +423,23 @@ void setAttributeTangent(GLuint programObj, const GLvoid* tangentPointer, std::s
     }
 }
 
-void setUniformVariable( GLuint programObj, GLint var, std::string name)
+void setUniform2f( GLuint programObj, GLfloat *var, std::string name)
+{
+    GLint location_var = -1;
+
+    // Activate the shader to set its state
+    glUseProgram( programObj );
+
+        // Locate the uniform shader variables by name and set them:
+        location_var = glGetUniformLocation( programObj, name.c_str() );
+        if(location_var != -1)
+            glUniform2f( location_var, var[0], var[1]);
+
+    // Deactivate the shader again
+    glUseProgram( 0 );
+}
+
+void setUniform1i( GLuint programObj, GLint var, std::string name)
 {
     GLint location_var = -1;
 

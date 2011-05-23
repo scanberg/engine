@@ -31,7 +31,67 @@
 			*MAP_CLASS "Bitmap"
 			*MAP_SUBNO 1
 			*MAP_AMOUNT 1.0000
-			*BITMAP "media/material/rockwall/rockwall"
+			*BITMAP "media/material/rockwall/rockwall_diffuse.tga"
+			*MAP_TYPE Screen
+			*UVW_U_OFFSET 0.0000
+			*UVW_V_OFFSET 0.0000
+			*UVW_U_TILING 1.0000
+			*UVW_V_TILING 1.0000
+			*UVW_ANGLE 0.0000
+			*UVW_BLUR 1.0000
+			*UVW_BLUR_OFFSET 0.0000
+			*UVW_NOUSE_AMT 1.0000
+			*UVW_NOISE_SIZE 1.0000
+			*UVW_NOISE_LEVEL 1
+			*UVW_NOISE_PHASE 0.0000
+			*BITMAP_FILTER Pyramidal
+		}
+		*MAP_SPECULAR {
+			*MAP_NAME "Map #1"
+			*MAP_CLASS "Bitmap"
+			*MAP_SUBNO 1
+			*MAP_AMOUNT 1.0000
+			*BITMAP "media/material/rockwall/rockwall_specular.tga"
+			*MAP_TYPE Screen
+			*UVW_U_OFFSET 0.0000
+			*UVW_V_OFFSET 0.0000
+			*UVW_U_TILING 1.0000
+			*UVW_V_TILING 1.0000
+			*UVW_ANGLE 0.0000
+			*UVW_BLUR 1.0000
+			*UVW_BLUR_OFFSET 0.0000
+			*UVW_NOUSE_AMT 1.0000
+			*UVW_NOISE_SIZE 1.0000
+			*UVW_NOISE_LEVEL 1
+			*UVW_NOISE_PHASE 0.0000
+			*BITMAP_FILTER Pyramidal
+		}
+		*MAP_BUMP {
+			*MAP_NAME "Map #1"
+			*MAP_CLASS "Bitmap"
+			*MAP_SUBNO 1
+			*MAP_AMOUNT 1.0000
+			*BITMAP "media/material/rockwall/rockwall_normal.tga"
+			*MAP_TYPE Screen
+			*UVW_U_OFFSET 0.0000
+			*UVW_V_OFFSET 0.0000
+			*UVW_U_TILING 1.0000
+			*UVW_V_TILING 1.0000
+			*UVW_ANGLE 0.0000
+			*UVW_BLUR 1.0000
+			*UVW_BLUR_OFFSET 0.0000
+			*UVW_NOUSE_AMT 1.0000
+			*UVW_NOISE_SIZE 1.0000
+			*UVW_NOISE_LEVEL 1
+			*UVW_NOISE_PHASE 0.0000
+			*BITMAP_FILTER Pyramidal
+		}
+		*MAP_BUMP {
+			*MAP_NAME "Map #1"
+			*MAP_CLASS "Bitmap"
+			*MAP_SUBNO 1
+			*MAP_AMOUNT 1.0000
+			*BITMAP "media/material/rockwall/rockwall_height.tga"
 			*MAP_TYPE Screen
 			*UVW_U_OFFSET 0.0000
 			*UVW_V_OFFSET 0.0000

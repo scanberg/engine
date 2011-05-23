@@ -15,8 +15,8 @@ void main (void)
 	float totLight = 100000.0/dot(lightVec,lightVec);
 	totLight = clamp(totLight,0.0,1.0);
 
-	vec2 lightCoord = gl_FragCoord/vec2(screenWidth,screenHeight);
-	float shadow=texture2D(lightMap, lightCoord).rgb;
+	vec2 lightCoord = gl_FragCoord.xy/vec2(screenWidth,screenHeight);
+	float shadow=texture2D(lightMap, lightCoord).r;
 
 	vec3 lVec = normalize(lightVec);
 	vec3 vVec = normalize(viewVec);

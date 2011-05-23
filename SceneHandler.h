@@ -39,14 +39,15 @@ public:
     static void Render();
     static void Update();
 
+    static void DrawLights();
+    static void InitLightMap();
+
     static ResourceManager resources;
 
     static GLuint lightMap;
     static GLuint lightMapFBO;
     static GLuint lightMapDepth;
     static GLuint shadowShader;
-
-    static void InitLightMap();
 
     static float g_dt;
 private:

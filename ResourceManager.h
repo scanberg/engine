@@ -16,6 +16,7 @@ class ResourceManager
 public:
     ~ResourceManager();
     GLuint loadTexture(std::string,int flags=0);
+    GLuint createTextureFromImage(std::string,GLFWimage *img, int flags=0);
     MeshObject* loadMeshObject(std::string);
     void clear();
 private:

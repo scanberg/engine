@@ -40,7 +40,12 @@ public:
     void setSpecular(float r, float g, float b);
 
     void setShininess(float f);
+
+    void loadShader();
 };
+
+GLFWimage mergeRGB_A(GLuint *rgb_tex, GLuint *a_tex);
+GLFWimage mergeRGB_A(std::string *rgbFile, std::string *aFile);
 
 Material LoadMaterial(const std::string& s);
 int LoadMaterial(const std::string& s, Material &mat);
@@ -48,7 +53,8 @@ int LoadMaterial(const std::string& s, Material &mat);
 void setUniformVariables( GLuint programObj,
 			   int diff, int norm, int height, const GLvoid* tangentPointer);
 
-void setUniformVariable( GLuint programObj, GLint var, std::string name);
+void setUniform1i( GLuint programObj, GLint var, std::string name);
+void setUniform2f( GLuint programObj, GLfloat var, std::string name);
 void setAttributeTangent(GLuint programObj, const GLvoid* tangentPointer, std::string name);
 
 GLuint createShader( const char *vertfilename, const char *fragfilename );

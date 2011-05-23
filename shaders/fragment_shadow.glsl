@@ -17,5 +17,5 @@ void main (void)
 	else if (ShadowCoord.w > 0.0)
 		shadow = distanceFromLight < shadowCoordinateWdivide.z ? 0.5 : 1.0;
 
-	gl_FragColor = shadow;
+	gl_FragColor = vec4(shadow);
 }

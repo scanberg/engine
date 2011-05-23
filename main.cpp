@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
     StaticEntity *beast;
     StaticEntity *box;
 
-    scene = SceneHandler::CreateStaticEntity("media/testscene/testscene.ase",7.0);
+    scene = SceneHandler::CreateStaticEntity("media/testscene/testscene.ase",10.0);
     beast = SceneHandler::CreateStaticEntity("media/beast/beast1.ase",0.5);
     box = SceneHandler::CreateStaticEntity("media/box/box.ase",1.0);
 
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
     scene->SetRotation(0.0,0.0,45.0);
 
     box->SetPosition(100.0,100.0,150.0);
-    //box->SetRotation(0.0,0.0,-20.0);
+    box->SetRotation(0.0,0.0,-20.0);
 
     SceneHandler::CreateBBoxCollision(box,10.0);
     SceneHandler::CreateBBoxCollision(beast,10.0);
@@ -108,26 +108,27 @@ int main(int argc, char *argv[])
 
         if(mousebtn == GLFW_PRESS)
         {
-            glfwEnable( GLFW_MOUSE_CURSOR );
-            PlayerEntity::followMouse=false;
+            glfwDisable( GLFW_MOUSE_CURSOR );
+            PlayerEntity::followMouse=true;
         }
 
         mousebtn=glfwGetMouseButton( GLFW_MOUSE_BUTTON_2 );
         if(mousebtn == GLFW_PRESS)
         {
-            glfwDisable( GLFW_MOUSE_CURSOR );
-            PlayerEntity::followMouse=true;
+            glfwEnable( GLFW_MOUSE_CURSOR );
+            PlayerEntity::followMouse=false;
         }
 
         // Update the scene.
         SceneHandler::Update();
-        bob.Update(SceneHandler::g_dt);
+        //bob.Update(SceneHandler::g_dt);
 
         camera.setUp();
 
         // Finally, draw the scene.
         SceneHandler::Render();
-        bob.Render();
+        SceneHandler::DrawLights();
+        //bob.Render();
 
         // Swap buffers, i.e. display the image and prepare for next frame.
         glfwSwapBuffers();
