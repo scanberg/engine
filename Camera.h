@@ -9,13 +9,16 @@ public:
     static void setActiveCamera(Camera &cam) { Camera::activeCamera = &cam; }
     static void setActiveCamera(Camera *cam) { Camera::activeCamera = cam; }
     static void setUp();
+    static void setUpInverse();
+    static glm::mat4 getViewMatrix();
+    static glm::mat4 getInvViewMatrix();
 
     Camera();
     void setPosition(float _x, float _y, float _z);
-    void setRotation(float _rx, float _ry, float _rz);
+    void setDirection(float _rx, float _ry, float _rz);
 
     glm::vec3 pos;
-    glm::vec3 rot;
+    glm::vec3 dir;
 private:
     static Camera* activeCamera;
 };

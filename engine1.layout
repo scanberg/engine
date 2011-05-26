@@ -2,22 +2,22 @@
 <CodeBlocks_layout_file>
 	<ActiveTarget name="default" />
 	<File name="AseReader.cpp" open="1" top="0" tabpos="10">
-		<Cursor position="5930" topLine="176" />
+		<Cursor position="4413" topLine="0" />
 	</File>
 	<File name="AseReader.h" open="1" top="0" tabpos="11">
 		<Cursor position="406" topLine="0" />
 	</File>
-	<File name="Camera.cpp" open="0" top="0" tabpos="8">
-		<Cursor position="596" topLine="8" />
+	<File name="Camera.cpp" open="1" top="0" tabpos="17">
+		<Cursor position="2295" topLine="0" />
 	</File>
-	<File name="Camera.h" open="0" top="0" tabpos="9">
-		<Cursor position="53" topLine="0" />
+	<File name="Camera.h" open="1" top="0" tabpos="18">
+		<Cursor position="646" topLine="0" />
 	</File>
-	<File name="Entity.cpp" open="1" top="1" tabpos="6">
-		<Cursor position="11156" topLine="383" />
+	<File name="Entity.cpp" open="1" top="0" tabpos="6">
+		<Cursor position="11158" topLine="483" />
 	</File>
 	<File name="Entity.h" open="1" top="0" tabpos="7">
-		<Cursor position="624" topLine="13" />
+		<Cursor position="2440" topLine="0" />
 	</File>
 	<File name="Helpers.cpp" open="0" top="0" tabpos="0">
 		<Cursor position="711" topLine="0" />
@@ -26,10 +26,10 @@
 		<Cursor position="607" topLine="0" />
 	</File>
 	<File name="Light.cpp" open="1" top="0" tabpos="14">
-		<Cursor position="188" topLine="0" />
+		<Cursor position="2120" topLine="50" />
 	</File>
 	<File name="Light.h" open="1" top="0" tabpos="15">
-		<Cursor position="1401" topLine="17" />
+		<Cursor position="1319" topLine="16" />
 	</File>
 	<File name="MD5Animation.cpp" open="0" top="0" tabpos="14">
 		<Cursor position="259" topLine="0" />
@@ -38,7 +38,7 @@
 		<Cursor position="390" topLine="2" />
 	</File>
 	<File name="MD5Model.cpp" open="1" top="0" tabpos="16">
-		<Cursor position="9590" topLine="353" />
+		<Cursor position="4393" topLine="165" />
 	</File>
 	<File name="MD5Model.h" open="0" top="0" tabpos="16">
 		<Cursor position="154" topLine="73" />
@@ -47,10 +47,10 @@
 		<Cursor position="310" topLine="0" />
 	</File>
 	<File name="Material.cpp" open="1" top="0" tabpos="2">
-		<Cursor position="10131" topLine="327" />
+		<Cursor position="12064" topLine="397" />
 	</File>
 	<File name="Material.h" open="1" top="0" tabpos="3">
-		<Cursor position="1048" topLine="25" />
+		<Cursor position="1507" topLine="34" />
 	</File>
 	<File name="Math.cpp" open="0" top="0" tabpos="11">
 		<Cursor position="546" topLine="0" />
@@ -59,7 +59,7 @@
 		<Cursor position="164" topLine="0" />
 	</File>
 	<File name="Mesh.cpp" open="1" top="0" tabpos="4">
-		<Cursor position="3183" topLine="105" />
+		<Cursor position="1950" topLine="77" />
 	</File>
 	<File name="Mesh.h" open="1" top="0" tabpos="5">
 		<Cursor position="663" topLine="12" />
@@ -71,18 +71,18 @@
 		<Cursor position="342" topLine="0" />
 	</File>
 	<File name="ResourceManager.cpp" open="1" top="0" tabpos="13">
-		<Cursor position="1355" topLine="30" />
+		<Cursor position="1292" topLine="30" />
 	</File>
 	<File name="ResourceManager.h" open="1" top="0" tabpos="12">
 		<Cursor position="326" topLine="0" />
 	</File>
-	<File name="SceneHandler.cpp" open="1" top="0" tabpos="8">
-		<Cursor position="9641" topLine="329" />
+	<File name="SceneHandler.cpp" open="1" top="1" tabpos="8">
+		<Cursor position="15203" topLine="476" />
 	</File>
 	<File name="SceneHandler.h" open="1" top="0" tabpos="9">
-		<Cursor position="1053" topLine="38" />
+		<Cursor position="343" topLine="6" />
 	</File>
 	<File name="main.cpp" open="1" top="0" tabpos="1">
-		<Cursor position="3289" topLine="105" />
+		<Cursor position="565" topLine="21" />
 	</File>
 </CodeBlocks_layout_file>

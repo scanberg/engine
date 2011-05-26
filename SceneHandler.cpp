@@ -48,11 +48,11 @@ vector<Light*> SceneHandler::light;
 NewtonWorld* SceneHandler::world;
 int SceneHandler::width;
 int SceneHandler::height;
+int SceneHandler::near;
+int SceneHandler::far;
 float SceneHandler::g_dt;
 float SceneHandler::interpolationParam;
-GLuint SceneHandler::lightMap;
-GLuint SceneHandler::lightMapFBO;
-GLuint SceneHandler::lightMapDepth;
+DeferredFBO SceneHandler::deferred;
 GLuint SceneHandler::shadowShader;
 ResourceManager SceneHandler::resources;
 
@@ -73,7 +73,7 @@ void handleResize()
     {
         SceneHandler::width=width;
         SceneHandler::height=height;
-        SceneHandler::InitLightMap();
+        SceneHandler::InitDeferred(width,height);
     }
 
     // Set viewport. This is the pixel rectangle we want to draw into.
@@ -117,8 +117,7 @@ void setupMatrices()
 {
     glMatrixMode(GL_PROJECTION); // "We want to edit the projection matrix"
     glLoadIdentity(); // Reset the matrix to identity
-    // 65 degrees FOV, same aspect ratio as window, depth range 1 to 100
-    gluPerspective( 65.0f, (GLfloat)SceneHandler::width/(GLfloat)SceneHandler::height, 1.0f, 2000.0f );
+    gluPerspective( 65.0f, (GLfloat)SceneHandler::width/(GLfloat)SceneHandler::height, (GLfloat)SceneHandler::near, (GLfloat)SceneHandler::far);
 
     Camera::setUp();
 }
@@ -164,8 +163,10 @@ int SceneHandler::Init()
     // Initialise GLFW
     glfwInit();
 
-    width=640;
-    height=480;
+    SceneHandler::width=640;
+    SceneHandler::height=480;
+    SceneHandler::near=1;
+    SceneHandler::far=2000;
 
     // Open the OpenGL window
     if( !glfwOpenWindow(640, 480, 8,8,8,8, 32,0, GLFW_WINDOW) )
@@ -210,38 +211,80 @@ int SceneHandler::Init()
 	glm::vec3 maxSize ( 1000.0f,  1000.0f,  1000.0f);
 	NewtonSetWorldSize (SceneHandler::world, &minSize[0], &maxSize[0]);
 
-	InitLightMap();
+	InitDeferred(width,height);
 
-	shadowShader=createShader("shaders/vertex_shadow.glsl", "shaders/fragment_shadow.glsl");
+	deferred.shaderFirstPass=createShader("shaders/vertex_firstpass.glsl", "shaders/fragment_firstpass.glsl");
+
+	deferred.shaderSecondPass=createShader("shaders/vertex_secondpass.glsl", "shaders/fragment_secondpass.glsl");
+
+	//shadowShader=createShader("shaders/vertex_shadow.glsl", "shaders/fragment_shadow.glsl");
 
     return 1;
 }
 
-void SceneHandler::InitLightMap()
+void SceneHandler::InitDeferred(GLint w, GLint h)
 {
-    glDeleteFramebuffers(1,&lightMapFBO);
-    glDeleteTextures(1,&lightMap);
-    glDeleteRenderbuffers(1,&lightMapDepth);
+    glDeleteFramebuffers(1,&deferred.fbo);
+    glDeleteTextures(1,&deferred.colorMap);
+    glDeleteTextures(1,&deferred.normalMap);
+    glDeleteTextures(1,&deferred.depthMap);
+    glDeleteTextures(1,&deferred.positionMap);
+    glDeleteRenderbuffers(1,&deferred.depthBuffer);
 
     // generate namespace for the frame buffer, colorbuffer and depthbuffer
-    glGenFramebuffers(1, &lightMapFBO);
-    glGenTextures(1, &lightMap);
-    glGenRenderbuffers(1, &lightMapDepth);
+    glGenFramebuffers(1, &deferred.fbo);
+    glGenTextures(1,&deferred.colorMap);
+    glGenTextures(1,&deferred.normalMap);
+    glGenTextures(1,&deferred.depthMap);
+    glGenTextures(1,&deferred.positionMap);
+    glGenRenderbuffers(1, &deferred.depthBuffer);
+
+    deferred.width=w;
+    deferred.height=h;
+
     //switch to our fbo so we can bind stuff to it
-    glBindFramebuffer(GL_FRAMEBUFFER, lightMapFBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, deferred.fbo);
 
     //create the colorbuffer texture and attach it to the frame buffer
-    glBindTexture(GL_TEXTURE_2D, lightMap);
+    glBindTexture(GL_TEXTURE_2D, deferred.colorMap);
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+//    //glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, deferred.width, deferred.height, 0,GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D, deferred.colorMap, 0);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, width, height, 0,GL_LUMINANCE, GL_INT, NULL);
-    glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D, lightMap, 0);
+    glBindTexture(GL_TEXTURE_2D, deferred.normalMap);
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+//    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, deferred.width, deferred.height, 0,GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT1,GL_TEXTURE_2D, deferred.normalMap, 0);
 
-    // create a render buffer as our depthbuffer and attach it
-    glBindRenderbuffer(GL_RENDERBUFFER, lightMapDepth);
-    glRenderbufferStorage(GL_RENDERBUFFER,GL_DEPTH_COMPONENT,width, height);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER,GL_DEPTH_ATTACHMENT,GL_RENDERBUFFER, lightMapDepth);
+//    glBindTexture(GL_TEXTURE_2D, deferred.diffuseMap);
+//    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+//    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, deferred.width, deferred.height, 0,GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+//    glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT2,GL_TEXTURE_2D, deferred.diffuseMap, 0);
+
+    glBindTexture(GL_TEXTURE_2D, deferred.depthMap);
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+//    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, deferred.width, deferred.height, 0,GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
+    glFramebufferTexture2D(GL_FRAMEBUFFER,GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D, deferred.depthMap, 0);
+
+//    glBindTexture(GL_TEXTURE_2D, deferred.positionMap);
+//    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+//    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+////    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+////    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, deferred.width, deferred.height, 0,GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+//    glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT2,GL_TEXTURE_2D, deferred.positionMap, 0);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     // Go back to regular frame buffer rendering
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -304,22 +347,96 @@ void SceneHandler::DrawLights()
     glPopAttrib();
 }
 
-void SceneHandler::DrawLightMap()
+void DeferredFBO::DrawFirstPass()
 {
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glBindFramebuffer(GL_FRAMEBUFFER, lightMapFBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+    glDepthMask(GL_TRUE);
+    glEnable(GL_DEPTH_TEST);
+
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+
+    GLenum buffers[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
+    glDrawBuffers(2, buffers);
+
     glPushAttrib(GL_VIEWPORT_BIT | GL_ENABLE_BIT);
     glViewport(0,0,width, height);
 
-    glClearColor (1.0f, 1.0f, 1.0f, 1.0f); // Set the clear colour
-    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear the depth and colour buffers
+    glClearColor (0.2f, 0.2f, 0.2f, 1.0f);
+    glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
 
     for(unsigned int i=0; i<SceneHandler::renderList.size(); i++)
     {
-        SceneHandler::renderList.at(i)->DrawShadow();
+        SceneHandler::renderList.at(i)->DrawFirstPass( shaderFirstPass );
     }
 
     glPopAttrib();
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void DeferredFBO::DrawSecondPass()
+{
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE) ;
+
+    glPushAttrib(GL_VIEWPORT_BIT | GL_ENABLE_BIT);
+    glViewport(0,0,width, height);
+
+    glClearColor (1.0f, 1.0f, 1.0f, 1.0f);
+    glClear( GL_COLOR_BUFFER_BIT );
+
+    Light *light=SceneHandler::light.at(0);
+    light->assignTo(0);
+
+    Camera *cam=Camera::getActiveCamera();
+
+    glActiveTexture( GL_TEXTURE0 );
+    glBindTexture(GL_TEXTURE_2D, SceneHandler::deferred.colorMap);
+    setUniform1i(shaderSecondPass,0,"colorMap");
+
+    glActiveTexture( GL_TEXTURE1 );
+    glBindTexture(GL_TEXTURE_2D, SceneHandler::deferred.normalMap);
+    setUniform1i(shaderSecondPass,1,"normalMap");
+
+    glActiveTexture( GL_TEXTURE2 );
+    glBindTexture(GL_TEXTURE_2D, SceneHandler::deferred.depthMap);
+    setUniform1i(shaderSecondPass,2,"depthMap");
+
+    setUniform2f(shaderSecondPass,SceneHandler::deferred.width,SceneHandler::deferred.height,"screenSize");
+    setUniform1f(shaderSecondPass,light->getRadius(),"lightRadius");
+    setUniform2f(shaderSecondPass,SceneHandler::near,SceneHandler::far,"cameraRange");
+    setUniform3f(shaderSecondPass,cam->pos.x,cam->pos.y,cam->pos.z,"cameraPos");
+
+    glm::vec4 lightPos = light->getPosition();
+
+    glm::mat4 mat;
+    glGetFloatv(GL_MODELVIEW_MATRIX, &mat[0][0]);
+
+    lightPos = mat * lightPos;
+    setUniform3f(shaderSecondPass,lightPos.x,lightPos.y,lightPos.z,"lightPos");
+
+    glUseProgram( shaderSecondPass );
+
+    glBegin(GL_QUADS);
+    glTexCoord2f(0, 0);
+    glVertex2f(-1, -1);
+    glTexCoord2f(1, 0);
+    glVertex2f(1, -1);
+    glTexCoord2f(1, 1);
+    glVertex2f(1, 1);
+    glTexCoord2f(0, 1);
+    glVertex2f(-1, 1);
+    glEnd();
+
+    glUseProgram( 0 );
+
+    glPopAttrib();
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
@@ -327,17 +444,7 @@ void SceneHandler::Render()
 {
     unsigned int i;
 
-    SceneHandler::GenerateShadowMaps();
-
-	//Återställ framebuffer
-	glBindFramebuffer(GL_FRAMEBUFFER,0);
-
-	glViewport(0,0,SceneHandler::width,SceneHandler::height);
-
-	//Enabling color write (previously disabled for light POV z-buffer rendering)
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
-	glClearColor( 0.2f, 0.2f, 0.2f, 0.0f );
+	glClearColor( 0.2f, 0.2f, 0.3f, 0.0f );
 
 	// Clear previous frame values
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -348,15 +455,10 @@ void SceneHandler::Render()
 
     setupMatrices();
 
-    SceneHandler::DrawLightMap();
-
-    for(i=0; i<SceneHandler::renderList.size(); i++)
-    {
-        SceneHandler::renderList.at(i)->Draw();
-    }
+    deferred.DrawFirstPass();
+    deferred.DrawSecondPass();
 
 //    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-//    //glBindTexture(GL_TEXTURE_2D, color_tex);
 //
 //    glUseProgram(0);
 //    glMatrixMode(GL_PROJECTION);
@@ -364,11 +466,12 @@ void SceneHandler::Render()
 //    glOrtho(-SceneHandler::width/2,SceneHandler::width/2,-SceneHandler::height/2,SceneHandler::height/2,1,20);
 //    glMatrixMode(GL_MODELVIEW);
 //    glLoadIdentity();
-//    glColor4f(1.0,1.0,1.0,1);
+//    glColor4f(1.0,1.0,1.0,1.0);
 //    glActiveTexture(GL_TEXTURE0);
-//    glBindTexture(GL_TEXTURE_2D,lightMap);
+//    glBindTexture(GL_TEXTURE_2D,deferred.normalMap);
 //    glEnable(GL_TEXTURE_2D);
 //    glTranslated(0,0,-1);
+//
 //    glBegin(GL_QUADS);
 //    glTexCoord2d(0,0);glVertex3f(0,0,0);
 //    glTexCoord2d(1,0);glVertex3f(SceneHandler::width/2,0,0);
@@ -378,6 +481,7 @@ void SceneHandler::Render()
 //    glEnd();
 //    glDisable(GL_TEXTURE_2D);
 
+    //setupMatrices();
 }
 
 void SceneHandler::Destroy()
@@ -392,7 +496,6 @@ void SceneHandler::Destroy()
     {
         delete SceneHandler::newtonEntity.at(i);
     }
-
     for(i=0; i< SceneHandler::light.size(); i++)
     {
         delete SceneHandler::light.at(i);

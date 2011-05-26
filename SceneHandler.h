@@ -11,10 +11,29 @@
 #include "Light.h"
 #include "ResourceManager.h"
 
+class DeferredFBO
+{
+    public:
+    GLuint fbo;
+    GLuint normalMap;
+    GLuint colorMap;
+    GLuint depthMap;
+    GLuint positionMap;
+    GLuint depthBuffer;
+
+    GLuint shaderFirstPass;
+    GLuint shaderSecondPass;
+
+    GLint width, height;
+
+    void DrawFirstPass();
+    void DrawSecondPass();
+};
+
 class SceneHandler
 {
 public:
-    static int width, height;
+    static int width, height, near, far;
     static NewtonWorld* world;
 
     static int Init();
@@ -40,24 +59,23 @@ public:
     static void Update();
 
     static void DrawLights();
-    static void InitLightMap();
+    static void InitDeferred(GLint w, GLint h);
 
     static ResourceManager resources;
 
-    static GLuint lightMap;
-    static GLuint lightMapFBO;
-    static GLuint lightMapDepth;
+    static DeferredFBO deferred;
+
     static GLuint shadowShader;
 
     static float g_dt;
+
+    friend class DeferredFBO;
 private:
     SceneHandler() {};                                  // Private constructor
     SceneHandler(const SceneHandler&);                 // Prevent copy-construction
     SceneHandler& operator=(const SceneHandler&);      // Prevent assignment
 
     static void GenerateShadowMaps();
-
-    static void DrawLightMap();
 
     static float interpolationParam;
 

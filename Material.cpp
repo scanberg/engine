@@ -21,6 +21,7 @@ Material::Material()
     setDiffuse(1.0);
     setSpecular(0.2);
     setShininess(50.0);
+    shader=0;
     type=TEX_NONE;
 }
 
@@ -62,7 +63,7 @@ GLFWimage mergeNormalAndHeight(std::string s);
 void Material::loadShader()
 {
     //Ladda rätt shader beroende på vilka texturer som hittades.
-    std::cout<<"Type "<<type;
+    std::cout<<"Type "<<type<<std::endl;
     switch(type)
     {
         case TEX_DIFFUSE:
@@ -351,7 +352,7 @@ void setUniform1f( GLuint programObj, GLfloat var, std::string name)
     glUseProgram( 0 );
 }
 
-void setUniform2f( GLuint programObj, GLfloat *var, std::string name)
+void setUniform2f( GLuint programObj, GLfloat x, GLfloat y, std::string name)
 {
     GLint location_var = -1;
 
@@ -361,7 +362,55 @@ void setUniform2f( GLuint programObj, GLfloat *var, std::string name)
         // Locate the uniform shader variables by name and set them:
         location_var = glGetUniformLocation( programObj, name.c_str() );
         if(location_var != -1)
-            glUniform2f( location_var, var[0], var[1]);
+            glUniform2f( location_var, x, y);
+
+    // Deactivate the shader again
+    glUseProgram( 0 );
+}
+
+void setUniform3f( GLuint programObj, GLfloat x, GLfloat y, GLfloat z, std::string name)
+{
+    GLint location_var = -1;
+
+    // Activate the shader to set its state
+    glUseProgram( programObj );
+
+        // Locate the uniform shader variables by name and set them:
+        location_var = glGetUniformLocation( programObj, name.c_str() );
+        if(location_var != -1)
+            glUniform3f( location_var, x, y, z);
+
+    // Deactivate the shader again
+    glUseProgram( 0 );
+}
+
+void setUniform4f( GLuint programObj, GLfloat x, GLfloat y, GLfloat z, GLfloat w, std::string name)
+{
+    GLint location_var = -1;
+
+    // Activate the shader to set its state
+    glUseProgram( programObj );
+
+        // Locate the uniform shader variables by name and set them:
+        location_var = glGetUniformLocation( programObj, name.c_str() );
+        if(location_var != -1)
+            glUniform4f( location_var, x, y, z, w);
+
+    // Deactivate the shader again
+    glUseProgram( 0 );
+}
+
+void setUniformMatrix4fv( GLuint programObj, const GLfloat *mat, std::string name)
+{
+    GLint location_var = -1;
+
+    // Activate the shader to set its state
+    glUseProgram( programObj );
+
+        // Locate the uniform shader variables by name and set them:
+        location_var = glGetUniformLocation( programObj, name.c_str() );
+        if(location_var != -1)
+            glUniformMatrix4fv(location_var, 4, GL_FALSE, mat );
 
     // Deactivate the shader again
     glUseProgram( 0 );
@@ -378,7 +427,6 @@ void setUniform1i( GLuint programObj, GLint var, std::string name)
         location_var = glGetUniformLocation( programObj, name.c_str() );
         if(location_var != -1)
             glUniform1i( location_var, var );
-
     // Deactivate the shader again
     glUseProgram( 0 );
 }

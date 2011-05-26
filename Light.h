@@ -26,6 +26,7 @@ public:
     void setPosition(GLfloat x, GLfloat y, GLfloat z) { position[0]=x; position[1]=y; position[2]=z; }
     void setDirection(GLfloat x, GLfloat y, GLfloat z) { direction[0]=x; direction[1]=y; direction[2]=z; }
     void setCutoff(GLfloat c) {cutoff=c;}
+    void setRadius(GLfloat r) {radius=r;}
     void assignTo(unsigned int i);
     void setupMatrices();
     void setTextureMatrix();

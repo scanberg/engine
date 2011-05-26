@@ -7,9 +7,9 @@ varying vec3 lightDir;
 uniform sampler2D diffuseMap;
 uniform sampler2D normalMap;
 uniform sampler2D lightMap;
-uniform int screenWidth;
-uniform int screenHeight;
 uniform float lightRadius;
+uniform vec2 bufferSize;
+uniform vec2 cameraRange;
 	
 void main (void)
 {
@@ -17,7 +17,7 @@ void main (void)
 	float invRadius = 1.0/(lightRadius*lightRadius);
 	float att = clamp(1.0 - invRadius * distSqr, 0.0, 1.0);
 
-	vec2 lightCoord = gl_FragCoord.xy/vec2(screenWidth,screenHeight);
+	vec2 lightCoord = gl_FragCoord.xy/bufferSize;
 	float shadow=texture2D(lightMap, lightCoord).r;
 
 	vec3 lVec = normalize(lightVec);

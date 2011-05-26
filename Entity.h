@@ -25,8 +25,9 @@ public:
     void SetName(const std::string& s);
     virtual void SetScale(float s){scale=s;}
     virtual void Update(){}
-    virtual void Draw(){};
-    virtual void DrawShadow(){};
+    virtual void Draw(){}
+    virtual void DrawShadow(){}
+    virtual void DrawFirstPass(GLuint shader){}
     virtual void DrawGeometry(){}
     virtual void CalculateBounds();
 
@@ -104,6 +105,7 @@ class StaticEntity: public NewtonEntity
 public:
     void Draw();
     void DrawShadow();
+    void DrawFirstPass(GLuint shader);
     void DrawGeometry();
     void CalculateBounds();
     MeshObject* meshObj;

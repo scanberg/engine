@@ -196,13 +196,13 @@ void PlayerEntity::Update(float interpolationParam, NewtonWorld* world)
 
     if(followMouse)
     {
-        cam->rot.z += (lastmousex - mousex) * 0.2f;
-        cam->rot.x += (lastmousey - mousey) * 0.2f;
-        if ( cam->rot.x > 180.0f ) cam->rot.x = 180.0f;
-        if ( cam->rot.x < 0.0f ) cam->rot.x = 0.0f;
+        cam->dir.z += (lastmousex - mousex) * 0.2f;
+        cam->dir.x += (lastmousey - mousey) * 0.2f;
+        if ( cam->dir.x > 180.0f ) cam->dir.x = 180.0f;
+        if ( cam->dir.x < 0.0f ) cam->dir.x = 0.0f;
 
-        if ( cam->rot.z > 360.0f ) cam->rot.z -= 360.0f;
-        if ( cam->rot.z < -360.0f ) cam->rot.z += 360.0f;
+        if ( cam->dir.z > 360.0f ) cam->dir.z -= 360.0f;
+        if ( cam->dir.z < -360.0f ) cam->dir.z += 360.0f;
     }
 }
 
@@ -231,7 +231,7 @@ void PlayerEntity::UpdatePhysics(NewtonWorld* world, float dt)
     desiredVelocity *= moveSpeed;
 
     //Skapa en matris för att transformera velocity till samma koordinatsystem som desiredVel är angivet i
-    glm::mat4 mat = glm::gtc::matrix_transform::rotate(glm::mat4(1.0f),-cam->rot.z,glm::vec3(0.0f,0.0f,1.0f));
+    glm::mat4 mat = glm::gtc::matrix_transform::rotate(glm::mat4(1.0f),-cam->dir.z,glm::vec3(0.0f,0.0f,1.0f));
 
     //Skapa en kopia på velocity och transformera denna.
     glm::vec4 temp(velocity,1.0f);
@@ -242,7 +242,7 @@ void PlayerEntity::UpdatePhysics(NewtonWorld* world, float dt)
     temp.y=Inc(desiredVelocity.y,temp.y,maxAcceleration);
 
     //Transformera tillbaks
-    mat = glm::gtc::matrix_transform::rotate(glm::mat4(1.0f),cam->rot.z,glm::vec3(0.0f,0.0f,1.0f));
+    mat = glm::gtc::matrix_transform::rotate(glm::mat4(1.0f),cam->dir.z,glm::vec3(0.0f,0.0f,1.0f));
     temp = mat * temp;
 
     velocity.x=temp.x;
@@ -363,6 +363,57 @@ void StaticEntity::DrawGeometry()
     }
 }
 
+void StaticEntity::DrawFirstPass(GLuint shad)
+{
+    if(visible)
+    {
+        glPushMatrix();
+
+        glMultMatrixf(&matrix[0][0]);
+        glScalef(scale,scale,scale);
+
+        for(unsigned int i=0; i<meshObj->mesh.size(); i++)
+        {
+            if(meshObj->material.at(i))
+            {
+                glActiveTexture( GL_TEXTURE0 );
+                glBindTexture(GL_TEXTURE_2D, meshObj->material.at(i)->diffuseMap);
+                setUniform1i(shad,0,"diffuseMap");
+
+                glActiveTexture( GL_TEXTURE1 );
+                glBindTexture(GL_TEXTURE_2D, meshObj->material.at(i)->normalMap);
+                setUniform1i(shad,1,"normalMap");
+
+                glActiveTexture( GL_TEXTURE2 );
+                glBindTexture(GL_TEXTURE_2D, meshObj->material.at(i)->specularMap);
+                setUniform1i(shad,2,"specularMap");
+
+                setAttributeTangent(shad, meshObj->mesh.at(i)->tangent, "tangent");
+
+                setUniform2f(shad,SceneHandler::near,SceneHandler::far,"depthRange");
+
+                Camera *cam = Camera::getActiveCamera();
+                setUniform3f(shad,cam->pos.x,cam->pos.y,cam->pos.z,"cameraPos");
+                setUniform3f(shad,cam->dir.x,cam->dir.y,cam->dir.z,"cameraDir");
+
+                glMaterialfv(GL_FRONT, GL_DIFFUSE, meshObj->material.at(i)->diffuse);
+                glMaterialfv(GL_FRONT, GL_AMBIENT, meshObj->material.at(i)->ambient);
+                glMaterialfv(GL_FRONT, GL_SPECULAR, meshObj->material.at(i)->specular);
+                glMaterialfv(GL_FRONT, GL_SHININESS, meshObj->material.at(i)->shininess);
+            }
+            glUseProgram( shad );
+            if(meshObj->mesh.at(i))
+            {
+                meshObj->mesh.at(i)->draw();
+            }
+        }
+
+        glUseProgram( 0 );
+
+        glPopMatrix();
+    }
+}
+
 void StaticEntity::DrawShadow()
 {
     if(visible)
@@ -454,9 +505,9 @@ void StaticEntity::Draw()
                 glBindTexture(GL_TEXTURE_2D, meshObj->material.at(i)->specularMap);
                 setUniform1i(meshObj->material.at(i)->shader,2,"specularMap");
 
-                glActiveTexture( GL_TEXTURE3 );
-                glBindTexture(GL_TEXTURE_2D, SceneHandler::lightMap);
-                setUniform1i(meshObj->material.at(i)->shader,3,"lightMap");
+//                glActiveTexture( GL_TEXTURE3 );
+//                glBindTexture(GL_TEXTURE_2D, SceneHandler::lightMap);
+//                setUniform1i(meshObj->material.at(i)->shader,3,"lightMap");
 
                 setAttributeTangent(meshObj->material.at(i)->shader, meshObj->mesh.at(i)->tangent, "tangent");
 
@@ -466,6 +517,8 @@ void StaticEntity::Draw()
                 glMaterialfv(GL_FRONT, GL_SHININESS, meshObj->material.at(i)->shininess);
 
                 setUniform1f(meshObj->material.at(i)->shader,nearestLight->getRadius(),"lightRadius");
+
+                setUniform2f(meshObj->material.at(i)->shader,(GLfloat)SceneHandler::width,(GLfloat)SceneHandler::height,"bufferSize");
 
                 setUniform1i(meshObj->material.at(i)->shader,SceneHandler::width,"screenWidth");
                 setUniform1i(meshObj->material.at(i)->shader,SceneHandler::height,"screenHeight");

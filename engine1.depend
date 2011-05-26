@@ -72,7 +72,7 @@
 	"Material.h"
 	"Error.h"
 
-1305893642 source:c:\users\gespachelor\engine\entity.cpp
+1306397578 source:c:\users\gespachelor\engine\entity.cpp
 	<GL/glew.h>
 	<GL/glfw.h>
 	<math.h>
@@ -84,7 +84,7 @@
 	"Entity.h"
 	"SceneHandler.h"
 
-1305824669 c:\users\gespachelor\engine\entity.h
+1306251112 c:\users\gespachelor\engine\entity.h
 	<GL/glew.h>
 	<GL/glfw.h>
 	<vector>
@@ -96,7 +96,7 @@
 	"Math.h"
 	"Material.h"
 
-1305620847 c:\users\gespachelor\engine\mesh.h
+1305613646 c:\users\gespachelor\engine\mesh.h
 	<iostream>
 	<fstream>
 	<string>
@@ -104,17 +104,17 @@
 	<math.h>
 	"Math.h"
 
-1305838148 c:\users\gespachelor\engine\material.h
+1306389847 c:\users\gespachelor\engine\material.h
 	<GL/glfw.h>
 	<string>
 
-1304574580 source:c:\users\gespachelor\engine\error.cpp
+1304567380 source:c:\users\gespachelor\engine\error.cpp
 	<stdio.h>
 	"Error.h"
 
-1304574580 c:\users\gespachelor\engine\error.h
+1304567380 c:\users\gespachelor\engine\error.h
 
-1305828853 source:c:\users\gespachelor\engine\material.cpp
+1306397997 source:c:\users\gespachelor\engine\material.cpp
 	<GL/glew.h>
 	<string>
 	<cstring>
@@ -126,12 +126,12 @@
 	"Error.h"
 	"SceneHandler.h"
 
-1305730485 source:c:\users\gespachelor\engine\mesh.cpp
+1305723284 source:c:\users\gespachelor\engine\mesh.cpp
 	<GL/glew.h>
 	<GL/glfw.h>
 	"Mesh.h"
 
-1305839105 source:c:\users\gespachelor\engine\main.cpp
+1306410837 source:c:\users\gespachelor\engine\main.cpp
 	<GL/glew.h>
 	<GL/glfw.h>
 	<iostream>
@@ -143,14 +143,15 @@
 	"SceneHandler.h"
 	"MD5Model.h"
 
-1305745755 c:\users\gespachelor\engine\asereader.h
+1305738554 c:\users\gespachelor\engine\asereader.h
 	<string>
 	"Entity.h"
 	"Mesh.h"
 	"Material.h"
 
-1305797153 source:c:\users\gespachelor\engine\asereader.cpp
+1306312069 source:c:\users\gespachelor\engine\asereader.cpp
 	"AseReader.h"
+	"SceneHandler.h"
 	<iostream>
 	<fstream>
 	<cstring>
@@ -164,13 +165,13 @@
 1302358699 c:\users\gespachelor\engine\float3.h
 	<math.h>
 
-1304574580 source:c:\users\gespachelor\engine\camera.cpp
+1306406105 source:c:\users\gespachelor\engine\camera.cpp
 	<GL/glfw.h>
 	<math.h>
 	<iostream>
 	"Camera.h"
 
-1304574580 c:\users\gespachelor\engine\camera.h
+1306401688 c:\users\gespachelor\engine\camera.h
 	"Math.h"
 
 1302379856 source:c:\users\gespachelor\engine\fpscamera.cpp
@@ -254,25 +255,25 @@
 1298624770 source:c:\users\gespachelor\engine\dmath\dvector.cpp
 	"dStdAfxMath.h"
 
-1305893779 c:\users\gespachelor\engine\light.h
+1306396666 c:\users\gespachelor\engine\light.h
 	<GL/glew.h>
 	<GL/glfw.h>
 	"Math.h"
 
-1305892912 source:c:\users\gespachelor\engine\light.cpp
+1306155787 source:c:\users\gespachelor\engine\light.cpp
 	"Light.h"
 	<cstdio>
 
-1305745368 c:\users\gespachelor\engine\physics.h
+1305738168 c:\users\gespachelor\engine\physics.h
 	<Newton.h>
 	"Entity.h"
 	"Math.h"
 
-1305749669 source:c:\users\gespachelor\engine\physics.cpp
+1305742468 source:c:\users\gespachelor\engine\physics.cpp
 	"Physics.h"
 	<GL/glfw.h>
 
-1305829945 c:\users\gespachelor\engine\scenehandler.h
+1306335911 c:\users\gespachelor\engine\scenehandler.h
 	<GL/glew.h>
 	<GL/glfw.h>
 	<vector>
@@ -280,7 +281,7 @@
 	"Light.h"
 	"ResourceManager.h"
 
-1305893613 source:c:\users\gespachelor\engine\scenehandler.cpp
+1306411508 source:c:\users\gespachelor\engine\scenehandler.cpp
 	<GL/glew.h>
 	<GL/glfw.h>
 	<iostream>
@@ -489,11 +490,11 @@
 	"Camera.h"
 	"SceneHandler.h"
 
-1305748915 source:c:\users\gespachelor\engine\resourcemanager.cpp
+1306069650 source:c:\users\gespachelor\engine\resourcemanager.cpp
 	"ResourceManager.h"
 	"AseReader.h"
 
-1304574580 c:\users\gespachelor\engine\glm\glm.hpp
+1304567380 c:\users\gespachelor\engine\glm\glm.hpp
 	"core/_fixes.hpp"
 	<cmath>
 	<climits>
@@ -513,18 +514,18 @@
 	"./core/func_noise.hpp"
 	"./core/_swizzle.hpp"
 
-1304574580 c:\users\gespachelor\engine\glm\core\_fixes.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\_fixes.hpp
 
-1304574580 c:\users\gespachelor\engine\glm\core\setup.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\setup.hpp
 	<immintrin.h>
 	<pmmintrin.h>
 	<emmintrin.h>
 
-1304574580 c:\users\gespachelor\engine\glm\core\_detail.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\_detail.hpp
 	"setup.hpp"
 	<cassert>
 
-1304574580 c:\users\gespachelor\engine\glm\core\type.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\type.hpp
 	"type_half.hpp"
 	"type_float.hpp"
 	"type_int.hpp"
@@ -543,28 +544,28 @@
 	"type_mat4x3.hpp"
 	"type_mat4x4.hpp"
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_half.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\type_half.hpp
 	<cstdlib>
 	"type_half.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_half.inl
+1304567380 c:\users\gespachelor\engine\glm\core\type_half.inl
 	"_detail.hpp"
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_float.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\type_float.hpp
 	"type_half.hpp"
 	"setup.hpp"
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_int.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\type_int.hpp
 	"setup.hpp"
 	"_detail.hpp"
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_gentype.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\type_gentype.hpp
 	"type_size.hpp"
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_size.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\type_size.hpp
 	<cstdlib>
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_vec1.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\type_vec1.hpp
 	"type_vec.hpp"
 	"type_float.hpp"
 	"type_int.hpp"
@@ -572,14 +573,14 @@
 	"_swizzle.hpp"
 	"type_vec1.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_vec.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\type_vec.hpp
 	"type_gentype.hpp"
 
-1304574580 c:\users\gespachelor\engine\glm\core\_swizzle.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\_swizzle.hpp
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_vec1.inl
+1304567380 c:\users\gespachelor\engine\glm\core\type_vec1.inl
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_vec2.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\type_vec2.hpp
 	"type_vec.hpp"
 	"type_float.hpp"
 	"type_int.hpp"
@@ -587,9 +588,9 @@
 	"_swizzle.hpp"
 	"type_vec2.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_vec2.inl
+1304567380 c:\users\gespachelor\engine\glm\core\type_vec2.inl
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_vec3.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\type_vec3.hpp
 	"type_vec.hpp"
 	"type_float.hpp"
 	"type_int.hpp"
@@ -597,9 +598,9 @@
 	"_swizzle.hpp"
 	"type_vec3.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_vec3.inl
+1304567380 c:\users\gespachelor\engine\glm\core\type_vec3.inl
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_vec4.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\type_vec4.hpp
 	"type_vec.hpp"
 	"type_float.hpp"
 	"type_int.hpp"
@@ -607,130 +608,130 @@
 	"_swizzle.hpp"
 	"type_vec4.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_vec4.inl
+1304567380 c:\users\gespachelor\engine\glm\core\type_vec4.inl
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_mat2x2.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\type_mat2x2.hpp
 	"type_mat.hpp"
 	"type_mat2x2.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_mat.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\type_mat.hpp
 	"type_gentype.hpp"
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_mat2x2.inl
+1304567380 c:\users\gespachelor\engine\glm\core\type_mat2x2.inl
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_mat2x3.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\type_mat2x3.hpp
 	"type_mat.hpp"
 	"type_mat2x3.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_mat2x3.inl
+1304567380 c:\users\gespachelor\engine\glm\core\type_mat2x3.inl
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_mat2x4.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\type_mat2x4.hpp
 	"type_mat.hpp"
 	"type_mat2x4.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_mat2x4.inl
+1304567380 c:\users\gespachelor\engine\glm\core\type_mat2x4.inl
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_mat3x2.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\type_mat3x2.hpp
 	"type_mat.hpp"
 	"type_mat3x2.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_mat3x2.inl
+1304567380 c:\users\gespachelor\engine\glm\core\type_mat3x2.inl
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_mat3x3.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\type_mat3x3.hpp
 	"type_mat.hpp"
 	"type_mat3x3.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_mat3x3.inl
+1304567380 c:\users\gespachelor\engine\glm\core\type_mat3x3.inl
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_mat3x4.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\type_mat3x4.hpp
 	"type_mat.hpp"
 	"type_mat3x4.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_mat3x4.inl
+1304567380 c:\users\gespachelor\engine\glm\core\type_mat3x4.inl
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_mat4x2.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\type_mat4x2.hpp
 	"type_mat.hpp"
 	"type_mat4x2.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_mat4x2.inl
+1304567380 c:\users\gespachelor\engine\glm\core\type_mat4x2.inl
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_mat4x3.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\type_mat4x3.hpp
 	"type_mat.hpp"
 	"type_mat4x3.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_mat4x3.inl
+1304567380 c:\users\gespachelor\engine\glm\core\type_mat4x3.inl
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_mat4x4.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\type_mat4x4.hpp
 	"type_mat.hpp"
 	"type_mat4x4.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\core\type_mat4x4.inl
+1304567380 c:\users\gespachelor\engine\glm\core\type_mat4x4.inl
 
-1304574580 c:\users\gespachelor\engine\glm\core\func_trigonometric.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\func_trigonometric.hpp
 	"func_trigonometric.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\core\func_trigonometric.inl
+1304567380 c:\users\gespachelor\engine\glm\core\func_trigonometric.inl
 
-1304574580 c:\users\gespachelor\engine\glm\core\func_exponential.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\func_exponential.hpp
 	"func_exponential.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\core\func_exponential.inl
+1304567380 c:\users\gespachelor\engine\glm\core\func_exponential.inl
 
-1304574580 c:\users\gespachelor\engine\glm\core\func_common.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\func_common.hpp
 	"_fixes.hpp"
 	"func_common.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\core\func_common.inl
+1304567380 c:\users\gespachelor\engine\glm\core\func_common.inl
 
-1304574580 c:\users\gespachelor\engine\glm\core\func_packing.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\func_packing.hpp
 	"func_packing.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\core\func_packing.inl
+1304567380 c:\users\gespachelor\engine\glm\core\func_packing.inl
 
-1304574580 c:\users\gespachelor\engine\glm\core\func_geometric.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\func_geometric.hpp
 	"func_geometric.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\core\func_geometric.inl
+1304567380 c:\users\gespachelor\engine\glm\core\func_geometric.inl
 
-1304574580 c:\users\gespachelor\engine\glm\core\func_matrix.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\func_matrix.hpp
 	"func_matrix.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\core\func_matrix.inl
+1304567380 c:\users\gespachelor\engine\glm\core\func_matrix.inl
 
-1304574580 c:\users\gespachelor\engine\glm\core\func_vector_relational.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\func_vector_relational.hpp
 	"_detail.hpp"
 	"func_vector_relational.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\core\func_vector_relational.inl
+1304567380 c:\users\gespachelor\engine\glm\core\func_vector_relational.inl
 
-1304574580 c:\users\gespachelor\engine\glm\core\func_integer.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\func_integer.hpp
 	"func_integer.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\core\func_integer.inl
+1304567380 c:\users\gespachelor\engine\glm\core\func_integer.inl
 
-1304574580 c:\users\gespachelor\engine\glm\core\func_noise.hpp
+1304567380 c:\users\gespachelor\engine\glm\core\func_noise.hpp
 	"func_noise.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\core\func_noise.inl
+1304567380 c:\users\gespachelor\engine\glm\core\func_noise.inl
 
-1304574580 c:\users\gespachelor\engine\glm\gtc\matrix_transform.hpp
+1304567380 c:\users\gespachelor\engine\glm\gtc\matrix_transform.hpp
 	"../glm.hpp"
 	"matrix_transform.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\gtc\matrix_transform.inl
+1304567380 c:\users\gespachelor\engine\glm\gtc\matrix_transform.inl
 
-1304574580 c:\users\gespachelor\engine\glm\gtc\quaternion.hpp
+1304567380 c:\users\gespachelor\engine\glm\gtc\quaternion.hpp
 	"../glm.hpp"
 	"../gtc/half_float.hpp"
 	"quaternion.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\gtc\half_float.hpp
+1304567380 c:\users\gespachelor\engine\glm\gtc\half_float.hpp
 	"../glm.hpp"
 	"half_float.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\gtc\half_float.inl
+1304567380 c:\users\gespachelor\engine\glm\gtc\half_float.inl
 
-1304574580 c:\users\gespachelor\engine\glm\gtc\quaternion.inl
+1304567380 c:\users\gespachelor\engine\glm\gtc\quaternion.inl
 	<limits>
 
 1297636354 c:\users\gespachelor\engine\glm\gtc\matrix_access.hpp
@@ -739,28 +740,28 @@
 
 1297553980 c:\users\gespachelor\engine\glm\gtc\matrix_access.inl
 
-1304574580 c:\users\gespachelor\engine\glm\gtx\quaternion.hpp
+1304567380 c:\users\gespachelor\engine\glm\gtx\quaternion.hpp
 	"../glm.hpp"
 	"../gtc/quaternion.hpp"
 	"quaternion.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\gtx\quaternion.inl
+1304567380 c:\users\gespachelor\engine\glm\gtx\quaternion.inl
 	<limits>
 
-1304574580 c:\users\gespachelor\engine\glm\gtx\euler_angles.hpp
+1304567380 c:\users\gespachelor\engine\glm\gtx\euler_angles.hpp
 	"../glm.hpp"
 	"../gtc/half_float.hpp"
 	"euler_angles.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\gtx\euler_angles.inl
+1304567380 c:\users\gespachelor\engine\glm\gtx\euler_angles.inl
 
-1305622810 c:\users\gespachelor\engine\math.h
+1305615610 c:\users\gespachelor\engine\math.h
 	"glm/glm.hpp"
 	"glm/gtc/matrix_transform.hpp"
 	"glm/gtc/quaternion.hpp"
 	"glm/gtx/euler_angles.hpp"
 
-1304574580 source:c:\users\gespachelor\engine\math.cpp
+1304567380 source:c:\users\gespachelor\engine\math.cpp
 	"Math.h"
 
 1304574580 source:c:\documents and settings\administrator\desktop\scanberg-engine-7644a3b\asereader.cpp
@@ -1269,13 +1270,13 @@
 1304438300 source:c:\documents and settings\administrator\desktop\scanberg-engine-7644a3b\md5model.cpp
 	"MD5Model.h"
 
-1305802702 c:\users\gespachelor\engine\md5model.h
+1305795502 c:\users\gespachelor\engine\md5model.h
 	"MD5ModelLoaderPCH.h"
 	"Helpers.h"
 	"MD5Animation.h"
 	"Entity.h"
 
-1304436497 c:\users\gespachelor\engine\md5modelloaderpch.h
+1304429296 c:\users\gespachelor\engine\md5modelloaderpch.h
 	<GL/glew.h>
 	<GL/glfw.h>
 	<vector>
@@ -1296,90 +1297,90 @@
 	"glm/gtx/quaternion.hpp"
 	"glm/gtx/euler_angles.hpp"
 
-1304574580 c:\users\gespachelor\engine\glm\gtc\type_ptr.hpp
+1304567380 c:\users\gespachelor\engine\glm\gtc\type_ptr.hpp
 	"../glm.hpp"
 	"type_ptr.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\gtc\type_ptr.inl
+1304567380 c:\users\gespachelor\engine\glm\gtc\type_ptr.inl
 
-1304574580 c:\users\gespachelor\engine\glm\gtc\swizzle.hpp
+1304567380 c:\users\gespachelor\engine\glm\gtc\swizzle.hpp
 	"../glm.hpp"
 	"../gtc/type_precision.hpp"
 	"swizzle.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\gtc\type_precision.hpp
+1304567380 c:\users\gespachelor\engine\glm\gtc\type_precision.hpp
 	"../glm.hpp"
 	"../gtc/half_float.hpp"
 	"../gtc/quaternion.hpp"
 	"type_precision.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\gtc\type_precision.inl
+1304567380 c:\users\gespachelor\engine\glm\gtc\type_precision.inl
 
-1304574580 c:\users\gespachelor\engine\glm\gtc\swizzle.inl
+1304567380 c:\users\gespachelor\engine\glm\gtc\swizzle.inl
 
-1304574580 c:\users\gespachelor\engine\glm\gtx\rotate_vector.hpp
+1304567380 c:\users\gespachelor\engine\glm\gtx\rotate_vector.hpp
 	"../glm.hpp"
 	"../gtx/transform.hpp"
 	"rotate_vector.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\gtx\transform.hpp
+1304567380 c:\users\gespachelor\engine\glm\gtx\transform.hpp
 	"../glm.hpp"
 	"../gtc/matrix_transform.hpp"
 	"transform.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\gtx\transform.inl
+1304567380 c:\users\gespachelor\engine\glm\gtx\transform.inl
 
-1304574580 c:\users\gespachelor\engine\glm\gtx\rotate_vector.inl
+1304567380 c:\users\gespachelor\engine\glm\gtx\rotate_vector.inl
 
-1304574580 c:\users\gespachelor\engine\glm\gtx\vector_angle.hpp
+1304567380 c:\users\gespachelor\engine\glm\gtx\vector_angle.hpp
 	"../glm.hpp"
 	"../gtx/quaternion.hpp"
 	"../gtx/epsilon.hpp"
 	"vector_angle.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\gtx\epsilon.hpp
+1304567380 c:\users\gespachelor\engine\glm\gtx\epsilon.hpp
 	"../glm.hpp"
 	"../gtc/half_float.hpp"
 	"epsilon.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\gtx\epsilon.inl
+1304567380 c:\users\gespachelor\engine\glm\gtx\epsilon.inl
 
-1304574580 c:\users\gespachelor\engine\glm\gtx\vector_angle.inl
+1304567380 c:\users\gespachelor\engine\glm\gtx\vector_angle.inl
 
-1304574580 c:\users\gespachelor\engine\glm\gtx\compatibility.hpp
+1304567380 c:\users\gespachelor\engine\glm\gtx\compatibility.hpp
 	"../glm.hpp"
 	"../gtc/half_float.hpp"
 	<cfloat>
 	<cmath>
 	"compatibility.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\gtx\compatibility.inl
+1304567380 c:\users\gespachelor\engine\glm\gtx\compatibility.inl
 
-1304574580 c:\users\gespachelor\engine\glm\gtx\matrix_operation.hpp
+1304567380 c:\users\gespachelor\engine\glm\gtx\matrix_operation.hpp
 	"../glm.hpp"
 	"matrix_operation.inl"
 
-1304574580 c:\users\gespachelor\engine\glm\gtx\matrix_operation.inl
+1304567380 c:\users\gespachelor\engine\glm\gtx\matrix_operation.inl
 
-1304622333 c:\users\gespachelor\engine\helpers.h
+1304615132 c:\users\gespachelor\engine\helpers.h
 	"MD5ModelLoaderPCH.h"
 
-1304622463 c:\users\gespachelor\engine\md5animation.h
+1304615262 c:\users\gespachelor\engine\md5animation.h
 	"MD5ModelLoaderPCH.h"
 	"Helpers.h"
 
-1304436110 source:c:\users\gespachelor\engine\helpers.cpp
+1304428910 source:c:\users\gespachelor\engine\helpers.cpp
 	"Helpers.h"
 
-1304627700 source:c:\users\gespachelor\engine\md5animation.cpp
+1304620500 source:c:\users\gespachelor\engine\md5animation.cpp
 	"MD5Animation.h"
 	<iostream>
 
-1305802753 source:c:\users\gespachelor\engine\md5model.cpp
+1305795552 source:c:\users\gespachelor\engine\md5model.cpp
 	"MD5Model.h"
 	<iostream>
 
-1305748929 c:\users\gespachelor\engine\resourcemanager.h
+1306069641 c:\users\gespachelor\engine\resourcemanager.h
 	<GL/glew.h>
 	<GL/glfw.h>
 	<string>

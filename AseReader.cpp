@@ -160,6 +160,10 @@ void extract_material (istream &is, Material& mat)
         else if(s.find("*MAP_SPECULAR {") != string::npos)
         {
             s=extract_map(is);
+        }
+        else if(s.find("*MAP_SHINE {") != string::npos)
+        {
+            s=extract_map(is);
             mat.specularMap=SceneHandler::resources.loadTexture(s,GLFW_BUILD_MIPMAPS_BIT);
 
             glBindTexture(GL_TEXTURE_2D, mat.specularMap);

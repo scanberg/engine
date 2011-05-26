@@ -29,12 +29,13 @@ int main(int argc, char *argv[])
 
     Light *light0 = SceneHandler::CreateLight();
 
-    light0->setPosition(0.0,-200.0,200.0);
+    light0->setPosition(0.0,0.0,55.0);
     light0->setDirection(0.0,10.0,-10.0);
     light0->setDiffuse(1.0,1.0,1.0);
     light0->setAmbient(0.5,0.5,0.5);
     light0->setSpecular(1.0,1.0,1.0);
     light0->setCutoff(30.0);
+    light0->setRadius(200.0);
 
 //    Light *light1 = SceneHandler::CreateLight();
 //
@@ -48,7 +49,7 @@ int main(int argc, char *argv[])
     mousebtn = lastmousebtn = GLFW_RELEASE;
 
     Camera camera;
-    camera.setRotation(90.0,0.0,0.0);
+    camera.setDirection(90.0,0.0,0.0);
     camera.setPosition(0.0,0.0,100.0);
 
     PlayerEntity *player;
@@ -70,8 +71,8 @@ int main(int argc, char *argv[])
     box = SceneHandler::CreateStaticEntity("media/box/box.ase",1.0);
 
     MD5Model bob;
-    bob.LoadModel("md5/monsters/hellknight/hellknight.md5mesh");
-    bob.LoadAnim("md5/monsters/hellknight/idle2.md5anim");
+    //bob.LoadModel("md5/monsters/hellknight/hellknight.md5mesh");
+    //bob.LoadAnim("md5/monsters/hellknight/idle2.md5anim");
 
     beast->SetPosition(0.0,100.0,50.0);
     beast->SetRotation(90.0,0.0,0.0);
@@ -122,6 +123,9 @@ int main(int argc, char *argv[])
         // Update the scene.
         SceneHandler::Update();
         //bob.Update(SceneHandler::g_dt);
+        static float t;
+        t+=SceneHandler::g_dt;
+        light0->setPosition(200.0*cos(t),200.0*sin(t),100.0);
 
         camera.setUp();
 

@@ -46,7 +46,7 @@
 			*UVW_NOISE_PHASE 0.0000
 			*BITMAP_FILTER Pyramidal
 		}
-		*MAP_SPECULAR {
+		*MAP_SHINE {
 			*MAP_NAME "Map #1"
 			*MAP_CLASS "Bitmap"
 			*MAP_SUBNO 1
