@@ -1,9 +1,10 @@
-uniform sampler2D diffuseMap;
-varying vec2 textCoord;
-
-void main( void )
+varying vec2 texCoord;
+varying vec3 normalVec;
+	
+void main(void)
 {
-	// Pass the texture coordinates as st
-	textCoord = gl_MultiTexCoord0.xy;
 	gl_Position = ftransform();
+	texCoord = gl_MultiTexCoord0.xy;
+		
+	normalVec = gl_NormalMatrix * gl_Normal;
 }

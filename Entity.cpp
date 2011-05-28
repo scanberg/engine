@@ -56,6 +56,20 @@ void Entity::CalculateBounds()
 
 }
 
+//===Particle System domain==
+ParticleSystemEntity::ParticleSystemEntity() : pos(0.0f,0.0f,0.0f)
+{
+	ParticleSystem::Init();
+}
+void ParticleSystemEntity::Update()
+{
+	ParticleSystem::Update();
+}
+void ParticleSystemEntity::DrawFirstPass()
+{
+	ParticleSystem::Render();
+}
+
 NewtonEntity::NewtonEntity() :
 	curPosition (0.0f, 0.0f, 0.0f, 1.0f),
 	prevPosition (0.0f, 0.0f, 0.0f, 1.0f),
@@ -363,8 +377,24 @@ void StaticEntity::DrawGeometry()
     }
 }
 
-void StaticEntity::DrawFirstPass(GLuint shad)
+float getMinBBoxPoint(Entity *e, Mesh* m)
 {
+    glm::vec3 camPos = Camera::getActiveCamera()->pos;
+    glm::vec3 entPos = e->GetPosition();
+    glm::vec3 minPoint;
+
+    minPoint.x = std::max(std::abs( (entPos.x + m->minBox.x) - camPos.x ),std::abs( (entPos.x + m->maxBox.x) - camPos.x ));
+    minPoint.y = std::max(std::abs( (entPos.y + m->minBox.y) - camPos.y ),std::abs( (entPos.y + m->maxBox.y) - camPos.y ));
+    minPoint.z = std::max(std::abs( (entPos.z + m->minBox.z) - camPos.z ),std::abs( (entPos.z + m->maxBox.z) - camPos.z ));
+
+    return std::min(minPoint.x,std::min(minPoint.y,minPoint.z));
+}
+
+void StaticEntity::DrawFirstPass()
+{
+    GLuint shad;
+    float minBBoxDist;
+
     if(visible)
     {
         glPushMatrix();
@@ -374,41 +404,45 @@ void StaticEntity::DrawFirstPass(GLuint shad)
 
         for(unsigned int i=0; i<meshObj->mesh.size(); i++)
         {
-            if(meshObj->material.at(i))
-            {
-                glActiveTexture( GL_TEXTURE0 );
-                glBindTexture(GL_TEXTURE_2D, meshObj->material.at(i)->diffuseMap);
-                setUniform1i(shad,0,"diffuseMap");
-
-                glActiveTexture( GL_TEXTURE1 );
-                glBindTexture(GL_TEXTURE_2D, meshObj->material.at(i)->normalMap);
-                setUniform1i(shad,1,"normalMap");
-
-                glActiveTexture( GL_TEXTURE2 );
-                glBindTexture(GL_TEXTURE_2D, meshObj->material.at(i)->specularMap);
-                setUniform1i(shad,2,"specularMap");
-
-                setAttributeTangent(shad, meshObj->mesh.at(i)->tangent, "tangent");
-
-                setUniform2f(shad,SceneHandler::near,SceneHandler::far,"depthRange");
-
-                Camera *cam = Camera::getActiveCamera();
-                setUniform3f(shad,cam->pos.x,cam->pos.y,cam->pos.z,"cameraPos");
-                setUniform3f(shad,cam->dir.x,cam->dir.y,cam->dir.z,"cameraDir");
-
-                glMaterialfv(GL_FRONT, GL_DIFFUSE, meshObj->material.at(i)->diffuse);
-                glMaterialfv(GL_FRONT, GL_AMBIENT, meshObj->material.at(i)->ambient);
-                glMaterialfv(GL_FRONT, GL_SPECULAR, meshObj->material.at(i)->specular);
-                glMaterialfv(GL_FRONT, GL_SHININESS, meshObj->material.at(i)->shininess);
-            }
-            glUseProgram( shad );
             if(meshObj->mesh.at(i))
             {
-                meshObj->mesh.at(i)->draw();
+                if(meshObj->material.at(i))
+                {
+                    minBBoxDist = getMinBBoxPoint(this,meshObj->mesh.at(i));
+
+                    shad = SceneHandler::shaderLib.GetShaderFromDistance(meshObj->material.at(i)->type,minBBoxDist);
+
+                    glActiveTexture( GL_TEXTURE0 );
+                    glBindTexture(GL_TEXTURE_2D, meshObj->material.at(i)->diffuseMap);
+                    setUniform1i(shad,0,"diffuseMap");
+
+                    glActiveTexture( GL_TEXTURE1 );
+                    glBindTexture(GL_TEXTURE_2D, meshObj->material.at(i)->normalMap);
+                    setUniform1i(shad,1,"normalMap");
+
+                    glActiveTexture( GL_TEXTURE2 );
+                    glBindTexture(GL_TEXTURE_2D, meshObj->material.at(i)->specularMap);
+                    setUniform1i(shad,2,"specularMap");
+
+                    setAttributeTangent(shad, meshObj->mesh.at(i)->tangent, "tangent");
+
+                    setUniform2f(shad,SceneHandler::near,SceneHandler::far,"depthRange");
+
+                    Camera *cam = Camera::getActiveCamera();
+                    setUniform3f(shad,cam->pos.x,cam->pos.y,cam->pos.z,"cameraPos");
+                    setUniform3f(shad,cam->dir.x,cam->dir.y,cam->dir.z,"cameraDir");
+
+                    glMaterialfv(GL_FRONT, GL_DIFFUSE, meshObj->material.at(i)->diffuse);
+                    glMaterialfv(GL_FRONT, GL_AMBIENT, meshObj->material.at(i)->ambient);
+                    glMaterialfv(GL_FRONT, GL_SPECULAR, meshObj->material.at(i)->specular);
+                    glMaterialfv(GL_FRONT, GL_SHININESS, meshObj->material.at(i)->shininess);
+
+                    glUseProgram( shad );
+                    meshObj->mesh.at(i)->draw();
+                    glUseProgram( 0 );
+                }
             }
         }
-
-        glUseProgram( 0 );
 
         glPopMatrix();
     }
@@ -504,10 +538,6 @@ void StaticEntity::Draw()
                 glActiveTexture( GL_TEXTURE2 );
                 glBindTexture(GL_TEXTURE_2D, meshObj->material.at(i)->specularMap);
                 setUniform1i(meshObj->material.at(i)->shader,2,"specularMap");
-
-//                glActiveTexture( GL_TEXTURE3 );
-//                glBindTexture(GL_TEXTURE_2D, SceneHandler::lightMap);
-//                setUniform1i(meshObj->material.at(i)->shader,3,"lightMap");
 
                 setAttributeTangent(meshObj->material.at(i)->shader, meshObj->mesh.at(i)->tangent, "tangent");
 

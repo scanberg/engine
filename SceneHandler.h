@@ -10,6 +10,8 @@
 #include "Entity.h"
 #include "Light.h"
 #include "ResourceManager.h"
+#include "ParticleSystem.h"
+#include "ShaderLibrary.h"
 
 class DeferredFBO
 {
@@ -42,6 +44,7 @@ public:
     static Entity* CreateEntity();
     static PlayerEntity* CreatePlayerEntity();
     static StaticEntity* CreateStaticEntity(std::string s, float scale=1.0f);
+	static ParticleSystemEntity* CreateParticleSystem();
 
     static Light* CreateLight();
 
@@ -65,6 +68,8 @@ public:
 
     static DeferredFBO deferred;
 
+    static ShaderLibrary shaderLib;
+
     static GLuint shadowShader;
 
     static float g_dt;
@@ -76,6 +81,8 @@ private:
     SceneHandler& operator=(const SceneHandler&);      // Prevent assignment
 
     static void GenerateShadowMaps();
+
+    static void getLightVar(int size, glm::vec3 *lightPos, glm::vec3 *lightCol, GLfloat *lightRadius);
 
     static float interpolationParam;
 

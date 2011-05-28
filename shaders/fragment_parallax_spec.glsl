@@ -1,54 +1,30 @@
-varying vec3 lightVec;
-varying vec3 viewVec;
 varying vec2 texCoord;
-varying vec3 normal;
-varying vec3 lightDir;
+varying vec3 normalVec;
+varying vec3 tangentVec;
+varying vec3 viewVec;
 
 uniform sampler2D diffuseMap;
 uniform sampler2D normalMap;
 uniform sampler2D specularMap;
-uniform sampler2D lightMap;
-uniform int screenWidth;
-uniform int screenHeight;
-uniform float lightRadius;
 	
 void main (void)
 {
-	float distSqr = dot(lightVec, lightVec);
-	float invRadius = 1.0/(lightRadius*lightRadius);
-	float att = clamp(1.0 - invRadius * distSqr, 0.0, 1.0);
-
-	vec2 lightCoord = gl_FragCoord.xy;
-	lightCoord.x /= float(screenWidth);
-	lightCoord.y /= float(screenHeight);
-
-	float shadow=texture2D(lightMap, lightCoord).r;
-
-	vec3 lVec = normalize(lightVec);
+	vec3 n = normalize(normalVec);
+	vec3 t = normalize(tangentVec);
+	vec3 b = cross(n,t);
+	
 	vec3 vVec = normalize(viewVec);
-		
-	// Calculate offset, scale & biais
+
 	float height = texture2D(normalMap, texCoord).w;
 	vec2 newTexCoord = texCoord + ((height * 0.04 - 0.02) * (vVec.xy));
 		
-	vec4 base = texture2D(diffuseMap, newTexCoord);
-	vec3 bump = normalize(texture2D(normalMap, newTexCoord).xyz * 2.0 - 1.0);
+	gl_FragData[0].xyz = texture2D(diffuseMap, newTexCoord).xyz * gl_FrontMaterial.diffuse.xyz;
+	gl_FragData[0].w = gl_FrontMaterial.ambient.x;
 
-	float diffuse = max( dot(lVec, bump), 0.0 );
+	vec3 bumpNormal = texture2D(normalMap, newTexCoord).xyz * 2.0 - 1.0;
 
-	if(diffuse > 0.0)
-	{
-		
-		float specular = pow(clamp(dot(reflect(-vVec, bump), lVec), 0.0, 1.0), gl_FrontMaterial.shininess );
-		specular = specular * texture2D(specularMap,newTexCoord).r;
-	
-		vec4 vAmbient = gl_LightSource[0].ambient * gl_FrontMaterial.ambient;
-		vec4 vDiffuse = gl_LightSource[0].diffuse * gl_FrontMaterial.diffuse * diffuse;	
-		vec4 vSpecular = gl_LightSource[0].specular * gl_FrontMaterial.specular *specular;	
-		gl_FragColor = vAmbient*base + att*shadow*(vDiffuse*base + vSpecular);	
-	}
-	else
-	{
-		gl_FragColor = gl_LightSource[0].ambient*gl_LightSource[0].ambient*base;
-	}
+	bumpNormal = bumpNormal.x * t + bumpNormal.y * b + bumpNormal.z * n;
+
+	float specular = texture2D(specularMap, texCoord).x * gl_FrontMaterial.specular.x;
+	gl_FragData[1] = vec4(bumpNormal * 0.5 + 0.5,specular);
 }

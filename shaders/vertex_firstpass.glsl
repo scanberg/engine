@@ -1,6 +1,7 @@
 varying vec2 texCoord;
 varying vec3 normalVec;
 varying vec3 tangentVec;
+varying vec4 position;
 varying vec3 viewVec;
 
 attribute vec3 tangent;
@@ -9,6 +10,8 @@ void main(void)
 {
 	gl_Position = ftransform();
 	texCoord = gl_MultiTexCoord0.xy;
+
+	position = gl_ModelViewMatrix * gl_Position;
 		
 	normalVec = gl_NormalMatrix * gl_Normal;
 	tangentVec = gl_NormalMatrix * tangent;

@@ -37,6 +37,9 @@ public:
     //Vector3f center;
     glm::vec3 center;
 
+    glm::vec3 minBox;
+    glm::vec3 maxBox;
+
     pVertex vertex;
     pFace face;
     //pVector3f tangent;

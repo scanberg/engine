@@ -12,6 +12,7 @@
 #include "Material.h"
 #include "Math.h"
 #include "Material.h"
+#include "ParticleSystem.h"
 
 class Entity
 {
@@ -19,7 +20,9 @@ public:
     Entity();
     ~Entity();
     void Remove();
+
     void SetPosition(float px, float py, float pz);
+    glm::vec3 GetPosition() { return glm::vec3(matrix[3]); }
     void SetRotation(float rx, float ry, float rz);
     void SetVisibility(bool b);
     void SetName(const std::string& s);
@@ -27,7 +30,7 @@ public:
     virtual void Update(){}
     virtual void Draw(){}
     virtual void DrawShadow(){}
-    virtual void DrawFirstPass(GLuint shader){}
+    virtual void DrawFirstPass(){}
     virtual void DrawGeometry(){}
     virtual void CalculateBounds();
 
@@ -43,6 +46,16 @@ public:
     float scale;
 private:
 
+};
+
+class ParticleSystemEntity: public Entity
+{
+public:
+	ParticleSystemEntity();
+	void Update();
+	void DrawFirstPass();
+
+	glm::vec3 pos;
 };
 
 class NewtonEntity: public Entity
@@ -105,7 +118,7 @@ class StaticEntity: public NewtonEntity
 public:
     void Draw();
     void DrawShadow();
-    void DrawFirstPass(GLuint shader);
+    void DrawFirstPass();
     void DrawGeometry();
     void CalculateBounds();
     MeshObject* meshObj;

@@ -27,24 +27,19 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    Light *light0 = SceneHandler::CreateLight();
+    int numLights=4;
+    Light *lights[numLights];
 
-    light0->setPosition(0.0,0.0,55.0);
-    light0->setDirection(0.0,10.0,-10.0);
-    light0->setDiffuse(1.0,1.0,1.0);
-    light0->setAmbient(0.5,0.5,0.5);
-    light0->setSpecular(1.0,1.0,1.0);
-    light0->setCutoff(30.0);
-    light0->setRadius(200.0);
-
-//    Light *light1 = SceneHandler::CreateLight();
-//
-//    light1->setPosition(0.0,200.0,200.0);
-//    light1->setDirection(0.0,-10.0,-10.0);
-//    light1->setDiffuse(0.7,1.0,0.7);
-//    light1->setAmbient(0.1,0.1,0.1);
-//    light1->setSpecular(1.0,1.0,1.0);
-
+    for(int i=0; i<numLights; i++)
+    {
+        lights[i] = SceneHandler::CreateLight();
+        lights[i]->setPosition(0.0,0.0,0.0);
+        lights[i]->setDirection(0.0,0.0,0.0);
+        lights[i]->setDiffuse(1.0,1.0,1.0);
+        lights[i]->setAmbient(0.1,0.1,0.1);
+        lights[i]->setSpecular(1.0,1.0,1.0);
+        lights[i]->setRadius(300.0);
+    }
 
     mousebtn = lastmousebtn = GLFW_RELEASE;
 
@@ -70,7 +65,10 @@ int main(int argc, char *argv[])
     beast = SceneHandler::CreateStaticEntity("media/beast/beast1.ase",0.5);
     box = SceneHandler::CreateStaticEntity("media/box/box.ase",1.0);
 
-    MD5Model bob;
+	ParticleSystemEntity *particlesystem;
+	particlesystem = SceneHandler::CreateParticleSystem();
+
+    //MD5Model bob;
     //bob.LoadModel("md5/monsters/hellknight/hellknight.md5mesh");
     //bob.LoadAnim("md5/monsters/hellknight/idle2.md5anim");
 
@@ -125,13 +123,17 @@ int main(int argc, char *argv[])
         //bob.Update(SceneHandler::g_dt);
         static float t;
         t+=SceneHandler::g_dt;
-        light0->setPosition(200.0*cos(t),200.0*sin(t),100.0);
+
+        for(int i=0; i<numLights; i++)
+        {
+            lights[i]->setPosition(250.0*cos(t*0.1*(i+1)),250.0*sin(t*0.2*(i+1)),50.0+50*sin(t*0.3*(i+1)));
+        }
+
 
         camera.setUp();
 
         // Finally, draw the scene.
         SceneHandler::Render();
-        SceneHandler::DrawLights();
         //bob.Render();
 
         // Swap buffers, i.e. display the image and prepare for next frame.

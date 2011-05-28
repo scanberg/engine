@@ -66,7 +66,7 @@
 			*UVW_NOISE_PHASE 0.0000
 			*BITMAP_FILTER Pyramidal
 		}
-		*MAP_BUMP {
+		//*MAP_BUMP {
 			*MAP_NAME "Map #1"
 			*MAP_CLASS "Bitmap"
 			*MAP_SUBNO 1
@@ -85,8 +85,8 @@
 			*UVW_NOISE_LEVEL 1
 			*UVW_NOISE_PHASE 0.0000
 			*BITMAP_FILTER Pyramidal
-		}
-		*MAP_BUMP {
+		//}
+		//*MAP_BUMP {
 			*MAP_NAME "Map #1"
 			*MAP_CLASS "Bitmap"
 			*MAP_SUBNO 1
@@ -105,7 +105,7 @@
 			*UVW_NOISE_LEVEL 1
 			*UVW_NOISE_PHASE 0.0000
 			*BITMAP_FILTER Pyramidal
-		}
+		//}
 	}
 }
 *GEOMOBJECT {

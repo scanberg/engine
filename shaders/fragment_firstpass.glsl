@@ -1,6 +1,7 @@
 varying vec2 texCoord;
 varying vec3 normalVec;
 varying vec3 tangentVec;
+varying vec4 position;
 varying vec3 viewVec;
 
 uniform sampler2D diffuseMap;
@@ -25,6 +26,6 @@ void main (void)
 
 	bumpNormal = bumpNormal.x * t + bumpNormal.y * b + bumpNormal.z * n;
 
-	float specular = gl_FrontMaterial.specular.x;
+	float specular = texture2D(specularMap, texCoord).x * gl_FrontMaterial.specular.x;
 	gl_FragData[1] = vec4(bumpNormal * 0.5 + 0.5,specular);
 }

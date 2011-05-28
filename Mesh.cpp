@@ -67,9 +67,19 @@ void Mesh::calculateNormals()
         vertex[i].nx=vertex[i].ny=vertex[i].nz=0.0f;
         tangent[i].x=tangent[i].y=tangent[i].z=0.0f;
         sharedFaces[i]=0;
+
         center.x += vertex[i].x;
         center.y += vertex[i].y;
         center.z += vertex[i].z;
+
+        minBox.x = (vertex[i].x < minBox.x) ? vertex[i].x : minBox.x;
+        maxBox.x = (vertex[i].x > maxBox.x) ? vertex[i].x : maxBox.x;
+
+        minBox.y = (vertex[i].y < minBox.y) ? vertex[i].y : minBox.y;
+        maxBox.y = (vertex[i].y > maxBox.y) ? vertex[i].y : maxBox.y;
+
+        minBox.z = (vertex[i].z < minBox.z) ? vertex[i].z : minBox.z;
+        maxBox.z = (vertex[i].z > maxBox.z) ? vertex[i].z : maxBox.z;
     }
 
     center /= (float)numVertices;

@@ -55,6 +55,7 @@ float SceneHandler::interpolationParam;
 DeferredFBO SceneHandler::deferred;
 GLuint SceneHandler::shadowShader;
 ResourceManager SceneHandler::resources;
+ShaderLibrary SceneHandler::shaderLib;
 
 /*
  * Handle the resizing of the window. /Stegu
@@ -169,7 +170,7 @@ int SceneHandler::Init()
     SceneHandler::far=2000;
 
     // Open the OpenGL window
-    if( !glfwOpenWindow(640, 480, 8,8,8,8, 32,0, GLFW_WINDOW) )
+    if( !glfwOpenWindow(SceneHandler::width, SceneHandler::height, 8,8,8,8, 32,0, GLFW_WINDOW) )
     {
         glfwTerminate(); // glfwOpenWindow failed, quit the program.
         printError( "Error", "glfw could not open a window." );
@@ -213,11 +214,10 @@ int SceneHandler::Init()
 
 	InitDeferred(width,height);
 
-	deferred.shaderFirstPass=createShader("shaders/vertex_firstpass.glsl", "shaders/fragment_firstpass.glsl");
+	deferred.shaderFirstPass=shaderLib.LoadShader("shaders/vertex_firstpass.glsl", "shaders/fragment_firstpass.glsl");
+	deferred.shaderSecondPass=shaderLib.LoadShader("shaders/vertex_secondpass.glsl", "shaders/fragment_secondpass.glsl");
 
-	deferred.shaderSecondPass=createShader("shaders/vertex_secondpass.glsl", "shaders/fragment_secondpass.glsl");
-
-	//shadowShader=createShader("shaders/vertex_shadow.glsl", "shaders/fragment_shadow.glsl");
+	shaderLib.Init();
 
     return 1;
 }
@@ -249,40 +249,26 @@ void SceneHandler::InitDeferred(GLint w, GLint h)
     glBindTexture(GL_TEXTURE_2D, deferred.colorMap);
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
-//    //glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-//    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, deferred.width, deferred.height, 0,GL_RGBA, GL_UNSIGNED_BYTE, NULL);
     glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D, deferred.colorMap, 0);
 
     glBindTexture(GL_TEXTURE_2D, deferred.normalMap);
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
-//    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-//    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, deferred.width, deferred.height, 0,GL_RGBA, GL_UNSIGNED_BYTE, NULL);
     glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT1,GL_TEXTURE_2D, deferred.normalMap, 0);
-
-//    glBindTexture(GL_TEXTURE_2D, deferred.diffuseMap);
-//    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-//    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
-//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, deferred.width, deferred.height, 0,GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-//    glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT2,GL_TEXTURE_2D, deferred.diffuseMap, 0);
 
     glBindTexture(GL_TEXTURE_2D, deferred.depthMap);
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
-//    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-//    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, deferred.width, deferred.height, 0,GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
     glFramebufferTexture2D(GL_FRAMEBUFFER,GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D, deferred.depthMap, 0);
-
-//    glBindTexture(GL_TEXTURE_2D, deferred.positionMap);
-//    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-//    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
-////    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-////    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, deferred.width, deferred.height, 0,GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-//    glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT2,GL_TEXTURE_2D, deferred.positionMap, 0);
 
     glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -322,25 +308,28 @@ void SceneHandler::DrawLights()
 
     glPushAttrib( GL_ENABLE_BIT );
 
-    glDisable(GL_LIGHTING );
+    glActiveTexture( GL_TEXTURE0 );
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glDisable( GL_LIGHTING );
     glDisable( GL_DEPTH_TEST );
 
-    // Draw the joint positions
+    glUseProgram( 0 );
+
     glBegin( GL_POINTS );
         for ( unsigned int i = 0; i<light.size(); i++)
         {
-            glColor3fv( glm::value_ptr(light.at(i)->getDiffuse()) );
-            glVertex3fv( glm::value_ptr(light.at(i)->getPosition()) );
+            glColor3fv( glm::value_ptr(light.at(i)->getDiffuse3()) );
+            glVertex3fv( glm::value_ptr(light.at(i)->getPosition3()) );
         }
     glEnd();
 
-    // Draw the bones
     glColor3f( 0.0f, 1.0f, 0.0f );
     glBegin( GL_LINES );
         for ( unsigned int i = 0; i < light.size(); i++ )
         {
-            glVertex3fv( glm::value_ptr(light.at(i)->getPosition()) );
-            glVertex3fv( glm::value_ptr(light.at(i)->getPosition()+light.at(i)->getDirection()) );
+            glVertex3fv( glm::value_ptr(light.at(i)->getPosition3()) );
+            glVertex3fv( glm::value_ptr(light.at(i)->getPosition3()+light.at(i)->getDirection3()) );
         }
     glEnd();
 
@@ -351,6 +340,10 @@ void DeferredFBO::DrawFirstPass()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
+    glPushAttrib(GL_VIEWPORT_BIT | GL_ENABLE_BIT);
+
+    glViewport(0,0,width, height);
+
     glDepthMask(GL_TRUE);
     glEnable(GL_DEPTH_TEST);
 
@@ -360,15 +353,12 @@ void DeferredFBO::DrawFirstPass()
     GLenum buffers[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
     glDrawBuffers(2, buffers);
 
-    glPushAttrib(GL_VIEWPORT_BIT | GL_ENABLE_BIT);
-    glViewport(0,0,width, height);
-
     glClearColor (0.2f, 0.2f, 0.2f, 1.0f);
     glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
 
     for(unsigned int i=0; i<SceneHandler::renderList.size(); i++)
     {
-        SceneHandler::renderList.at(i)->DrawFirstPass( shaderFirstPass );
+        SceneHandler::renderList.at(i)->DrawFirstPass();
     }
 
     glPopAttrib();
@@ -376,22 +366,56 @@ void DeferredFBO::DrawFirstPass()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+void SceneHandler::getLightVar(int size, glm::vec3 *lightPos, glm::vec3 *lightCol, GLfloat *invLightRadiusSqr)
+{
+    glm::mat4 mat;
+    glGetFloatv(GL_MODELVIEW_MATRIX, &mat[0][0]);
+
+    glm::vec4 pos4;
+
+    for(int i=0; i<size; i++)
+    {
+        pos4 = SceneHandler::light.at(i)->getPosition4();
+        lightPos[i] = glm::vec3(mat * pos4);
+        lightCol[i] = SceneHandler::light.at(i)->getDiffuse3();
+        invLightRadiusSqr[i] = 1.0 / ( SceneHandler::light.at(i)->getRadius() * SceneHandler::light.at(i)->getRadius() );
+    }
+}
+
 void DeferredFBO::DrawSecondPass()
 {
     glBindTexture(GL_TEXTURE_2D, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glEnable(GL_DEPTH_TEST);
-    glDepthMask(GL_TRUE) ;
+
+    int num = SceneHandler::light.size();
+
+    if(num>0)
+    {
+        glm::vec3 lightPosition[num];
+        glm::vec3 lightColor[num];
+        GLfloat invLightRadiusSqr[num];
+
+        SceneHandler::getLightVar(num,lightPosition,lightColor,invLightRadiusSqr);
+
+        setUniform1i(shaderSecondPass,num,"numLights");
+        setUniform3fv(shaderSecondPass,num,&lightPosition[0][0],"lightPosition");
+        setUniform3fv(shaderSecondPass,num,&lightColor[0][0],"lightColor");
+        setUniform1fv(shaderSecondPass,num,&invLightRadiusSqr[0],"invLightRadiusSqr");
+    }
 
     glPushAttrib(GL_VIEWPORT_BIT | GL_ENABLE_BIT);
     glViewport(0,0,width, height);
 
+    glDisable( GL_LIGHTING );
+    glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
+
+    glDrawBuffer(GL_BACK);
+    glReadBuffer(GL_BACK);
+
     glClearColor (1.0f, 1.0f, 1.0f, 1.0f);
     glClear( GL_COLOR_BUFFER_BIT );
-
-    Light *light=SceneHandler::light.at(0);
-    light->assignTo(0);
 
     Camera *cam=Camera::getActiveCamera();
 
@@ -408,17 +432,8 @@ void DeferredFBO::DrawSecondPass()
     setUniform1i(shaderSecondPass,2,"depthMap");
 
     setUniform2f(shaderSecondPass,SceneHandler::deferred.width,SceneHandler::deferred.height,"screenSize");
-    setUniform1f(shaderSecondPass,light->getRadius(),"lightRadius");
     setUniform2f(shaderSecondPass,SceneHandler::near,SceneHandler::far,"cameraRange");
     setUniform3f(shaderSecondPass,cam->pos.x,cam->pos.y,cam->pos.z,"cameraPos");
-
-    glm::vec4 lightPos = light->getPosition();
-
-    glm::mat4 mat;
-    glGetFloatv(GL_MODELVIEW_MATRIX, &mat[0][0]);
-
-    lightPos = mat * lightPos;
-    setUniform3f(shaderSecondPass,lightPos.x,lightPos.y,lightPos.z,"lightPos");
 
     glUseProgram( shaderSecondPass );
 
@@ -444,10 +459,10 @@ void SceneHandler::Render()
 {
     unsigned int i;
 
-	glClearColor( 0.2f, 0.2f, 0.3f, 0.0f );
+	glClearColor( 0.2f, 0.2f, 0.4f, 0.0f );
 
 	// Clear previous frame values
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT);
 
     glCullFace(GL_BACK);
 
@@ -457,6 +472,8 @@ void SceneHandler::Render()
 
     deferred.DrawFirstPass();
     deferred.DrawSecondPass();
+
+    SceneHandler::DrawLights();
 
 //    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 //
@@ -480,8 +497,6 @@ void SceneHandler::Render()
 //
 //    glEnd();
 //    glDisable(GL_TEXTURE_2D);
-
-    //setupMatrices();
 }
 
 void SceneHandler::Destroy()
@@ -528,12 +543,17 @@ PlayerEntity* SceneHandler::CreatePlayerEntity()
     PlayerEntity* ent = new PlayerEntity();
     SceneHandler::newtonEntity.push_back((NewtonEntity*)ent);
 
-
-    //SceneHandler::renderList.push_back(ent);
-
     return ent;
 }
 
+ParticleSystemEntity* SceneHandler::CreateParticleSystem()
+{
+		ParticleSystemEntity* ent = new ParticleSystemEntity();
+		SceneHandler::entity.push_back(ent);
+    SceneHandler::renderList.push_back(ent);
+
+    return ent;
+}
 
 StaticEntity* SceneHandler::CreateStaticEntity(string s, float scale)
 {
@@ -604,8 +624,6 @@ void SceneHandler::CreatePlayerCollision(PlayerEntity* ent)
     orientation[1] = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
     orientation[2] = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
     orientation[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-
-
 
     // add a body with a box shape
     //shape = CreateNewtonCapsule (SceneHandler::world, ent, playerHigh, playerRadius, 0, orientation);
@@ -693,13 +711,12 @@ Light* SceneHandler::FindNearestLight(float x, float y, float z)
     Light* l=NULL;
     float dist2=1.0e10;
     float min=dist2;
-    glm::vec4 pos(x,y,z,1.0f);
-    glm::vec4 v;
+    glm::vec3 pos(x,y,z);
+    glm::vec3 v;
 
     for(unsigned int i=0; i<SceneHandler::light.size(); i++)
     {
-        v=pos-SceneHandler::light.at(i)->getPosition();
-        v.w=0.0;
+        v=pos-SceneHandler::light.at(i)->getPosition3();
         dist2 = glm::dot(v,v);
         if ( dist2 < min )
         {

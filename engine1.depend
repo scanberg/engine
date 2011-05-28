@@ -72,7 +72,7 @@
 	"Material.h"
 	"Error.h"
 
-1306397578 source:c:\users\gespachelor\engine\entity.cpp
+1306613837 source:c:\users\gespachelor\engine\entity.cpp
 	<GL/glew.h>
 	<GL/glfw.h>
 	<math.h>
@@ -84,7 +84,7 @@
 	"Entity.h"
 	"SceneHandler.h"
 
-1306251112 c:\users\gespachelor\engine\entity.h
+1306598054 c:\users\gespachelor\engine\entity.h
 	<GL/glew.h>
 	<GL/glfw.h>
 	<vector>
@@ -95,8 +95,9 @@
 	"Material.h"
 	"Math.h"
 	"Material.h"
+	"ParticleSystem.h"
 
-1305613646 c:\users\gespachelor\engine\mesh.h
+1306597404 c:\users\gespachelor\engine\mesh.h
 	<iostream>
 	<fstream>
 	<string>
@@ -104,7 +105,7 @@
 	<math.h>
 	"Math.h"
 
-1306389847 c:\users\gespachelor\engine\material.h
+1306594441 c:\users\gespachelor\engine\material.h
 	<GL/glfw.h>
 	<string>
 
@@ -114,7 +115,7 @@
 
 1304567380 c:\users\gespachelor\engine\error.h
 
-1306397997 source:c:\users\gespachelor\engine\material.cpp
+1306595970 source:c:\users\gespachelor\engine\material.cpp
 	<GL/glew.h>
 	<string>
 	<cstring>
@@ -126,12 +127,12 @@
 	"Error.h"
 	"SceneHandler.h"
 
-1305723284 source:c:\users\gespachelor\engine\mesh.cpp
+1306597583 source:c:\users\gespachelor\engine\mesh.cpp
 	<GL/glew.h>
 	<GL/glfw.h>
 	"Mesh.h"
 
-1306410837 source:c:\users\gespachelor\engine\main.cpp
+1306618781 source:c:\users\gespachelor\engine\main.cpp
 	<GL/glew.h>
 	<GL/glfw.h>
 	<iostream>
@@ -255,7 +256,7 @@
 1298624770 source:c:\users\gespachelor\engine\dmath\dvector.cpp
 	"dStdAfxMath.h"
 
-1306396666 c:\users\gespachelor\engine\light.h
+1306519680 c:\users\gespachelor\engine\light.h
 	<GL/glew.h>
 	<GL/glfw.h>
 	"Math.h"
@@ -273,15 +274,17 @@
 	"Physics.h"
 	<GL/glfw.h>
 
-1306335911 c:\users\gespachelor\engine\scenehandler.h
+1306594222 c:\users\gespachelor\engine\scenehandler.h
 	<GL/glew.h>
 	<GL/glfw.h>
 	<vector>
 	"Entity.h"
 	"Light.h"
 	"ResourceManager.h"
+	"ParticleSystem.h"
+	"ShaderLibrary.h"
 
-1306411508 source:c:\users\gespachelor\engine\scenehandler.cpp
+1306618822 source:c:\users\gespachelor\engine\scenehandler.cpp
 	<GL/glew.h>
 	<GL/glfw.h>
 	<iostream>
@@ -2432,4 +2435,27 @@
 	"Camera.h"
 	"SceneHandler.h"
 	"MD5Model.h"
+
+1306482681 c:\users\gespachelor\engine\particlesystem.h
+
+1306616525 source:c:\users\gespachelor\engine\particlesystem.cpp
+	<GL/glew.h>
+	<GL/glfw.h>
+	"SceneHandler.h"
+	"MD5Model.h"
+	"ParticleSystem.h"
+
+1306594809 c:\users\gespachelor\engine\shaderlibrary.h
+	<GL/glew.h>
+	<GL/glfw.h>
+	<map>
+	<string>
+
+1306613695 source:c:\users\gespachelor\engine\shaderlibrary.cpp
+	"ShaderLibrary.h"
+	"Error.h"
+	<iostream>
+	<stdio.h>
+	<stdlib.h>
+	<string>
 

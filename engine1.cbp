@@ -46,6 +46,8 @@
 		<Unit filename="Math.h" />
 		<Unit filename="Mesh.cpp" />
 		<Unit filename="Mesh.h" />
+		<Unit filename="ParticleSystem.cpp" />
+		<Unit filename="ParticleSystem.h" />
 		<Unit filename="Physics.cpp" />
 		<Unit filename="Physics.h" />
 		<Unit filename="ResourceManager.cpp" />
