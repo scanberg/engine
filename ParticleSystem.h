@@ -10,8 +10,8 @@ class ParticleSystem
 		static const int NUM_PARTICLES = 100;
 	private:
 		static int delay[NUM_PARTICLES];
-		static glm::vec3 particle_array[NUM_PARTICLES], color_array[NUM_PARTICLES];
-		static float xdir[NUM_PARTICLES], ydir[NUM_PARTICLES];
-		static GLuint particle_texture, alphachan;
+		static glm::vec3 particle_array[NUM_PARTICLES];
+		static float xdir[NUM_PARTICLES], ydir[NUM_PARTICLES], life[NUM_PARTICLES];
+		static GLuint particle_texture, shader;
 };
 #endif

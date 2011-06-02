@@ -167,7 +167,7 @@ int SceneHandler::Init()
     SceneHandler::width=640;
     SceneHandler::height=480;
     SceneHandler::near=5;
-    SceneHandler::far=500;
+    SceneHandler::far=1000;
 
     // Open the OpenGL window
     if( !glfwOpenWindow(SceneHandler::width, SceneHandler::height, 8,8,8,8, 32,0, GLFW_WINDOW) )
@@ -570,8 +570,8 @@ MD5Model* SceneHandler::CreateMD5Entity(std::string modelPath, std::string animP
 
 ParticleSystemEntity* SceneHandler::CreateParticleSystem()
 {
-		ParticleSystemEntity* ent = new ParticleSystemEntity();
-		SceneHandler::entity.push_back(ent);
+    ParticleSystemEntity* ent = new ParticleSystemEntity();
+    SceneHandler::entity.push_back(ent);
     SceneHandler::renderList.push_back(ent);
 
     return ent;
@@ -703,9 +703,9 @@ void AdvanceSimulation (int timeInMicroseconds)
 		ProcessEvents (SceneHandler::world);
 
 		// run the newton update function
-		NewtonUpdate (SceneHandler::world, std::max(SceneHandler::g_dt,(1.0f / PHYSICS_FPS)));
+		NewtonUpdate (SceneHandler::world, 1.0f / PHYSICS_FPS);
 
-        PlayerEntity::NewtonUpdate(std::max(SceneHandler::g_dt,(1.0f / PHYSICS_FPS)));
+        PlayerEntity::NewtonUpdate(1.0f / PHYSICS_FPS);
 
 		// subtract time from time accumulator
 		g_timeAccumulator -= FPS_IN_MICROSECONDS;

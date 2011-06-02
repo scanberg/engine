@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    int numLights=10;
+    int numLights=1;
     Light *lights[numLights];
 
     for(int i=0; i<numLights; i++)
@@ -42,10 +42,10 @@ int main(int argc, char *argv[])
         lights[i] = SceneHandler::CreateLight();
         lights[i]->setPosition(0.0,0.0,100.0);
         lights[i]->setDirection(0.0,0.0,0.0);
-        lights[i]->setDiffuse(fRandom(),fRandom(),fRandom());
+        lights[i]->setDiffuse(1.0,1.0,1.0);
         lights[i]->setAmbient(0.1,0.1,0.1);
         lights[i]->setSpecular(1.0,1.0,1.0);
-        lights[i]->setRadius(200.0);
+        lights[i]->setRadius(1000.0);
     }
 
     mousebtn = lastmousebtn = GLFW_RELEASE;
@@ -72,8 +72,9 @@ int main(int argc, char *argv[])
     beast = SceneHandler::CreateStaticEntity("media/beast/beast1.ase",0.5);
     box = SceneHandler::CreateStaticEntity("media/box/box.ase",1.0);
 
-	ParticleSystemEntity *particlesystem;
-	//particlesystem = SceneHandler::CreateParticleSystem();
+	ParticleSystemEntity *ps;
+	ps = SceneHandler::CreateParticleSystem();
+	ps->SetPosition(0.0,0.0,50.0);
 
     MD5Model *bob;
 
@@ -83,7 +84,7 @@ int main(int argc, char *argv[])
     beast->SetRotation(90.0,0.0,0.0);
 
     scene->SetPosition(500.0,200.0,0.0);
-    //scene->SetRotation(0.0,0.0,0.0);
+    scene->SetRotation(0.0,0.0,0.0);
 
     box->SetPosition(100.0,100.0,150.0);
     box->SetRotation(0.0,0.0,-20.0);

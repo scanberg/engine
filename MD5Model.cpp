@@ -152,8 +152,6 @@ bool MD5Model::LoadModel(const std::string& filename)
 			PrepareMesh(mesh);
 			PrepareNormals(mesh);
 
-            AddMesh(mesh);
-
 			m_Meshes.push_back(mesh);
 		}
 		file >> param;
@@ -196,27 +194,6 @@ bool MD5Model::CheckAnimation( const MD5Animation& animation ) const{
     }
 
     return true;
-}
-
-void MD5Model::AddMesh(const MD5Mesh& mesh)
-{
-    Mesh* m = new Mesh();
-    m->init(mesh.m_Verts.size(),mesh.m_Tris.size());
-
-    unsigned int i;
-    for(i=0; i<mesh.m_Verts.size(); i++)
-    {
-        m->vertex[i].x = mesh.m_PositionBuffer.at(i).x;
-        m->vertex[i].y = mesh.m_PositionBuffer.at(i).y;
-        m->vertex[i].z = mesh.m_PositionBuffer.at(i).z;
-
-        m->vertex[i].nx = mesh.m_NormalBuffer.at(i).x;
-        m->vertex[i].ny = mesh.m_NormalBuffer.at(i).y;
-        m->vertex[i].nz = mesh.m_NormalBuffer.at(i).z;
-
-        m->vertex[i].u = mesh.m_Tex2DBuffer.at(i).x;
-        m->vertex[i].v = mesh.m_Tex2DBuffer.at(i).y;
-    }
 }
 
 bool MD5Model::PrepareMesh(MD5Mesh& mesh){
