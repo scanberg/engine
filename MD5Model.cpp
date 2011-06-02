@@ -109,9 +109,10 @@ bool MD5Model::LoadModel(const std::string& filename)
 							 >> vert.m_Tex0.x >> vert.m_Tex0.y >> junk // s t )
 							 >> vert.m_StartWeight >> vert.m_WeightCount;
 						Ignore(file);
+                        //vert.m_Tex0.x = 1.0-vert.m_Tex0.x;
+						vert.m_Tex0.y = 1.0-vert.m_Tex0.y;
 
 						mesh.m_Verts.push_back(vert);
-
 
 						mesh.m_Tex2DBuffer.push_back(vert.m_Tex0);
 					}
@@ -126,8 +127,8 @@ bool MD5Model::LoadModel(const std::string& filename)
 
 						mesh.m_Tris.push_back(tri);
 						mesh.m_IndexBuffer.push_back((GLuint)tri.m_Indices[0]);
-						mesh.m_IndexBuffer.push_back((GLuint)tri.m_Indices[1]);
 						mesh.m_IndexBuffer.push_back((GLuint)tri.m_Indices[2]);
+						mesh.m_IndexBuffer.push_back((GLuint)tri.m_Indices[1]);
 					}
 				}
 				else if(param == "numweights"){
@@ -308,7 +309,7 @@ bool MD5Model::PrepareMaterial(MD5Mesh& mesh)
 
     std::string s;
 
-    s = mesh.m_Shader+"_diffuse.tga";
+    s = mesh.m_Shader+".tga";
     if(FileExists(s))
     {
         std::cout<<"DIFFUSE";
@@ -319,15 +320,15 @@ bool MD5Model::PrepareMaterial(MD5Mesh& mesh)
         // Specify trilinear interpolation
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 
         glBindTexture(GL_TEXTURE_2D, 0);
 
         mesh.m_Mat.type+=TEX_DIFFUSE;
     }
 
-    s = mesh.m_Shader+"_normal.tga";
+    s = mesh.m_Shader+"_local.tga";
     if(FileExists(s))
     {
         std::cout<<"NORMAL";
@@ -338,15 +339,15 @@ bool MD5Model::PrepareMaterial(MD5Mesh& mesh)
         // Specify trilinear interpolation
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 
         glBindTexture(GL_TEXTURE_2D, 0);
 
         mesh.m_Mat.type+=TEX_NORMAL;
     }
 
-    s = mesh.m_Shader+"_height.tga";
+    s = mesh.m_Shader+"_h.tga";
     if(FileExists(s))
     {
         std::cout<<"HEIGHT";
@@ -354,7 +355,7 @@ bool MD5Model::PrepareMaterial(MD5Mesh& mesh)
 
         //glBindTexture(GL_TEXTURE_2D, mat.heightMap);
         //glBindTexture(GL_TEXTURE_2D, 0);
-        std::string normal = mesh.m_Shader+"_normal.tga";
+        std::string normal = mesh.m_Shader+"_local.tga";
 
         GLFWimage merged;
         merged = mergeRGB_A(&normal,&s);
@@ -364,7 +365,7 @@ bool MD5Model::PrepareMaterial(MD5Mesh& mesh)
         mesh.m_Mat.type+=TEX_HEIGHT;
     }
 
-    s = mesh.m_Shader+"_specular.tga";
+    s = mesh.m_Shader+"_s.tga";
     if(FileExists(s))
     {
         std::cout<<"SPECULAR";
@@ -375,8 +376,8 @@ bool MD5Model::PrepareMaterial(MD5Mesh& mesh)
         // Specify trilinear interpolation
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 
         glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -487,9 +488,9 @@ void MD5Model::RenderMesh(const MD5Mesh& mesh){
     glBindTexture(GL_TEXTURE_2D, 0);
 
 }
-void MD5Model::Update(float fDeltaTime){
+void MD5Model::Update(){
 	if(m_bHasAnimation){
-		m_Animation.Update(fDeltaTime);
+		m_Animation.Update(SceneHandler::g_dt);
 		const MD5Animation::FrameSkeleton& skeleton = m_Animation.GetSkeleton();
 
 		for(unsigned int i = 0; i < m_Meshes.size(); ++i){

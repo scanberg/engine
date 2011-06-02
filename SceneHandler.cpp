@@ -558,6 +558,16 @@ PlayerEntity* SceneHandler::CreatePlayerEntity()
     return ent;
 }
 
+MD5Model* SceneHandler::CreateMD5Entity(std::string modelPath, std::string animPath)
+{
+    MD5Model* model = new MD5Model();
+    model->LoadModel(modelPath);
+    model->LoadAnim(animPath);
+    SceneHandler::entity.push_back(model);
+    SceneHandler::renderList.push_back(model);
+    return model;
+}
+
 ParticleSystemEntity* SceneHandler::CreateParticleSystem()
 {
 		ParticleSystemEntity* ent = new ParticleSystemEntity();

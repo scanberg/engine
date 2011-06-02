@@ -16,7 +16,7 @@
 using std::cout;
 using std::endl;
 
-float random()
+float fRandom()
 {
     return (float)rand() / (float)RAND_MAX;
 }
@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
         lights[i] = SceneHandler::CreateLight();
         lights[i]->setPosition(0.0,0.0,100.0);
         lights[i]->setDirection(0.0,0.0,0.0);
-        lights[i]->setDiffuse(random(),random(),random());
+        lights[i]->setDiffuse(fRandom(),fRandom(),fRandom());
         lights[i]->setAmbient(0.1,0.1,0.1);
         lights[i]->setSpecular(1.0,1.0,1.0);
         lights[i]->setRadius(200.0);
@@ -75,10 +75,9 @@ int main(int argc, char *argv[])
 	ParticleSystemEntity *particlesystem;
 	//particlesystem = SceneHandler::CreateParticleSystem();
 
-    MD5Model bob;
+    MD5Model *bob;
 
-    bob.LoadModel("models/monsters/hellknight/hellknight.md5mesh");
-    bob.LoadAnim("models/monsters/hellknight/idle2.md5anim");
+    bob = SceneHandler::CreateMD5Entity("models/monsters/hellknight/hellknight.md5mesh","models/monsters/hellknight/idle2.md5anim");
 
     beast->SetPosition(0.0,100.0,50.0);
     beast->SetRotation(90.0,0.0,0.0);
@@ -133,7 +132,7 @@ int main(int argc, char *argv[])
 //        glm::vec3 dist = minBBoxPoint - Camera::getActiveCamera()->pos;
 //        std::cout<<std::sqrt(glm::dot(dist,dist))<<std::endl;
 
-        bob.Update(SceneHandler::g_dt);
+        //bob.Update(SceneHandler::g_dt);
         static float t;
         t+=SceneHandler::g_dt;
 
@@ -147,7 +146,7 @@ int main(int argc, char *argv[])
 
         // Finally, draw the scene.
         SceneHandler::Render();
-        bob.Render();
+        //bob.Render();
 
         // Swap buffers, i.e. display the image and prepare for next frame.
         glfwSwapBuffers();

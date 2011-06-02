@@ -13,7 +13,7 @@ public:
 
 	bool LoadModel(const std::string& filename);
 	bool LoadAnim(const std::string& filename);
-	void Update(float fDeltaTime);
+	void Update();
 	void Render();
 	void DrawFirstPass();
 

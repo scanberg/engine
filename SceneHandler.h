@@ -12,6 +12,7 @@
 #include "ResourceManager.h"
 #include "ParticleSystem.h"
 #include "ShaderLibrary.h"
+#include "MD5Model.h"
 
 class DeferredFBO
 {
@@ -44,7 +45,7 @@ public:
     static Entity* CreateEntity();
     static PlayerEntity* CreatePlayerEntity();
     static StaticEntity* CreateStaticEntity(std::string s, float scale=1.0f);
-    static MD5Model* CreateMD5Entity(std::string s);
+    static MD5Model* CreateMD5Entity(std::string modelPath, std::string animPath);
 	static ParticleSystemEntity* CreateParticleSystem();
 
     static Light* CreateLight();
