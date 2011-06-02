@@ -1,5 +1,20 @@
 #include "Helpers.h"
 
+//TAGEN FRÅN http://www.gamedev.net/topic/211918-determining-if-a-file-exists-c/
+bool FileExists( std::string file)
+{
+    FILE* fp = NULL;
+
+    fp = fopen( file.c_str(), "rb" );
+    if( fp != NULL )
+    {
+        fclose( fp );
+        return true;
+    }
+
+    return false;
+}
+
 // Remove the quotes from a string
 void RemoveQuotes( std::string& str )
 {

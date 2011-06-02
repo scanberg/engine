@@ -54,6 +54,8 @@
 		<Unit filename="ResourceManager.h" />
 		<Unit filename="SceneHandler.cpp" />
 		<Unit filename="SceneHandler.h" />
+		<Unit filename="ShaderLibrary.cpp" />
+		<Unit filename="ShaderLibrary.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />

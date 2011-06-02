@@ -490,7 +490,7 @@ void extract_mesh(istream& is, Mesh& mesh)
             loop=false;
         }
     }
-	cout<<endl<<"DONE!"<<endl;
+	//cout<<endl<<"DONE!"<<endl;
 
     unsigned int i;
 
@@ -605,7 +605,7 @@ int LoadAse(const string &filename, MeshObject &meshObj)
 				}
 				else
 				{
-				    cout<<endl<<"NEW MAT "<<endl;
+				    //cout<<endl<<"NEW MAT "<<endl;
 				    matptr = new Material();
                     extract_material(is,*matptr);
                     MATERIAL_LIST.push_back(matptr);
@@ -631,7 +631,7 @@ int LoadAse(const string &filename, MeshObject &meshObj)
 			    getline(is,s);
 			    if (s.find("*MESH {") != string::npos)
 			    {
-			        cout<<endl<<"NEW MESH "<<endl;
+			        //cout<<endl<<"NEW MESH "<<endl;
 			        meshptr = new Mesh();
                     extract_mesh(is,*meshptr);
                     MESH_LIST.push_back(meshptr);

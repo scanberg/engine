@@ -4,20 +4,25 @@
 #include "Helpers.h"
 #include "MD5Animation.h"
 #include "Entity.h"
+#include "Material.h"
 
-class MD5Model{
+class MD5Model : public Entity{
 public:
-	 MD5Model();
+    MD5Model();
 	virtual ~MD5Model();
 
 	bool LoadModel(const std::string& filename);
 	bool LoadAnim(const std::string& filename);
 	void Update(float fDeltaTime);
 	void Render();
+	void DrawFirstPass();
+
+	//MeshObject* meshObj;
 
 protected:
 	typedef std::vector<glm::vec3> PositionBuffer;
 	typedef std::vector<glm::vec3> NormalBuffer;
+	typedef std::vector<glm::vec3> TangentBuffer;
 	typedef std::vector<glm::vec2> Tex2DBuffer;
 	typedef std::vector<GLuint> IndexBuffer;
 
@@ -52,6 +57,7 @@ protected:
 
 	struct MD5Mesh{
 		std::string m_Shader;
+		Material m_Mat;
 		// This vertex list stores the vertices in the bind pose.
 		VertexList m_Verts;
 		TriangleList m_Tris;
@@ -63,6 +69,7 @@ protected:
 		// These buffers are sed for rendering the animated mesh
 		PositionBuffer m_PositionBuffer; // Vertex position stream
 		NormalBuffer m_NormalBuffer;	// Vertex normals stream
+		NormalBuffer m_TangentBuffer;	// Vertex tangent stream
 		Tex2DBuffer m_Tex2DBuffer;		// Texture coordinate set
 		IndexBuffer m_IndexBuffer;		// Vertex index buffer
 	};
@@ -73,6 +80,8 @@ protected:
 	bool PrepareMesh(MD5Mesh& mesh);
 	bool PrepareMesh(MD5Mesh& mesh, const MD5Animation::FrameSkeleton& skel);
 	bool PrepareNormals(MD5Mesh& mesh);
+	bool PrepareTangents(MD5Mesh& mesh);
+	bool PrepareMaterial(MD5Mesh& mesh);
 
 	// Render a singlemesh of the model
 	void RenderMesh(const MD5Mesh& mesh);

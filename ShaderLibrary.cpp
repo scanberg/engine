@@ -1,5 +1,6 @@
 #include "ShaderLibrary.h"
 #include "Error.h"
+#include "Helpers.h"
 #include <iostream>
 #include <stdio.h>   // for printf() and sscanf()
 #include <stdlib.h>  // for malloc() and free()
@@ -37,11 +38,11 @@ GLuint ShaderLibrary::GetShaderFromType(short type)
 GLuint ShaderLibrary::GetShaderFromDistance(short type, float dist)
 {
     short minType;
-    if(dist < 100)
+    if(dist < 200*200)
     {
         minType=std::min(type,(short)(TEX_DIFFUSE+TEX_NORMAL+TEX_HEIGHT+TEX_SPECULAR));
     }
-    else if(dist < 200)
+    else if(dist < 500*500)
     {
         minType=std::min(type,(short)(TEX_DIFFUSE+TEX_NORMAL));
     }
@@ -50,21 +51,6 @@ GLuint ShaderLibrary::GetShaderFromDistance(short type, float dist)
         minType=std::min(type,(short)TEX_DIFFUSE);
     }
     return shader[minType];
-}
-
-//TAGEN FRÅN http://www.gamedev.net/topic/211918-determining-if-a-file-exists-c/
-bool fileExists(std::string strFilename)
-{
-    FILE* fp = NULL;
-
-    fp = fopen( strFilename.c_str(), "rb" );
-    if( fp != NULL )
-    {
-        fclose( fp );
-        return true;
-    }
-
-    return false;
 }
 
 /*

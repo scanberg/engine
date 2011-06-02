@@ -1,4 +1,12 @@
+#define GLEW_STATIC
+
+#include <GL/glew.h>
+#include <GL/glfw.h>
+
 #include "MD5Model.h"
+#include "Math.h"
+#include "Material.h"
+#include "SceneHandler.h"
 #include <iostream>
 
 MD5Model::MD5Model()
@@ -104,6 +112,7 @@ bool MD5Model::LoadModel(const std::string& filename)
 
 						mesh.m_Verts.push_back(vert);
 
+
 						mesh.m_Tex2DBuffer.push_back(vert.m_Tex0);
 					}
 				}
@@ -188,17 +197,31 @@ bool MD5Model::CheckAnimation( const MD5Animation& animation ) const{
     return true;
 }
 
-void MD5Model::AddMesh(const MD5Mesh& m)
+void MD5Model::AddMesh(const MD5Mesh& mesh)
 {
-    /*Mesh* meshptr = new Mesh();
-    meshptr->init(m.m_Verts.size(),m.m_Tris.size());
-    //meshptr->
-    mesh.push_back(meshptr);*/
+    Mesh* m = new Mesh();
+    m->init(mesh.m_Verts.size(),mesh.m_Tris.size());
+
+    unsigned int i;
+    for(i=0; i<mesh.m_Verts.size(); i++)
+    {
+        m->vertex[i].x = mesh.m_PositionBuffer.at(i).x;
+        m->vertex[i].y = mesh.m_PositionBuffer.at(i).y;
+        m->vertex[i].z = mesh.m_PositionBuffer.at(i).z;
+
+        m->vertex[i].nx = mesh.m_NormalBuffer.at(i).x;
+        m->vertex[i].ny = mesh.m_NormalBuffer.at(i).y;
+        m->vertex[i].nz = mesh.m_NormalBuffer.at(i).z;
+
+        m->vertex[i].u = mesh.m_Tex2DBuffer.at(i).x;
+        m->vertex[i].v = mesh.m_Tex2DBuffer.at(i).y;
+    }
 }
 
 bool MD5Model::PrepareMesh(MD5Mesh& mesh){
 	mesh.m_PositionBuffer.clear();
 	mesh.m_Tex2DBuffer.clear();
+	mesh.m_TangentBuffer.clear();
 
 	// Compute vertex positions
 	for(unsigned int i = 0; i < mesh.m_Verts.size(); ++i){
@@ -219,12 +242,15 @@ bool MD5Model::PrepareMesh(MD5Mesh& mesh){
 
 			vert.m_Pos += ( joint.m_Pos + rotPos ) * weight.m_Bias;
 		}
+		mesh.m_TangentBuffer.push_back(glm::vec3(0));
 		mesh.m_PositionBuffer.push_back(vert.m_Pos);
 		mesh.m_Tex2DBuffer.push_back(vert.m_Tex0);
 	}
-
+	PrepareMaterial(mesh);
+    PrepareTangents(mesh);
 	return true;
 }
+
 bool MD5Model::PrepareMesh( MD5Mesh& mesh, const MD5Animation::FrameSkeleton& skel ){
     for ( unsigned int i = 0; i < mesh.m_Verts.size(); ++i ){
         const Vertex& vert = mesh.m_Verts[i];
@@ -240,10 +266,123 @@ bool MD5Model::PrepareMesh( MD5Mesh& mesh, const MD5Animation::FrameSkeleton& sk
 
             glm::vec3 rotPos = joint.m_Orient * weight.m_Pos;
             pos += ( joint.m_Pos + rotPos ) * weight.m_Bias;
-
             normal += ( joint.m_Orient * vert.m_Normal ) * weight.m_Bias;
         }
     }
+    PrepareTangents(mesh);
+    return true;
+}
+
+bool MD5Model::PrepareTangents(MD5Mesh& mesh)
+{
+    mesh.m_TangentBuffer.clear();
+    for ( unsigned int i = 0; i < mesh.m_Tris.size(); ++i)
+    {
+        glm::vec3 tangent;
+        glm::vec2 st1, st2;
+        glm::vec3 a, b;
+
+        a = mesh.m_PositionBuffer[mesh.m_Tris[i].m_Indices[2]] - mesh.m_PositionBuffer[mesh.m_Tris[i].m_Indices[0]];
+        b = mesh.m_PositionBuffer[mesh.m_Tris[i].m_Indices[1]] - mesh.m_PositionBuffer[mesh.m_Tris[i].m_Indices[0]];
+
+        st1.x = mesh.m_Tex2DBuffer[mesh.m_Tris[i].m_Indices[2]].x - mesh.m_Tex2DBuffer[mesh.m_Tris[i].m_Indices[0]].x;
+        st1.y = mesh.m_Tex2DBuffer[mesh.m_Tris[i].m_Indices[2]].y - mesh.m_Tex2DBuffer[mesh.m_Tris[i].m_Indices[0]].y;
+
+        st2.x = mesh.m_Tex2DBuffer[mesh.m_Tris[i].m_Indices[1]].x - mesh.m_Tex2DBuffer[mesh.m_Tris[i].m_Indices[0]].x;
+        st2.y = mesh.m_Tex2DBuffer[mesh.m_Tris[i].m_Indices[1]].y - mesh.m_Tex2DBuffer[mesh.m_Tris[i].m_Indices[0]].y;
+
+        float coef = 1.0/ (st1.x * st2.y - st2.x * st1.y);
+
+        tangent.x = coef * ((a.x * st2.y)  + (b.x * -st1.y));
+        tangent.y = coef * ((a.y * st2.y)  + (b.y * -st1.y));
+        tangent.z = coef * ((a.z * st2.y)  + (b.z * -st1.y));
+        tangent = glm::normalize(tangent);
+        mesh.m_TangentBuffer.push_back(tangent);
+    }
+    return true;
+}
+
+bool MD5Model::PrepareMaterial(MD5Mesh& mesh)
+{
+    std::cout<<"loading "<<mesh.m_Shader<<std::endl;
+
+    std::string s;
+
+    s = mesh.m_Shader+"_diffuse.tga";
+    if(FileExists(s))
+    {
+        std::cout<<"DIFFUSE";
+        mesh.m_Mat.diffuseMap=SceneHandler::resources.loadTexture(s,GLFW_BUILD_MIPMAPS_BIT);
+
+        glBindTexture(GL_TEXTURE_2D, mesh.m_Mat.diffuseMap);
+
+        // Specify trilinear interpolation
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        mesh.m_Mat.type+=TEX_DIFFUSE;
+    }
+
+    s = mesh.m_Shader+"_normal.tga";
+    if(FileExists(s))
+    {
+        std::cout<<"NORMAL";
+        mesh.m_Mat.normalMap=SceneHandler::resources.loadTexture(s,GLFW_BUILD_MIPMAPS_BIT);
+
+        glBindTexture(GL_TEXTURE_2D, mesh.m_Mat.normalMap);
+
+        // Specify trilinear interpolation
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        mesh.m_Mat.type+=TEX_NORMAL;
+    }
+
+    s = mesh.m_Shader+"_height.tga";
+    if(FileExists(s))
+    {
+        std::cout<<"HEIGHT";
+        //mat.heightMap=SceneHandler::resources.loadTexture(s,0);
+
+        //glBindTexture(GL_TEXTURE_2D, mat.heightMap);
+        //glBindTexture(GL_TEXTURE_2D, 0);
+        std::string normal = mesh.m_Shader+"_normal.tga";
+
+        GLFWimage merged;
+        merged = mergeRGB_A(&normal,&s);
+        mesh.m_Mat.normalMap = SceneHandler::resources.createTextureFromImage(normal+s, &merged, GLFW_BUILD_MIPMAPS_BIT);
+        glfwFreeImage(&merged);
+
+        mesh.m_Mat.type+=TEX_HEIGHT;
+    }
+
+    s = mesh.m_Shader+"_specular.tga";
+    if(FileExists(s))
+    {
+        std::cout<<"SPECULAR";
+        mesh.m_Mat.normalMap=SceneHandler::resources.loadTexture(s,GLFW_BUILD_MIPMAPS_BIT);
+
+        glBindTexture(GL_TEXTURE_2D, mesh.m_Mat.specularMap);
+
+        // Specify trilinear interpolation
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        mesh.m_Mat.type+=TEX_SPECULAR;
+    }
+
     return true;
 }
 
@@ -290,31 +429,62 @@ void MD5Model::Render(){
 	for(unsigned int i = 0; i < m_Meshes.size(); ++i){
 		RenderMesh(m_Meshes[i]);
 	}
-	m_Animation.Render();
-	for(unsigned int i = 0; i < m_Meshes.size(); ++i){
-		//RenderNormals(m_Meshes[i]);
-	}
+	//m_Animation.Render();
+//	for(unsigned int i = 0; i < m_Meshes.size(); ++i){
+//		RenderNormals(m_Meshes[i]);
+//	}
 	glPopMatrix();
 }
 
 void MD5Model::RenderMesh(const MD5Mesh& mesh){
-	glColor3f(1.0f, 1.0f, 1.0f);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
 
-	glBindTexture(GL_TEXTURE_2D, mesh.m_TexID);
-	glVertexPointer(3, GL_FLOAT, 0, &(mesh.m_PositionBuffer[0]));
-	glNormalPointer(GL_FLOAT, 0, &(mesh.m_NormalBuffer[0]));
-	glTexCoordPointer(2, GL_FLOAT, 0, &(mesh.m_Tex2DBuffer[0]));
+    GLuint shad=SceneHandler::shaderLib.GetShaderFromType(mesh.m_Mat.type);
 
-	glDrawElements(GL_TRIANGLES, mesh.m_IndexBuffer.size(), GL_UNSIGNED_INT, &(mesh.m_IndexBuffer[0]));
+    if(shad==0)
+        return;
 
-	glDisableClientState(GL_NORMAL_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_VERTEX_ARRAY);
+    glActiveTexture( GL_TEXTURE0 );
+    glBindTexture(GL_TEXTURE_2D, mesh.m_Mat.diffuseMap);
+    setUniform1i(shad,0,"diffuseMap");
 
-	glBindTexture(GL_TEXTURE_2D, 0);
+    glActiveTexture( GL_TEXTURE1 );
+    glBindTexture(GL_TEXTURE_2D, mesh.m_Mat.normalMap);
+    setUniform1i(shad,1,"normalMap");
+
+    glActiveTexture( GL_TEXTURE2 );
+    glBindTexture(GL_TEXTURE_2D, mesh.m_Mat.specularMap);
+    setUniform1i(shad,2,"specularMap");
+
+    setAttributeTangent(shad, &mesh.m_TangentBuffer[0], "tangent");
+
+    setUniform2f(shad,SceneHandler::near,SceneHandler::far,"cameraRange");
+
+    Camera *cam = Camera::getActiveCamera();
+    setUniform3f(shad,cam->pos.x,cam->pos.y,cam->pos.z,"cameraPos");
+    setUniform3f(shad,cam->dir.x,cam->dir.y,cam->dir.z,"cameraDir");
+
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, mesh.m_Mat.diffuse);
+    glMaterialfv(GL_FRONT, GL_AMBIENT, mesh.m_Mat.ambient);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, mesh.m_Mat.specular);
+    glMaterialfv(GL_FRONT, GL_SHININESS, mesh.m_Mat.shininess);
+
+    glUseProgram( shad );
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glEnableClientState(GL_NORMAL_ARRAY);
+
+        glVertexPointer(3, GL_FLOAT, 0, &(mesh.m_PositionBuffer[0]));
+        glNormalPointer(GL_FLOAT, 0, &(mesh.m_NormalBuffer[0]));
+        glTexCoordPointer(2, GL_FLOAT, 0, &(mesh.m_Tex2DBuffer[0]));
+
+        glDrawElements(GL_TRIANGLES, mesh.m_IndexBuffer.size(), GL_UNSIGNED_INT, &(mesh.m_IndexBuffer[0]));
+
+        glDisableClientState(GL_NORMAL_ARRAY);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        glDisableClientState(GL_VERTEX_ARRAY);
+    glUseProgram( 0 );
+
+    glBindTexture(GL_TEXTURE_2D, 0);
 
 }
 void MD5Model::Update(float fDeltaTime){
@@ -348,6 +518,21 @@ void MD5Model::RenderNormals(const MD5Mesh& mesh)
         }
     }
     glEnd();
+
+//    glColor3f( 0.0f, 1.0f, 1.0f );
+//
+//    glBegin( GL_LINES );
+//    {
+//        for ( unsigned int i = 0; i < mesh.m_PositionBuffer.size(); ++i )
+//        {
+//            glm::vec3 p0 = mesh.m_PositionBuffer[i];
+//            glm::vec3 p1 = ( mesh.m_PositionBuffer[i] + mesh.m_TangentBuffer[i] );
+//
+//            glVertex3fv( glm::value_ptr(p0) );
+//            glVertex3fv( glm::value_ptr(p1) );
+//        }
+//    }
+//    glEnd();
 
     glPopAttrib();
 }
@@ -386,5 +571,10 @@ void MD5Model::RenderSkeleton( const JointList& joints )
 
     glPopAttrib();
 
+}
+
+void MD5Model::DrawFirstPass()
+{
+    Render();
 }
 

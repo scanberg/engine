@@ -377,28 +377,30 @@ void StaticEntity::DrawGeometry()
     }
 }
 
-float getMinBBoxPoint(Entity *e, Mesh* m)
+glm::vec3 StaticEntity::ClosestMeshBBoxPoint(unsigned int i)
 {
-    glm::vec3 camPos = Camera::getActiveCamera()->pos;
-    glm::vec3 entPos = e->GetPosition();
-    glm::vec3 minPoint;
+    glm::mat4 matrix = glm::gtc::matrix_inverse::affineInverse(this->matrix);
+    glm::vec4 camPos = glm::vec4(Camera::getActiveCamera()->pos,1.0);
+    camPos = matrix * camPos;
+    glm::vec3 minBox = this->meshObj->mesh.at(i)->minBox * this->scale;
+    glm::vec3 maxBox = this->meshObj->mesh.at(i)->maxBox * this->scale;
 
-    minPoint.x = std::max(std::abs( (entPos.x + m->minBox.x) - camPos.x ),std::abs( (entPos.x + m->maxBox.x) - camPos.x ));
-    minPoint.y = std::max(std::abs( (entPos.y + m->minBox.y) - camPos.y ),std::abs( (entPos.y + m->maxBox.y) - camPos.y ));
-    minPoint.z = std::max(std::abs( (entPos.z + m->minBox.z) - camPos.z ),std::abs( (entPos.z + m->maxBox.z) - camPos.z ));
+    camPos.x = glm::core::function::common::clamp(camPos.x, minBox.x, maxBox.x);
+    camPos.y = glm::core::function::common::clamp(camPos.y, minBox.y, maxBox.y);
+    camPos.z = glm::core::function::common::clamp(camPos.z, minBox.z, maxBox.z);
 
-    return std::min(minPoint.x,std::min(minPoint.y,minPoint.z));
+    return glm::vec3( this->matrix * camPos );
 }
 
 void StaticEntity::DrawFirstPass()
 {
     GLuint shad;
-    float minBBoxDist;
+    glm::vec3 minBBoxPoint;
+    glm::vec3 distVec;
 
     if(visible)
     {
         glPushMatrix();
-
         glMultMatrixf(&matrix[0][0]);
         glScalef(scale,scale,scale);
 
@@ -408,9 +410,11 @@ void StaticEntity::DrawFirstPass()
             {
                 if(meshObj->material.at(i))
                 {
-                    minBBoxDist = getMinBBoxPoint(this,meshObj->mesh.at(i));
-
-                    shad = SceneHandler::shaderLib.GetShaderFromDistance(meshObj->material.at(i)->type,minBBoxDist);
+                    //minBBoxPoint = ClosestMeshBBoxPoint(i);
+                    //distVec = minBBoxPoint - Camera::getActiveCamera()->pos;
+                    //std::cout<<"dist "<<glm::dot(distVec,distVec)<<std::endl;
+                    //shad = SceneHandler::shaderLib.GetShaderFromDistance(meshObj->material.at(i)->type,glm::dot(distVec,distVec));
+                    shad=SceneHandler::shaderLib.GetShaderFromType(meshObj->material.at(i)->type);
 
                     glActiveTexture( GL_TEXTURE0 );
                     glBindTexture(GL_TEXTURE_2D, meshObj->material.at(i)->diffuseMap);
@@ -426,7 +430,7 @@ void StaticEntity::DrawFirstPass()
 
                     setAttributeTangent(shad, meshObj->mesh.at(i)->tangent, "tangent");
 
-                    setUniform2f(shad,SceneHandler::near,SceneHandler::far,"depthRange");
+                    setUniform2f(shad,SceneHandler::near,SceneHandler::far,"cameraRange");
 
                     Camera *cam = Camera::getActiveCamera();
                     setUniform3f(shad,cam->pos.x,cam->pos.y,cam->pos.z,"cameraPos");
@@ -443,7 +447,6 @@ void StaticEntity::DrawFirstPass()
                 }
             }
         }
-
         glPopMatrix();
     }
 }

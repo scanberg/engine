@@ -3,6 +3,8 @@
 
 #include "MD5ModelLoaderPCH.h"
 
+bool FileExists( std::string file );
+
 // Remove the quotes from a string
 void RemoveQuotes( std::string& str );
 

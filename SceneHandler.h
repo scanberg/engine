@@ -44,6 +44,7 @@ public:
     static Entity* CreateEntity();
     static PlayerEntity* CreatePlayerEntity();
     static StaticEntity* CreateStaticEntity(std::string s, float scale=1.0f);
+    static MD5Model* CreateMD5Entity(std::string s);
 	static ParticleSystemEntity* CreateParticleSystem();
 
     static Light* CreateLight();

@@ -166,8 +166,8 @@ int SceneHandler::Init()
 
     SceneHandler::width=640;
     SceneHandler::height=480;
-    SceneHandler::near=1;
-    SceneHandler::far=2000;
+    SceneHandler::near=5;
+    SceneHandler::far=500;
 
     // Open the OpenGL window
     if( !glfwOpenWindow(SceneHandler::width, SceneHandler::height, 8,8,8,8, 32,0, GLFW_WINDOW) )
@@ -208,8 +208,8 @@ int SceneHandler::Init()
 	NewtonSetSolverModel (SceneHandler::world, 1);
 
 	// set a fix world size
-	glm::vec3 minSize (-1000.0f, -1000.0f, -1000.0f);
-	glm::vec3 maxSize ( 1000.0f,  1000.0f,  1000.0f);
+	glm::vec3 minSize (-2000.0f, -2000.0f, -2000.0f);
+	glm::vec3 maxSize ( 2000.0f,  2000.0f,  2000.0f);
 	NewtonSetWorldSize (SceneHandler::world, &minSize[0], &maxSize[0]);
 
 	InitDeferred(width,height);
@@ -229,7 +229,6 @@ void SceneHandler::InitDeferred(GLint w, GLint h)
     glDeleteTextures(1,&deferred.normalMap);
     glDeleteTextures(1,&deferred.depthMap);
     glDeleteTextures(1,&deferred.positionMap);
-    glDeleteRenderbuffers(1,&deferred.depthBuffer);
 
     // generate namespace for the frame buffer, colorbuffer and depthbuffer
     glGenFramebuffers(1, &deferred.fbo);
@@ -237,7 +236,6 @@ void SceneHandler::InitDeferred(GLint w, GLint h)
     glGenTextures(1,&deferred.normalMap);
     glGenTextures(1,&deferred.depthMap);
     glGenTextures(1,&deferred.positionMap);
-    glGenRenderbuffers(1, &deferred.depthBuffer);
 
     deferred.width=w;
     deferred.height=h;
@@ -312,7 +310,7 @@ void SceneHandler::DrawLights()
     glBindTexture(GL_TEXTURE_2D, 0);
 
     glDisable( GL_LIGHTING );
-    glDisable( GL_DEPTH_TEST );
+    glEnable( GL_DEPTH_TEST );
 
     glUseProgram( 0 );
 
@@ -384,9 +382,12 @@ void SceneHandler::getLightVar(int size, glm::vec3 *lightPos, glm::vec3 *lightCo
 
 void DeferredFBO::DrawSecondPass()
 {
-    glBindTexture(GL_TEXTURE_2D, 0);
+    //glBindTexture(GL_TEXTURE_2D, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    glDrawBuffer(GL_BACK);
+    glReadBuffer(GL_BACK);
 
     int num = SceneHandler::light.size();
 
@@ -408,11 +409,8 @@ void DeferredFBO::DrawSecondPass()
     glViewport(0,0,width, height);
 
     glDisable( GL_LIGHTING );
-    glEnable(GL_DEPTH_TEST);
-    glDepthMask(GL_TRUE);
-
-    glDrawBuffer(GL_BACK);
-    glReadBuffer(GL_BACK);
+    glDisable(GL_DEPTH_TEST);
+    glDepthMask(GL_FALSE);
 
     glClearColor (1.0f, 1.0f, 1.0f, 1.0f);
     glClear( GL_COLOR_BUFFER_BIT );
@@ -448,6 +446,21 @@ void DeferredFBO::DrawSecondPass()
     glVertex2f(-1, 1);
     glEnd();
 
+//    glMatrixMode(GL_PROJECTION);
+//    glPushMatrix();
+//    glLoadIdentity();
+//    glMatrixMode(GL_MODELVIEW);
+//    glPushMatrix();
+//    glLoadIdentity();
+//    glBegin(GL_QUADS);
+//    glVertex3f(-1.0f,-1.0f, -1.0f);
+//    glVertex3f( 1.0f,-1.0f, -1.0f);
+//    glVertex3f( 1.0f, 1.0f, -1.0f);
+//    glVertex3f(-1.0f, 1.0f, -1.0f);
+//    glEnd();
+//    glPopMatrix();
+//    glPopMatrix();
+
     glUseProgram( 0 );
 
     glPopAttrib();
@@ -480,7 +493,7 @@ void SceneHandler::Render()
 //    glUseProgram(0);
 //    glMatrixMode(GL_PROJECTION);
 //    glLoadIdentity();
-//    glOrtho(-SceneHandler::width/2,SceneHandler::width/2,-SceneHandler::height/2,SceneHandler::height/2,1,20);
+//    glOrtho(-SceneHandler::width/4,SceneHandler::width/4,-SceneHandler::height/4,SceneHandler::height/4,1,20);
 //    glMatrixMode(GL_MODELVIEW);
 //    glLoadIdentity();
 //    glColor4f(1.0,1.0,1.0,1.0);
@@ -491,10 +504,9 @@ void SceneHandler::Render()
 //
 //    glBegin(GL_QUADS);
 //    glTexCoord2d(0,0);glVertex3f(0,0,0);
-//    glTexCoord2d(1,0);glVertex3f(SceneHandler::width/2,0,0);
-//    glTexCoord2d(1,1);glVertex3f(SceneHandler::width/2,SceneHandler::height/2,0);
-//    glTexCoord2d(0,1);glVertex3f(0,SceneHandler::height/2,0);
-//
+//    glTexCoord2d(1,0);glVertex3f(SceneHandler::width/4,0,0);
+//    glTexCoord2d(1,1);glVertex3f(SceneHandler::width/4,SceneHandler::height/4,0);
+//    glTexCoord2d(0,1);glVertex3f(0,SceneHandler::height/4,0);
 //    glEnd();
 //    glDisable(GL_TEXTURE_2D);
 }

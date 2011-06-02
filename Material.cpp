@@ -17,7 +17,7 @@ Material::Material()
 {
     //Tilldela standardvärden
     ambient[3]=diffuse[3]=specular[3]=1.0f;
-    setAmbient(1.0);
+    setAmbient(0.2);
     setDiffuse(1.0);
     setSpecular(0.2);
     setShininess(50.0);
@@ -57,7 +57,7 @@ void Material::setShininess(float f)
     this->shininess[0]=f;
 }
 
-bool FileExists(std::string strFilename);
+//bool FileExists(std::string strFilename);
 GLFWimage mergeNormalAndHeight(std::string s);
 
 void Material::loadShader()

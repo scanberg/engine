@@ -2,6 +2,9 @@ varying vec2 texCoord;
 varying vec3 normalVec;
 varying vec3 tangentVec;
 varying vec3 viewVec;
+varying float depth;
+
+uniform vec2 cameraRange;
 
 attribute vec3 tangent;
 	
@@ -25,4 +28,7 @@ void main(void)
 	v.y = dot(vVec, b);
 	v.z = dot(vVec, n);
 	viewVec = v;
+
+	vec4 viewPos = gl_ModelViewMatrix * gl_Vertex;
+	depth = (-viewPos.z-cameraRange.x)/(cameraRange.y-cameraRange.x);
 }

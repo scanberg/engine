@@ -1,6 +1,7 @@
 varying vec2 texCoord;
 varying vec3 normalVec;
 varying vec3 tangentVec;
+varying float depth;
 
 uniform sampler2D diffuseMap;
 uniform sampler2D normalMap;
@@ -18,6 +19,8 @@ void main (void)
 
 	bumpNormal = bumpNormal.x * t + bumpNormal.y * b + bumpNormal.z * n;
 
-	float specular = gl_FrontMaterial.specular.x;
+	float specular = gl_FrontMaterial.specular.x*0.5;
 	gl_FragData[1] = vec4(bumpNormal * 0.5 + 0.5,specular);
+
+	gl_FragDepth = depth;
 }

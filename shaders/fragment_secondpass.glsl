@@ -8,10 +8,10 @@ uniform vec2 screenSize;
 uniform vec2 cameraRange;
 
 uniform int numLights;
-uniform vec3 lightPosition[32];
-uniform vec3 lightColor[32];
-uniform vec3 lightDirection[32];
-uniform float invLightRadiusSqr[32];
+uniform vec3 lightPosition[64];
+uniform vec3 lightColor[64];
+uniform vec3 lightDirection[64];
+uniform float invLightRadiusSqr[64];
 
 float linearizeDepth(float depth) {
 	return (2.0 * cameraRange.x) / (cameraRange.y + cameraRange.x - depth * (cameraRange.y - cameraRange.x));
@@ -21,7 +21,7 @@ float linearizeDepth(float depth) {
 // Beräknar FragCoord från depth till ViewSpace //
 
 const float fovy           = 65.0 * 3.14159265 / 180.0; // 65 deg in radian
-const float invFocalLenY   = tan(fovy * 0.5);
+float invFocalLenY   = tan(fovy * 0.5);
 float invFocalLenX   = tan(fovy * 0.5) * screenSize.x / screenSize.y;
 
 vec3 uv_to_eye(vec2 uv, float eye_z)
@@ -32,8 +32,8 @@ vec3 uv_to_eye(vec2 uv, float eye_z)
 
 vec3 fetch_eye_pos(vec2 uv)
 {
-   float z = linearizeDepth(texture2D(depthMap, uv).x);
-   return uv_to_eye(uv, z*(cameraRange.y - cameraRange.x));
+   float z = texture2D(depthMap, uv).x*(cameraRange.y-cameraRange.x);
+   return uv_to_eye(uv, z);
 }
 
 // --------- //
@@ -75,11 +75,21 @@ void main (void)
 		diffuse = max( dot(lVec,bump.xyz), 0.0 );
 		vDiffuse = lightColor[i] * diffuse;
 
-		specular = pow(clamp(dot(reflect(-vVec, bump.xyz), lVec), 0.0, 1.0), 10 ) * specFactor;
+		specular = clamp(dot(reflect(-vVec, bump.xyz), lVec), 0.0, 1.0);
+		specular = pow(specular, 10 );
+		specular *= specFactor;
 
 		finalColor += vDiffuse*att*base.xyz + att*diffuse*specular;
 	}
+
+	const float LOG2 = 1.442695;
+	float z = -viewCoord.z / cameraRange.y;
+	float density = 2;
+	float fogFactor = exp2( - density * density * z * z * LOG2 );
+	fogFactor = clamp(fogFactor, 0.0, 1.0);
+
+
 	finalColor += ambient*base.xyz;
 
-	gl_FragColor = vec4(finalColor,1.0);
+	gl_FragColor = vec4(mix(gl_Fog.color, finalColor, fogFactor ),1.0);
 }

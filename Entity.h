@@ -121,6 +121,7 @@ public:
     void DrawFirstPass();
     void DrawGeometry();
     void CalculateBounds();
+    glm::vec3 ClosestMeshBBoxPoint(unsigned int i);
     MeshObject* meshObj;
 private:
 

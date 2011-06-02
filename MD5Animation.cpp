@@ -150,7 +150,7 @@ bool MD5Animation::LoadAnimation(const std::string& filename){
 			Ignore(file);
 			//file.ignore(fileLength, '\n');
 		}
-		std::cout<<param<<std::endl;
+		//std::cout<<param<<std::endl;
 		file >> param;
 	} // while (!file.eof)
 	// Make Sure there are enough joints for the animated skeleton

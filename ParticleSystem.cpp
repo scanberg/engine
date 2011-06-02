@@ -81,7 +81,7 @@ void ParticleSystem::Render()
         glBlendFunc(GL_SRC_ALPHA, GL_ONE);//_MINUS_SRC_ALPHA);
         glEnable(GL_BLEND);
         //glColor3f(1.0f,1.0f,1.0f);
-        glDisable(GL_DEPTH_TEST);
+        glEnable(GL_DEPTH_TEST);
         glBindTexture(GL_TEXTURE_2D, particle_texture);
         glBegin( GL_QUADS );
             for ( int i=0; i<NUM_PARTICLES; i++)
@@ -99,6 +99,6 @@ void ParticleSystem::Render()
             }
         glEnd();
         glDisable(GL_BLEND);
-        glEnable(GL_DEPTH_TEST);
+        glDisable(GL_DEPTH_TEST);
     glPopMatrix();
 }

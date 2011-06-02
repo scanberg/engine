@@ -54,7 +54,9 @@ glm::mat4 Camera::getViewMatrix()
     glm::mat4 rotz = glm::gtc::matrix_transform::rotate(glm::mat4(1.0f),-cam->dir.z,glm::vec3(0.0f,0.0f,1.0f));
     glm::mat4 trans = glm::gtc::matrix_transform::translate(glm::mat4(1.0),-cam->pos);
 
-    glm::mat4 mat = rotz*roty*rotx*trans;
+    glm::mat4 rot = rotx*roty*rotz;
+
+    glm::mat4 mat = rot*trans;
 
     return mat;
 }
