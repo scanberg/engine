@@ -46,7 +46,7 @@ public:
     static PlayerEntity* CreatePlayerEntity();
     static StaticEntity* CreateStaticEntity(std::string s, float scale=1.0f);
     static MD5Model* CreateMD5Entity(std::string modelPath, std::string animPath);
-	static ParticleSystemEntity* CreateParticleSystem();
+	static ParticleSystem* CreateParticleSystem();
 
     static Light* CreateLight();
 
@@ -89,6 +89,7 @@ private:
     static float interpolationParam;
 
     static std::vector<Entity*> renderList;
+    static std::vector<Entity*> postRenderList;
 
     static std::vector<Entity*> entity;
     static std::vector<NewtonEntity*> newtonEntity;

@@ -401,7 +401,8 @@ bool MD5Model::PrepareNormals(MD5Mesh& mesh){
 
 void MD5Model::Render(){
 	glPushMatrix();
-	glMultMatrixf(glm::value_ptr(m_LocalToWorldMatrix));
+	glMultMatrixf(glm::value_ptr(matrix));
+	glScalef(scale,scale,scale);
 
 	// Render the meshes
 	for(unsigned int i = 0; i < m_Meshes.size(); ++i){
@@ -446,7 +447,6 @@ void MD5Model::RenderMesh(const MD5Mesh& mesh){
     glMaterialfv(GL_FRONT, GL_SPECULAR, mesh.m_Mat.specular);
     glMaterialfv(GL_FRONT, GL_SHININESS, mesh.m_Mat.shininess);
 
-    glUseProgram( shad );
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         glEnableClientState(GL_NORMAL_ARRAY);
@@ -455,14 +455,18 @@ void MD5Model::RenderMesh(const MD5Mesh& mesh){
         glNormalPointer(GL_FLOAT, 0, &(mesh.m_NormalBuffer[0]));
         glTexCoordPointer(2, GL_FLOAT, 0, &(mesh.m_Tex2DBuffer[0]));
 
+        glUseProgram( shad );
+
         glDrawElements(GL_TRIANGLES, mesh.m_IndexBuffer.size(), GL_UNSIGNED_INT, &(mesh.m_IndexBuffer[0]));
+
+        glUseProgram( 0 );
 
         glDisableClientState(GL_NORMAL_ARRAY);
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         glDisableClientState(GL_VERTEX_ARRAY);
-    glUseProgram( 0 );
 
-    glBindTexture(GL_TEXTURE_2D, 0);
+
+    //glBindTexture(GL_TEXTURE_2D, 0);
 
 }
 void MD5Model::Update(){

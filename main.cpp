@@ -34,19 +34,61 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    int numLights=1;
-    Light *lights[numLights];
+    Light *moon = SceneHandler::CreateLight();
+    moon->setPosition(-2000.0,0.0,1000.0);
+    moon->setDiffuse(0.2,0.2,0.3);
+    moon->setAmbient(0.1,0.1,0.2);
+    moon->setSpecular(1.0,1.0,1.0);
+    moon->setRadius(20000.0);
 
-    for(int i=0; i<numLights; i++)
-    {
-        lights[i] = SceneHandler::CreateLight();
-        lights[i]->setPosition(0.0,0.0,100.0);
-        lights[i]->setDirection(0.0,0.0,0.0);
-        lights[i]->setDiffuse(1.0,1.0,1.0);
-        lights[i]->setAmbient(0.1,0.1,0.1);
-        lights[i]->setSpecular(1.0,1.0,1.0);
-        lights[i]->setRadius(1000.0);
-    }
+    int numLights=4;
+
+    Light *lights[numLights];
+    ParticleSystem *ps[numLights];
+
+    ps[0] = SceneHandler::CreateParticleSystem();
+    ps[0]->SetPosition(-307.0,-10.0,90.0);
+    ps[0]->scale = 2.0;
+
+    lights[0] = SceneHandler::CreateLight();
+    lights[0]->setPosition(-307.0,-10.0,90.0);
+    lights[0]->setDiffuse(1.0,1.0,0.8);
+    lights[0]->setAmbient(0.1,0.1,0.1);
+    lights[0]->setSpecular(1.0,1.0,1.0);
+    lights[0]->setRadius(200.0);
+
+    ps[1] = SceneHandler::CreateParticleSystem();
+    ps[1]->SetPosition(-307.0,-188.0,90.0);
+    ps[1]->scale = 2.0;
+
+    lights[1] = SceneHandler::CreateLight();
+    lights[1]->setPosition(-307.0,-188.0,90.0);
+    lights[1]->setDiffuse(1.0,1.0,0.8);
+    lights[1]->setAmbient(0.1,0.1,0.1);
+    lights[1]->setSpecular(1.0,1.0,1.0);
+    lights[1]->setRadius(200.0);
+
+    ps[2] = SceneHandler::CreateParticleSystem();
+    ps[2]->SetPosition(178.0,-45.0,64.0);
+    ps[2]->scale = 2.0;
+
+    lights[2] = SceneHandler::CreateLight();
+    lights[2]->setPosition(178.0,-45.0,64.0);
+    lights[2]->setDiffuse(1.0,1.0,0.8);
+    lights[2]->setAmbient(0.1,0.1,0.1);
+    lights[2]->setSpecular(1.0,1.0,1.0);
+    lights[2]->setRadius(200.0);
+
+    ps[3] = SceneHandler::CreateParticleSystem();
+    ps[3]->SetPosition(178.0,-131.0,64.0);
+    ps[3]->scale = 2.0;
+
+    lights[3] = SceneHandler::CreateLight();
+    lights[3]->setPosition(178.0,-131.0,64.0);
+    lights[3]->setDiffuse(1.0,1.0,0.8);
+    lights[3]->setAmbient(0.1,0.1,0.1);
+    lights[3]->setSpecular(1.0,1.0,1.0);
+    lights[3]->setRadius(200.0);
 
     mousebtn = lastmousebtn = GLFW_RELEASE;
 
@@ -68,17 +110,15 @@ int main(int argc, char *argv[])
     StaticEntity *beast;
     StaticEntity *box;
 
-    scene = SceneHandler::CreateStaticEntity("media/testscene.ase",1.0);
+    scene = SceneHandler::CreateStaticEntity("media/ny.ase",1.0);
     beast = SceneHandler::CreateStaticEntity("media/beast/beast1.ase",0.5);
     box = SceneHandler::CreateStaticEntity("media/box/box.ase",1.0);
 
-	ParticleSystemEntity *ps;
-	ps = SceneHandler::CreateParticleSystem();
-	ps->SetPosition(0.0,0.0,50.0);
+    //MD5Model *bob;
 
-    MD5Model *bob;
-
-    bob = SceneHandler::CreateMD5Entity("models/monsters/hellknight/hellknight.md5mesh","models/monsters/hellknight/idle2.md5anim");
+    //bob = SceneHandler::CreateMD5Entity("models/monsters/hellknight/hellknight.md5mesh","models/monsters/hellknight/idle2.md5anim");
+    //bob->scale=0.7;
+    //bob->SetPosition(-100.0,0.0,-100.0);
 
     beast->SetPosition(0.0,100.0,50.0);
     beast->SetRotation(90.0,0.0,0.0);
@@ -134,14 +174,6 @@ int main(int argc, char *argv[])
 //        std::cout<<std::sqrt(glm::dot(dist,dist))<<std::endl;
 
         //bob.Update(SceneHandler::g_dt);
-        static float t;
-        t+=SceneHandler::g_dt;
-
-        for(int i=0; i<numLights; i++)
-        {
-            lights[i]->setPosition(250.0*cos(t*0.1*(i+1)),250.0*sin(t*0.2*(i+1)),70.0+50*sin(t*0.3*(i+1)));
-        }
-
 
         camera.setUp();
 

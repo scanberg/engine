@@ -44,6 +44,7 @@ static char titlestring[200];
 vector<Entity*> SceneHandler::entity;
 vector<NewtonEntity*> SceneHandler::newtonEntity;
 vector<Entity*> SceneHandler::renderList;
+vector<Entity*> SceneHandler::postRenderList;
 vector<Light*> SceneHandler::light;
 NewtonWorld* SceneHandler::world;
 int SceneHandler::width;
@@ -485,8 +486,12 @@ void SceneHandler::Render()
 
     deferred.DrawFirstPass();
     deferred.DrawSecondPass();
+    for(i=0; i<postRenderList.size(); i++)
+    {
+        postRenderList.at(i)->Draw();
+    }
 
-    SceneHandler::DrawLights();
+    //SceneHandler::DrawLights();
 
 //    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 //
@@ -568,11 +573,12 @@ MD5Model* SceneHandler::CreateMD5Entity(std::string modelPath, std::string animP
     return model;
 }
 
-ParticleSystemEntity* SceneHandler::CreateParticleSystem()
+ParticleSystem* SceneHandler::CreateParticleSystem()
 {
-    ParticleSystemEntity* ent = new ParticleSystemEntity();
+    ParticleSystem* ent = new ParticleSystem();
+    //ent->Init();
     SceneHandler::entity.push_back(ent);
-    SceneHandler::renderList.push_back(ent);
+    SceneHandler::postRenderList.push_back(ent);
 
     return ent;
 }

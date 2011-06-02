@@ -12,7 +12,6 @@
 #include "Material.h"
 #include "Math.h"
 #include "Material.h"
-#include "ParticleSystem.h"
 
 class Entity
 {
@@ -46,16 +45,6 @@ public:
     float scale;
 private:
 
-};
-
-class ParticleSystemEntity: public Entity
-{
-public:
-	ParticleSystemEntity();
-	void Update();
-	void DrawFirstPass();
-
-	glm::vec3 pos;
 };
 
 class NewtonEntity: public Entity

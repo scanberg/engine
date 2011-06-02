@@ -72,7 +72,7 @@
 	"Material.h"
 	"Error.h"
 
-1306930051 source:c:\users\gespachelor\engine\entity.cpp
+1307049529 source:c:\users\gespachelor\engine\entity.cpp
 	<GL/glew.h>
 	<GL/glfw.h>
 	<math.h>
@@ -84,7 +84,7 @@
 	"Entity.h"
 	"SceneHandler.h"
 
-1306662896 c:\users\gespachelor\engine\entity.h
+1307049993 c:\users\gespachelor\engine\entity.h
 	<GL/glew.h>
 	<GL/glfw.h>
 	<vector>
@@ -95,7 +95,6 @@
 	"Material.h"
 	"Math.h"
 	"Material.h"
-	"ParticleSystem.h"
 
 1306597404 c:\users\gespachelor\engine\mesh.h
 	<iostream>
@@ -132,7 +131,7 @@
 	<GL/glfw.h>
 	"Mesh.h"
 
-1307041967 source:c:\users\gespachelor\engine\main.cpp
+1307053322 source:c:\users\gespachelor\engine\main.cpp
 	<GL/glew.h>
 	<GL/glfw.h>
 	<iostream>
@@ -275,7 +274,7 @@
 	"Physics.h"
 	<GL/glfw.h>
 
-1307031835 c:\users\gespachelor\engine\scenehandler.h
+1307049701 c:\users\gespachelor\engine\scenehandler.h
 	<GL/glew.h>
 	<GL/glfw.h>
 	<vector>
@@ -286,7 +285,7 @@
 	"ShaderLibrary.h"
 	"MD5Model.h"
 
-1307041887 source:c:\users\gespachelor\engine\scenehandler.cpp
+1307053711 source:c:\users\gespachelor\engine\scenehandler.cpp
 	<GL/glew.h>
 	<GL/glfw.h>
 	<iostream>
@@ -1383,7 +1382,7 @@
 	"MD5Animation.h"
 	<iostream>
 
-1307042580 source:c:\users\gespachelor\engine\md5model.cpp
+1307048772 source:c:\users\gespachelor\engine\md5model.cpp
 	<GL/glew.h>
 	<GL/glfw.h>
 	"MD5Model.h"
@@ -2445,9 +2444,11 @@
 	"SceneHandler.h"
 	"MD5Model.h"
 
-1307015296 c:\users\gespachelor\engine\particlesystem.h
+1307049974 c:\users\gespachelor\engine\particlesystem.h
+	"Math.h"
+	"Entity.h"
 
-1307040747 source:c:\users\gespachelor\engine\particlesystem.cpp
+1307052052 source:c:\users\gespachelor\engine\particlesystem.cpp
 	<GL/glew.h>
 	<GL/glfw.h>
 	"SceneHandler.h"

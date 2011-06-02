@@ -1,21 +1,33 @@
-// GLSL demo code, Stefan Gustavson 2009
-// This code is in the public domain.
-
 uniform float life;
-uniform sampler2D tex;
+uniform vec2 cameraRange;
+uniform vec2 screenSize;
+uniform sampler2D textureMap;
+uniform sampler2D depthMap;
+
 varying vec2 st;
+varying float z;
 
 void main( void )
 {
-  //vec4 color1 = vec4(1.0, 1.0, 1.0, 1.0);
-  //vec4 color2 = vec4(0.0, 0.0, 0.0, 1.0);
-  //vec2 coords = fract(st) - 0.5;
-	//float radius = length(coords);
-	//float aastep = 0.7*fwidth(radius);
-  //float dots = smoothstep(0.2-aastep, 0.2+aastep, radius);
+	vec2 coords = gl_FragCoord.xy / screenSize.xy;
+	float depth = -texture2D(depthMap,coords).x*cameraRange.y;
 
-  // Final fragment color
-  //gl_FragColor = mix(color1, color2, dots);
-	gl_FragColor = vec4(texture2D(tex,st).xyz, texture2D(tex,st).w * life);
+	vec4 color = texture2D(textureMap,st);
 	
+	if(color.xyz == vec3(0))
+		discard;
+
+	if(z < depth)
+		discard;
+
+	vec4 finalColor = vec4(color.xyz, color.w * life);
+
+
+	z = z / cameraRange.y;
+	const float LOG2 = 1.442695;
+	float density = 1;
+	float fogFactor = exp2( - density * density * z * z * LOG2 );
+	fogFactor = clamp(fogFactor, 0.0, 1.0);
+
+	gl_FragColor = mix(gl_Fog.color, finalColor, fogFactor);
 }

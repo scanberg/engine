@@ -56,19 +56,19 @@ void Entity::CalculateBounds()
 
 }
 
-//===Particle System domain==
-ParticleSystemEntity::ParticleSystemEntity() : pos(0.0f,0.0f,0.0f)
-{
-	ParticleSystem::Init();
-}
-void ParticleSystemEntity::Update()
-{
-	ParticleSystem::Update();
-}
-void ParticleSystemEntity::DrawFirstPass()
-{
-	ParticleSystem::Render();
-}
+////===Particle System domain==
+//ParticleSystemEntity::ParticleSystemEntity() : pos(0.0f,0.0f,0.0f)
+//{
+//	ParticleSystem::Init();
+//}
+//void ParticleSystemEntity::Update()
+//{
+//	ParticleSystem::Update();
+//}
+//void ParticleSystemEntity::Draw()
+//{
+//	ParticleSystem::Render();
+//}
 
 NewtonEntity::NewtonEntity() :
 	curPosition (0.0f, 0.0f, 0.0f, 1.0f),
