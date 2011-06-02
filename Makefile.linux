@@ -2,7 +2,8 @@
 
 CPP  = g++
 CC   = gcc
-OBJ  = main.o Entity.o Mesh.o AseReader.o Material.o Error.o Camera.o Light.o SceneHandler.o Math.o Physics.o ResourceManager.o MD5Animation.o MD5Model.o Helpers.o
+OBJ  = AseReader.o Camera.o Entity.o Error.o Helpers.o Light.o main.o Material.o Math.o MD5Animation.o MD5Model.o Mesh.o ParticleSystem.o Physics.o ResourceManager.o SceneHandler.o ShaderLibrary.o
+
 LINKOBJ  = $(OBJ) $(RES)
 LIBS =  -lglfw -lGL -lGLU  -lGLEW -lNewton -lJointLibrary
 OPTS = -Wall -O3 -ffast-math
@@ -12,52 +13,58 @@ all: engine1 $(OBJ)
 
 
 clean: 
-	${RM} $(OBJ) $(BIN)
+	${RM} $(OBJ)
 
 engine1: $(OBJ)
 	$(CPP) $(LINKOBJ) -o "engine1" $(LIBS) $(OPTS)
 
-main.o: main.cpp
-	$(CPP) -c main.cpp -o main.o $(OPTS)
-
-Entity.o: Entity.cpp
-	$(CPP) -c Entity.cpp -o Entity.o $(OPTS)
-
-Mesh.o: Mesh.cpp
-	$(CPP) -c Mesh.cpp -o Mesh.o $(OPTS)
-
-AseReader.o: AseReader.cpp
+AseReader.o: AseReader.cpp AseReader.h 
 	$(CPP) -c AseReader.cpp -o AseReader.o $(OPTS)
 
-Material.o: Material.cpp
-	$(CPP) -c Material.cpp -o Material.o $(OPTS)
-
-Error.o: Error.cpp
-	$(CPP) -c Error.cpp -o Error.o $(OPTS)
-
-Camera.o: Camera.cpp
+Camera.o: Camera.cpp Camera.h 
 	$(CPP) -c Camera.cpp -o Camera.o $(OPTS)
 
-Light.o: Light.cpp
+Entity.o: Entity.cpp Entity.h 
+	$(CPP) -c Entity.cpp -o Entity.o $(OPTS)
+
+Error.o: Error.cpp Error.h 
+	$(CPP) -c Error.cpp -o Error.o $(OPTS)
+
+Helpers.o: Helpers.cpp Helpers.h 
+	$(CPP) -c Helpers.cpp -o Helpers.o $(OPTS) $(LIBS)
+
+Light.o: Light.cpp Light.h 
 	$(CPP) -c Light.cpp -o Light.o $(OPTS)
 
-SceneHandler.o: SceneHandler.cpp
-	$(CPP) -c SceneHandler.cpp -o SceneHandler.o $(OPTS) $(LIBS)
+main.o: main.cpp main.h 
+	$(CPP) -c main.cpp -o main.o $(OPTS)
 
-Math.o: Math.cpp
+Material.o: Material.cpp Material.h 
+	$(CPP) -c Material.cpp -o Material.o $(OPTS)
+
+Math.o: Math.cpp Math.h 
 	$(CPP) -c Math.cpp -o Math.o $(OPTS)
 
-Physics.o: Physics.cpp
-	$(CPP) -c Physics.cpp -o Physics.o $(OPTS) $(LIBS)
-
-ResourceManager.o: ResourceManager.cpp
-	$(CPP) -c ResourceManager.cpp -o ResourceManager.o $(OPTS) $(LIBS)
-
-MD5Animation.o: MD5Animation.cpp
+MD5Animation.o: MD5Animation.cpp MD5Animation.h 
 	$(CPP) -c MD5Animation.cpp -o MD5Animation.o $(OPTS) $(LIBS)
 
-MD5Model.o: MD5Model.cpp
+MD5Model.o: MD5Model.cpp MD5Model.h 
 	$(CPP) -c MD5Model.cpp -o MD5Model.o $(OPTS) $(LIBS)
 
-Helpers.o: Helpers.cpp
-	$(CPP) -c Helpers.cpp -o Helpers.o $(OPTS) $(LIBS)
+Mesh.o: Mesh.cpp Mesh.h 
+	$(CPP) -c Mesh.cpp -o Mesh.o $(OPTS)
+
+ParticleSystem.o: ParticleSystem.cpp ParticleSystem.h 
+	$(CPP) -c ParticleSystem.cpp -o ParticleSystem.o $(OPTS) $(LIBS)
+
+Physics.o: Physics.cpp Physics.h 
+	$(CPP) -c Physics.cpp -o Physics.o $(OPTS) $(LIBS)
+
+ResourceManager.o: ResourceManager.cpp ResourceManager.h 
+	$(CPP) -c ResourceManager.cpp -o ResourceManager.o $(OPTS) $(LIBS)
+
+SceneHandler.o: SceneHandler.cpp SceneHandler.h 
+	$(CPP) -c SceneHandler.cpp -o SceneHandler.o $(OPTS) $(LIBS)
+
+ShaderLibrary.o: ShaderLibrary.cpp ShaderLibrary.h 
+	$(CPP) -c ShaderLibrary.cpp -o ShaderLibrary.o $(OPTS) $(LIBS)
