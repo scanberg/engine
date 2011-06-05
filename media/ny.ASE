@@ -15,7 +15,7 @@
 		*MATERIAL_NAME "gras"
 		*MATERIAL_CLASS "Standard"
 		*MATERIAL_AMBIENT 0.2000	0.2000	0.2000
-		*MATERIAL_DIFFUSE 1.0000	1.0000	1.0000
+		*MATERIAL_DIFFUSE 0.9000	0.9000	0.9000
 		*MATERIAL_SPECULAR 0.1000	0.1000	0.1000
 		*MATERIAL_SHINE 0.1000
 		*MATERIAL_SHINESTRENGTH 0.0000
@@ -218,6 +218,26 @@
 			*UVW_NOISE_PHASE 0.0000
 			*BITMAP_FILTER Pyramidal
 		}
+		*MAP_BUMP {
+			*MAP_NAME "Map #72"
+			*MAP_CLASS "Bitmap"
+			*MAP_SUBNO 8
+			*MAP_AMOUNT 0.3000
+			*BITMAP "media/material/underjord/underjord_height.tga"
+			*MAP_TYPE Screen
+			*UVW_U_OFFSET 0.0000
+			*UVW_V_OFFSET 0.0000
+			*UVW_U_TILING 1.0000
+			*UVW_V_TILING 1.0000
+			*UVW_ANGLE 0.0000
+			*UVW_BLUR 1.0000
+			*UVW_BLUR_OFFSET 0.0000
+			*UVW_NOUSE_AMT 1.0000
+			*UVW_NOISE_SIZE 1.0000
+			*UVW_NOISE_LEVEL 1
+			*UVW_NOISE_PHASE 0.0000
+			*BITMAP_FILTER Pyramidal
+		}
 	}
 	*MATERIAL 3 {
 		*MATERIAL_NAME "cryptwall"
@@ -280,6 +300,26 @@
 			*MAP_SUBNO 8
 			*MAP_AMOUNT 0.3000
 			*BITMAP "media/material/dirtybrick/dirtybrick_normal.tga"
+			*MAP_TYPE Screen
+			*UVW_U_OFFSET 0.0000
+			*UVW_V_OFFSET 0.0000
+			*UVW_U_TILING 1.0000
+			*UVW_V_TILING 1.0000
+			*UVW_ANGLE 0.0000
+			*UVW_BLUR 1.0000
+			*UVW_BLUR_OFFSET 0.0000
+			*UVW_NOUSE_AMT 1.0000
+			*UVW_NOISE_SIZE 1.0000
+			*UVW_NOISE_LEVEL 1
+			*UVW_NOISE_PHASE 0.0000
+			*BITMAP_FILTER Pyramidal
+		}
+		*MAP_BUMP {
+			*MAP_NAME "Map #58"
+			*MAP_CLASS "Bitmap"
+			*MAP_SUBNO 8
+			*MAP_AMOUNT 0.3000
+			*BITMAP "media/material/dirtybrick/dirtybrick_height.tga"
 			*MAP_TYPE Screen
 			*UVW_U_OFFSET 0.0000
 			*UVW_V_OFFSET 0.0000
@@ -522,6 +562,26 @@
 			*UVW_NOISE_PHASE 0.0000
 			*BITMAP_FILTER Pyramidal
 		}
+		*MAP_BUMP {
+			*MAP_NAME "Map #123"
+			*MAP_CLASS "Bitmap"
+			*MAP_SUBNO 8
+			*MAP_AMOUNT 0.3000
+			*BITMAP "media/material/rockfence/rockfence_height.tga"
+			*MAP_TYPE Screen
+			*UVW_U_OFFSET 0.0000
+			*UVW_V_OFFSET 0.0000
+			*UVW_U_TILING 1.0000
+			*UVW_V_TILING 1.0000
+			*UVW_ANGLE 0.0000
+			*UVW_BLUR 1.0000
+			*UVW_BLUR_OFFSET 0.0000
+			*UVW_NOUSE_AMT 1.0000
+			*UVW_NOISE_SIZE 1.0000
+			*UVW_NOISE_LEVEL 1
+			*UVW_NOISE_PHASE 0.0000
+			*BITMAP_FILTER Pyramidal
+		}
 	}
 	*MATERIAL 7 {
 		*MATERIAL_NAME "04 - Default"
@@ -620,26 +680,6 @@
 			*MAP_SUBNO 1
 			*MAP_AMOUNT 1.0000
 			*BITMAP "media/material/cliffs/cliffs_diffuse.tga"
-			*MAP_TYPE Screen
-			*UVW_U_OFFSET 0.0000
-			*UVW_V_OFFSET 0.0000
-			*UVW_U_TILING 1.0000
-			*UVW_V_TILING 1.0000
-			*UVW_ANGLE 0.0000
-			*UVW_BLUR 1.0000
-			*UVW_BLUR_OFFSET 0.0000
-			*UVW_NOUSE_AMT 1.0000
-			*UVW_NOISE_SIZE 1.0000
-			*UVW_NOISE_LEVEL 1
-			*UVW_NOISE_PHASE 0.0000
-			*BITMAP_FILTER Pyramidal
-		}
-		*MAP_SHINE {
-			*MAP_NAME "Map #83"
-			*MAP_CLASS "Bitmap"
-			*MAP_SUBNO 3
-			*MAP_AMOUNT 1.0000
-			*BITMAP "media/material/cliffs/cliffs_specular.tga"
 			*MAP_TYPE Screen
 			*UVW_U_OFFSET 0.0000
 			*UVW_V_OFFSET 0.0000

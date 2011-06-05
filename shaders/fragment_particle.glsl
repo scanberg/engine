@@ -23,10 +23,10 @@ void main( void )
 	vec4 finalColor = vec4(color.xyz, color.w * life);
 
 
-	z = z / cameraRange.y;
+	float fogz = z / cameraRange.y;
 	const float LOG2 = 1.442695;
-	float density = 1;
-	float fogFactor = exp2( - density * density * z * z * LOG2 );
+	float density = 1.0;
+	float fogFactor = exp2( - density * density * fogz * fogz * LOG2 );
 	fogFactor = clamp(fogFactor, 0.0, 1.0);
 
 	gl_FragColor = mix(gl_Fog.color, finalColor, fogFactor);

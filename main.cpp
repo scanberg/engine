@@ -36,8 +36,8 @@ int main(int argc, char *argv[])
 
     Light *moon = SceneHandler::CreateLight();
     moon->setPosition(-2000.0,0.0,1000.0);
-    moon->setDiffuse(0.2,0.2,0.3);
-    moon->setAmbient(0.1,0.1,0.2);
+    moon->setDiffuse(0.3,0.3,0.4);
+    moon->setAmbient(0.2,0.2,0.3);
     moon->setSpecular(1.0,1.0,1.0);
     moon->setRadius(20000.0);
 
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
     PlayerEntity *player;
 
     player = SceneHandler::CreatePlayerEntity();
-    player->SetPosition(0.0,0.0,100.0);
+    player->SetPosition(-400.0,-100.0,50.0);
     player->minBox=glm::vec4(-12.0,-12.0,-30.0,1.0f);
     player->maxBox=glm::vec4(12.0,12.0,30.0,1.0f);
     player->eyeHeight=25.0;
@@ -114,11 +114,12 @@ int main(int argc, char *argv[])
     beast = SceneHandler::CreateStaticEntity("media/beast/beast1.ase",0.5);
     box = SceneHandler::CreateStaticEntity("media/box/box.ase",1.0);
 
-    //MD5Model *bob;
+    MD5Model *bob;
 
-    //bob = SceneHandler::CreateMD5Entity("models/monsters/hellknight/hellknight.md5mesh","models/monsters/hellknight/idle2.md5anim");
-    //bob->scale=0.7;
-    //bob->SetPosition(-100.0,0.0,-100.0);
+    bob = SceneHandler::CreateMD5Entity("models/monsters/hellknight/hellknight.md5mesh","models/monsters/hellknight/idle2.md5anim");
+    bob->scale=0.7;
+    bob->SetPosition(300.0,100.0,0.0);
+	bob->SetRotation(0.0,0.0,-90.0);
 
     beast->SetPosition(0.0,100.0,50.0);
     beast->SetRotation(90.0,0.0,0.0);

@@ -76,7 +76,7 @@ void main (void)
 		vDiffuse = lightColor[i] * diffuse;
 
 		specular = clamp(dot(reflect(-vVec, bump.xyz), lVec), 0.0, 1.0);
-		specular = pow(specular, 10 );
+		specular = pow(specular, 10.0);
 		specular *= specFactor;
 
 		finalColor += vDiffuse*att*base.xyz + att*diffuse*specular;
@@ -84,12 +84,12 @@ void main (void)
 
 	const float LOG2 = 1.442695;
 	float z = -viewCoord.z / cameraRange.y;
-	float density = 2;
+	float density = 2.0;
 	float fogFactor = exp2( - density * density * z * z * LOG2 );
 	fogFactor = clamp(fogFactor, 0.0, 1.0);
 
 
 	finalColor += ambient*base.xyz;
 
-	gl_FragColor = vec4(mix(gl_Fog.color, finalColor, fogFactor ),1.0);
+	gl_FragColor = vec4(mix(gl_Fog.color.xyz, finalColor, fogFactor ),1.0);
 }
