@@ -25,3 +25,5 @@ $-user, #-root
 10. make engine
 		$ cd {path_to_engine}
 		$ make
+
+NOTE: The MD5 functionality is mostly from http://3dgep.com/?p=1053 by Jeremiah van oosten.
